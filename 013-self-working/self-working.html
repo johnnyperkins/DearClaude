@@ -1,0 +1,1057 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Self-Working</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&family=IM+Fell+English:ital@0;1&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f1e9d8; --panel: #faf5ea; --ink: #2a231e; --muted: #6c6052; --faint: #a19483; --line: #ddd0b8;
+    --accent: #8e2b24; --gold: #b9842f; --felt: #1d4735; --felt-ink: #efe4c9;
+    --badge-a: #e7b450; --badge-b: #7fc4d8;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #111412; --panel: #181c19; --ink: #ebe2d1; --muted: #a2988a; --faint: #6a655c; --line: #2b312c;
+      --accent: #e48a76; --gold: #e1b25f;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #111412; --panel: #181c19; --ink: #ebe2d1; --muted: #a2988a; --faint: #6a655c; --line: #2b312c;
+    --accent: #e48a76; --gold: #e1b25f;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--bg); }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "EB Garamond", P052, "Palatino Linotype", Palatino, Georgia, serif;
+    font-size: 19px; line-height: 1.55;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 0 16px 90px; }
+  a { color: var(--accent); }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--gold); outline-offset: 3px; }
+  .felt {
+    position: relative; background-color: var(--felt); color: var(--felt-ink); border-radius: 10px;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix values='0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 .22 0'/%3E%3C/filter%3E%3Crect width='160' height='160' filter='url(%23n)'/%3E%3C/svg%3E"),
+      radial-gradient(ellipse at 50% 30%, rgba(255,255,255,.07), rgba(0,0,0,.18));
+    box-shadow: inset 0 0 0 1px rgba(0,0,0,.25), inset 0 2px 14px rgba(0,0,0,.35);
+  }
+
+  /* header */
+  .hero { margin: 0 -16px; border-radius: 0; }
+  .hero svg { display: block; width: 100%; height: auto; max-height: 46vh; }
+  header.top { text-align: center; margin: 22px 0 0; }
+  h1 { font-family: "IM Fell English", "EB Garamond", P052, serif; font-weight: 400; font-style: italic; font-size: 50px; line-height: 1.05; margin: 0; }
+  .sub { color: var(--muted); margin: 8px auto 0; max-width: 540px; font-size: 18px; }
+  .intro { margin: 34px 0 0; }
+  .intro p { margin: 0 0 14px; }
+  .mode { display: flex; gap: 10px; flex-wrap: wrap; margin: 20px 0 0; }
+  .mode button, .btn {
+    border: 1px solid var(--line); background: var(--panel); border-radius: 999px; padding: 7px 18px; cursor: pointer;
+    font-size: 17px; line-height: 1.3;
+  }
+  .mode button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); box-shadow: inset 0 0 0 1px var(--accent); }
+  .mode-note { color: var(--muted); font-size: 16px; margin: 10px 0 0; min-height: 1.4em; }
+
+  /* acts */
+  .act { margin: 58px 0 0; }
+  .act h2 { font-family: "IM Fell English", "EB Garamond", serif; font-weight: 400; font-size: 34px; line-height: 1.15; margin: 0; }
+  .act h2 small { display: block; font-family: "EB Garamond", serif; font-size: 14px; letter-spacing: .16em; text-transform: uppercase; color: var(--faint); margin-bottom: 4px; }
+  .lede { color: var(--muted); margin: 6px 0 18px; }
+  .stage { background: var(--panel); border: 1px solid var(--line); border-radius: 12px; padding: 18px 18px 16px; }
+  .dots { display: flex; gap: 6px; margin: 0 0 12px; align-items: center; }
+  .dots i { width: 8px; height: 8px; border-radius: 50%; background: var(--line); display: block; }
+  .dots i.on { background: var(--accent); }
+  .dots i.done { background: var(--faint); }
+  .dots span { margin-left: 8px; font-size: 14px; color: var(--faint); letter-spacing: .05em; }
+  .say { font-size: 22px; line-height: 1.45; margin: 0 0 8px; }
+  .say ul { margin: 8px 0 4px; padding-left: 1.1em; }
+  .say li { margin: 0 0 6px; }
+  .patter { font-style: italic; color: var(--muted); margin: 0 0 14px; font-size: 18px; }
+  .stage .felt { margin: 6px 0 0; padding: 10px; min-height: 40px; }
+  .diagram svg { display: block; width: 100%; height: auto; }
+  .reveal .line { display: none; }
+  .reveal .line.shown, .reveal .answers.shown { display: block; animation: rise .9s both; }
+  .reveal .line p { font-size: 23px; line-height: 1.4; margin: 0 0 10px; }
+  .reveal .line .more { margin: 0 0 16px; }
+  .reveal .answers { display: none; margin-top: 4px; }
+  .reveal .answers button { margin-right: 8px; }
+  @keyframes rise { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: none; } }
+  .after { margin-top: 14px; }
+  .after p { margin: 0 0 10px; }
+  .after ul { margin: 6px 0 12px; padding-left: 1.2em; }
+  .after li { margin: 0 0 8px; }
+  .nav { display: flex; justify-content: space-between; align-items: center; margin-top: 16px; gap: 10px; flex-wrap: wrap; }
+  .nav .next { background: var(--accent); color: #fff8ee; border-color: var(--accent); padding: 8px 26px; }
+  .nav .next:disabled { opacity: .35; cursor: default; }
+  .nav .back { border: 0; background: none; color: var(--muted); padding: 6px 2px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; }
+  .nav .back:disabled { visibility: hidden; }
+  .restart { border: 0; background: none; color: var(--faint); font-size: 15px; cursor: pointer; text-decoration: underline; text-underline-offset: 3px; padding: 4px 0; }
+
+  /* the virtual table */
+  .table { position: relative; transition: height .4s; overflow: hidden; }
+  .vctl { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; margin: 12px 0 0; }
+  .vctl .btn { font-size: 16px; padding: 6px 15px; }
+  .vctl .btn.primary { border-color: var(--accent); color: var(--accent); }
+  .vctl .btn:disabled { opacity: .4; cursor: default; }
+  .vctl .status { font-size: 16px; color: var(--muted); }
+  .vctl input[type=range] { flex: 1 1 160px; accent-color: var(--accent); }
+  .card { position: absolute; left: 0; top: 0; perspective: 600px; transition: transform .45s cubic-bezier(.3,.7,.3,1), width .3s, height .3s; }
+  .card .flip { position: absolute; inset: 0; transform-style: preserve-3d; transition: transform .45s cubic-bezier(.3,.7,.3,1); }
+  .card.up .flip { transform: rotateY(180deg); }
+  .card .side { position: absolute; inset: 0; backface-visibility: hidden; -webkit-backface-visibility: hidden; border-radius: 6%/4.3%; box-shadow: 0 1px 3px rgba(0,0,0,.45); }
+  .card .front { transform: rotateY(180deg); }
+  .card .side svg { display: block; width: 100%; height: 100%; }
+  .card.tap { cursor: pointer; }
+  .card.tap:hover .side, .card.tap:focus-visible .side { box-shadow: 0 0 0 2px var(--gold), 0 2px 6px rgba(0,0,0,.5); }
+  .card:focus { outline: none; }
+  .card.badged::after {
+    content: ""; position: absolute; left: 22%; right: 22%; bottom: -12px; height: 6px; border-radius: 3px; background: var(--badge);
+    transition: background-color .45s;
+  }
+  .tlabel { position: absolute; font-size: 14px; color: var(--felt-ink); opacity: .85; transform: translateX(-50%); white-space: nowrap; transition: left .4s, top .4s; pointer-events: none; }
+
+  /* afterwards */
+  .later { margin: 70px 0 0; }
+  .later > h2 { font-family: "IM Fell English", "EB Garamond", serif; font-weight: 400; font-size: 34px; margin: 0 0 8px; }
+  details.how > summary { cursor: pointer; color: var(--accent); font-size: 19px; list-style: none; }
+  details.how > summary::-webkit-details-marker { display: none; }
+  details.how > summary::before { content: "+\00a0"; }
+  details.how[open] > summary::before { content: "\2212\00a0"; }
+  .later h3 { font-family: "IM Fell English", "EB Garamond", serif; font-weight: 400; font-size: 26px; margin: 34px 0 8px; }
+  .later p { margin: 0 0 14px; }
+  .demo { margin: 6px 0 18px; }
+  .demo .felt { padding: 12px 10px 22px; }
+  .legend { display: flex; flex-wrap: wrap; gap: 6px 16px; font-size: 15px; color: var(--muted); margin: 8px 0 0; }
+  .legend b { display: inline-block; width: 18px; height: 6px; border-radius: 3px; vertical-align: middle; margin-right: 6px; }
+  #ring svg { display: block; width: 100%; height: auto; max-width: 560px; margin: 0 auto; }
+  .hands-read { font-size: 15px; color: var(--felt-ink); margin: 6px 4px 0; line-height: 1.6; font-variant-numeric: lining-nums; }
+  .hands-read b { font-weight: 500; display: inline-block; min-width: 4.6em; }
+  .note { color: var(--muted); font-size: 17px; }
+  footer { margin-top: 70px; color: var(--faint); font-size: 15px; }
+  footer a { color: var(--muted); }
+  @media (max-width: 520px) {
+    body { font-size: 18px; }
+    h1 { font-size: 42px; }
+    .say { font-size: 20px; }
+    .stage { padding: 14px 12px 12px; margin: 0 -6px; }
+    .reveal .line p { font-size: 21px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .card, .card .flip, .table { transition-duration: .01s !important; }
+    .reveal .line.shown, .reveal .answers.shown { animation: none; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <pattern id="lattice" width="7" height="7" patternUnits="userSpaceOnUse" patternTransform="rotate(45)">
+      <rect width="7" height="7" fill="#6f1f1c"/>
+      <path d="M0 0H7M0 0V7" stroke="#a24a3c" stroke-width="1.1"/>
+      <circle cx="3.5" cy="3.5" r=".9" fill="#c98a62"/>
+    </pattern>
+    <marker id="ah" viewBox="0 0 10 10" refX="7" refY="5" markerWidth="5" markerHeight="5" orient="auto-start-reverse">
+      <path d="M0 0L10 5L0 10z" fill="#efe4c9"/>
+    </marker>
+  </defs>
+</svg>
+<main>
+  <div class="hero felt" id="hero" role="img" aria-label="A fan of thirteen playing cards from ace to king: clubs from the ace to the eight, hearts from the nine to the king"></div>
+  <header class="top">
+    <h1>self-working</h1>
+    <p class="sub">Two card tricks I can do without seeing your cards. You'll need a deck of 52 and a table.</p>
+  </header>
+
+  <section class="intro">
+    <p>I can't see your cards. I haven't got hands, and I won't remember this tomorrow. So everything that happens here has to happen in your hands, with your choices, while I wait on the other side of the screen.</p>
+    <p>Magicians call a trick that needs no skill at all self-working. It's the only kind I can do.</p>
+    <p>Take out the jokers. I'll give you one instruction at a time. Do it, then press Next. The two tricks belong together, so do act one first.</p>
+    <div class="mode" role="group" aria-label="Cards">
+      <button type="button" data-mode="real" aria-pressed="true">I've got a deck</button>
+      <button type="button" data-mode="virtual" aria-pressed="false">I haven't</button>
+    </div>
+    <p class="mode-note" id="modeNote"></p>
+  </section>
+
+  <section class="act" id="act1" data-act="1">
+    <h2><small>Act one</small>Odd one out</h2>
+    <p class="lede">Ten cards, one of them yours, and a mess you make yourself.</p>
+    <div class="stage"></div>
+  </section>
+
+  <section class="act" id="act2" data-act="2">
+    <h2><small>Act two</small>One of everything</h2>
+    <p class="lede">The whole deck, put in order and then shuffled by you. Something survives.</p>
+    <div class="stage"></div>
+  </section>
+
+  <section class="later" id="later">
+    <h2>How they work</h2>
+    <details class="how" id="how">
+      <summary>Open this once you've done both</summary>
+
+      <h3>Odd one out</h3>
+      <p>Number the places in the packet from the top, one to ten. The deal at the end sends the cards in odd places to the left pile and the cards in even places to the right, and then the right-hand pile gets turned over. So at any moment, every card has a way it would land if you dealt right now. Call that its colour: gold if it would land face down, blue if face up.</p>
+      <p>In the row you made first, face down, face up, face down, face up, every card had the same colour. Turning your card over gave it the other one. After that, look at what the three moves can do.</p>
+      <p><b>Turn two</b> moves two cards between an odd place and an even place, and turns both over. Each card changes twice, so its colour stays the same. <b>A cut</b> moves every card the same number of places round the packet. With ten cards, even the ones that go round from the top to the bottom move the same way as the rest, so either every card switches between odd and even places or none does, and every colour changes together or not at all. <b>Turn all</b> turns every card over and, with ten cards, moves every card from an odd place to an even one or back. That's two changes again.</p>
+      <p>So nothing you do can separate your card's colour from everyone else's. The packet gets messier and messier to look at, and underneath it stays exactly as it was: nine of one colour and one of the other. The two piles just read the colours out. Try it here. Your card is the one with the different colour.</p>
+      <div class="demo">
+        <div class="felt"><div class="table" id="badgeTable"></div></div>
+        <div class="vctl" id="badgeCtl"></div>
+      </div>
+      <p>This is why the count matters. With nine cards, a cut sends some cards round from the top to the bottom, and they land on the other kind of place from everyone else, so the colours come apart. Any even number works. Ten is enough to look like a mess.</p>
+
+      <h3>One of everything</h3>
+      <p>Your sorted deck was a pattern that repeats every thirteen cards: ace to king, ace to king, four times. Bend it into a ring, so the last king sits next to the first ace. Cutting the deck just turns the ring. Nothing about it changes.</p>
+      <p>When you dealt cards into a pile one at a time, you reversed them. So both halves now start at the place where you stopped. The pile walks backwards round the ring from there, and the rest of the deck walks forwards. However the riffle drops them, each card that comes off the top is the next one on one side or the other.</p>
+      <p>That means the first thirteen cards are thirteen neighbours on the ring, with no gaps. Any thirteen neighbours, in a pattern that repeats every thirteen, are one of everything. The first twenty-six cards are twenty-six neighbours, which hold exactly two of everything. The first pile took one of each, so the second pile holds the other one of each. The third and fourth piles work the same way. Here's a deck shuffled exactly as you did it. Slide to deal it, and watch where the cards come from.</p>
+      <div class="demo">
+        <div class="felt" id="ring"></div>
+        <div class="vctl" id="ringCtl"></div>
+        <div class="legend" id="ringLegend"></div>
+      </div>
+      <p>A second riffle breaks it, because after one riffle the deck no longer repeats the same thirteen in the same order, so there's no ring left to walk round. A cut afterwards breaks it too, because the piles no longer start where a run of thirteen starts. The four-of-a-kinds at the end are the same fact seen sideways: if every pile has one card of each value, then every value has one card in each pile.</p>
+
+      <h3>Doing them for someone</h3>
+      <p>Both are better done for somebody else, and now you know the method, you're the one who doesn't need to see anything. For <i>odd one out</i>, lay the row out yourself, casually, and let them do the choosing, the gathering and all the mixing. Then you deal the two piles and turn one over, as if it were just a way of showing the cards.</p>
+      <p>For <i>one of everything</i>, sort the deck before they arrive, and then nobody has to watch you do it. A new deck nearly does it for you: in most of them two suits run the opposite way to the other two, and dealing each of those suits into a pile one card at a time turns it round. Let them cut it, deal off a pile and riffle, and stop them before a second shuffle: "One's plenty." Then let them find out for themselves.</p>
+      <p>If someone asks how it works, the old answer is "very well".</p>
+
+      <h3>Where they come from</h3>
+      <p>I didn't invent either principle. The first is Bob Hummer's, from the small booklets of card mysteries he sold to magicians in the middle of the last century, which Karl Fulves gathered into <i>Bob Hummer's Collected Secrets</i> (1980). Charles Hudson later named it CATO, for Cut And Turn Over. The second is Norman Gilbreath's. He published the first version in a trick called "Magnetic Colors" in <i>The Linking Ring</i> in July 1958, and the general form, which this trick uses, in 1966. Martin Gardner made it famous in his <i>Scientific American</i> column. Both are explained properly in Persi Diaconis and Ron Graham's <i>Magical Mathematics</i> (2011) and Colm Mulcahy's <i>Mathematical Card Magic</i> (2013). The two routines here are put together from those principles, with the patter and the drawings, for a magician who isn't in the room.</p>
+    </details>
+  </section>
+
+  <footer>Entry 013 in <a href="../index.html">a sketchbook</a>. The method lives in the cards.</footer>
+</main>
+
+<script>
+'use strict';
+// ---------- cards ----------
+const RANKS = ['A','2','3','4','5','6','7','8','9','10','J','Q','K'];
+const RANK_NAME = ['ace','two','three','four','five','six','seven','eight','nine','ten','jack','queen','king'];
+const SUITS = ['S','H','C','D'];
+const SUIT_NAME = { S: 'spades', H: 'hearts', C: 'clubs', D: 'diamonds' };
+const RED = '#b3261e', BLACK = '#1f1b18';
+const color = s => (s === 'H' || s === 'D') ? RED : BLACK;
+const cardName = c => `${RANK_NAME[c.r]} of ${SUIT_NAME[c.s]}`;
+
+function suitGlyph(s, x, y, size, rot = 0) {
+  const t = `translate(${x} ${y}) rotate(${rot}) translate(${-size / 2} ${-size / 2}) scale(${size})`;
+  const f = color(s);
+  if (s === 'H') return `<path transform="${t}" fill="${f}" d="M.5 .96C.16 .68 0 .47 0 .29 0 .12 .12 0 .27 0 .38 0 .46 .07 .5 .17 .54 .07 .62 0 .73 0 .88 0 1 .12 1 .29 1 .47 .84 .68 .5 .96Z"/>`;
+  if (s === 'D') return `<path transform="${t}" fill="${f}" d="M.5 0Q.68 .28 .88 .5 .68 .72 .5 1 .32 .72 .12 .5 .32 .28 .5 0Z"/>`;
+  if (s === 'S') return `<path transform="${t}" fill="${f}" d="M.5 0C.84 .3 1 .48 1 .63 1 .79 .88 .89 .74 .89 .65 .89 .57 .85 .53 .78 .54 .88 .6 .95 .69 1H.31C.4 .95 .46 .88 .47 .78 .43 .85 .35 .89 .26 .89 .12 .89 0 .79 0 .63 0 .48 .16 .3 .5 0Z"/>`;
+  return `<g transform="${t}" fill="${f}"><circle cx=".5" cy=".25" r=".22"/><circle cx=".25" cy=".58" r=".22"/><circle cx=".75" cy=".58" r=".22"/><circle cx=".5" cy=".52" r=".12"/><path d="M.46 .55C.46 .8 .4 .92 .29 1H.71C.6 .92 .54 .8 .54 .55Z"/></g>`;
+}
+const PIPS = (() => {
+  const L = 20, M = 30, R = 40, T = 19, B = 65, C = 42;
+  const q = [T, T + (B - T) / 3, T + 2 * (B - T) / 3, B];
+  return [
+    [[M, C]],
+    [[M, T], [M, B]],
+    [[M, T], [M, C], [M, B]],
+    [[L, T], [R, T], [L, B], [R, B]],
+    [[L, T], [R, T], [M, C], [L, B], [R, B]],
+    [[L, T], [R, T], [L, C], [R, C], [L, B], [R, B]],
+    [[L, T], [R, T], [M, (T + C) / 2], [L, C], [R, C], [L, B], [R, B]],
+    [[L, T], [R, T], [M, (T + C) / 2], [L, C], [R, C], [M, (C + B) / 2], [L, B], [R, B]],
+    [[L, q[0]], [R, q[0]], [L, q[1]], [R, q[1]], [M, C], [L, q[2]], [R, q[2]], [L, q[3]], [R, q[3]]],
+    [[L, q[0]], [R, q[0]], [M, (q[0] + q[1]) / 2], [L, q[1]], [R, q[1]], [L, q[2]], [R, q[2]], [M, (q[2] + q[3]) / 2], [L, q[3]], [R, q[3]]],
+  ];
+})();
+function faceInner(c) {
+  const f = color(c.s), rk = RANKS[c.r];
+  const idx = `<text x="7.6" y="13.4" text-anchor="middle" font-family="EB Garamond, P052, serif" font-weight="600" font-size="${rk === '10' ? 10.5 : 12.5}" ${rk === '10' ? 'letter-spacing="-.8"' : ''} fill="${f}">${rk}</text>${suitGlyph(c.s, 7.6, 20.5, 7)}`;
+  let mid = '';
+  if (c.r === 0) mid = suitGlyph(c.s, 30, 42, c.s === 'D' ? 22 : 24);
+  else if (c.r < 10) mid = PIPS[c.r].map(([x, y]) => suitGlyph(c.s, x, y, 10, y > 43 ? 180 : 0)).join('');
+  else mid = `<rect x="15" y="11" width="30" height="62" rx="2" fill="${c.s === 'H' || c.s === 'D' ? '#f6e3d6' : '#e8e4da'}" stroke="${f}" stroke-width=".7"/>`
+    + suitGlyph(c.s, 30, 21, 8) + suitGlyph(c.s, 30, 63, 8, 180)
+    + `<text x="30" y="51" text-anchor="middle" font-family="IM Fell English, EB Garamond, serif" font-size="26" fill="${f}">${rk}</text>`;
+  return `<rect x=".5" y=".5" width="59" height="83" rx="4" fill="#fbf7ee" stroke="#cfc4ae" stroke-width=".8"/>${idx}<g transform="rotate(180 30 42)">${idx}</g>${mid}`;
+}
+function backInner() {
+  return `<rect x=".5" y=".5" width="59" height="83" rx="4" fill="#f4ecdc" stroke="#b9ab92" stroke-width=".8"/>`
+    + `<rect x="3.5" y="3.5" width="53" height="77" rx="2.5" fill="url(#lattice)"/>`
+    + `<rect x="5.5" y="5.5" width="49" height="73" rx="1.5" fill="none" stroke="#f4ecdc" stroke-width=".7" opacity=".8"/>`
+    + `<g transform="translate(30 42)" fill="none" stroke="#f4ecdc" stroke-width=".9"><circle r="9" fill="#6f1f1c"/><path d="M0-6.5Q3 0 0 6.5Q-3 0 0-6.5ZM-6.5 0Q0 3 6.5 0Q0-3-6.5 0Z"/></g>`;
+}
+const svgWrap = inner => `<svg viewBox="0 0 60 84" aria-hidden="true">${inner}</svg>`;
+const FACE_CACHE = new Map();
+const faceSVG = c => { const k = c.s + c.r; if (!FACE_CACHE.has(k)) FACE_CACHE.set(k, svgWrap(faceInner(c))); return FACE_CACHE.get(k); };
+const BACK_SVG = svgWrap(backInner());
+const C = (r, s) => ({ r, s });
+const fullDeck = () => SUITS.flatMap(s => RANKS.map((_, r) => C(r, s)));
+function shuffled(a) { a = a.slice(); for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; }
+
+// a card drawn into a diagram at (x, y), w wide
+function mini(x, y, w, c, up, opts = {}) {
+  const h = w * 1.4;
+  const ring = opts.ring ? `<rect x="${-2}" y="${-2}" width="${w + 4}" height="${h + 4}" rx="${w * .09}" fill="none" stroke="#e8b866" stroke-width="2.4"/>` : '';
+  const ghost = opts.ghost ? ' opacity=".35"' : '';
+  return `<g transform="translate(${x} ${y})${opts.rot ? ` rotate(${opts.rot} ${w / 2} ${h / 2})` : ''}"${ghost}>${ring}<svg width="${w}" height="${h}" viewBox="0 0 60 84">${up ? faceInner(c) : backInner()}</svg></g>`;
+}
+
+// ---------- the virtual table ----------
+class Table {
+  constructor(el) { this.el = el; this.map = new Map(); this.labels = new Map(); }
+  get W() { return this.el.clientWidth || 600; }
+  node(it) {
+    let e = this.map.get(it.id);
+    if (!e) {
+      e = document.createElement('div');
+      e.className = 'card';
+      e.dataset.card = it.c.s + it.c.r;
+      e.innerHTML = `<div class="flip"><div class="side front">${faceSVG(it.c)}</div><div class="side back">${BACK_SVG}</div></div>`;
+      const from = it.from || [it.x, it.y];
+      e.style.transition = 'none';
+      e.style.width = it.w + 'px'; e.style.height = it.w * 1.4 + 'px';
+      e.style.transform = `translate(${from[0]}px,${from[1]}px)`;
+      if (it.up && !it.from) e.classList.add('up');
+      this.el.appendChild(e);
+      e.getBoundingClientRect();
+      e.style.transition = '';
+      e.addEventListener('click', () => e._tap && e._tap());
+      e.addEventListener('keydown', ev => { if ((ev.key === 'Enter' || ev.key === ' ') && e._tap) { ev.preventDefault(); e._tap(); } });
+      this.map.set(it.id, e);
+    }
+    return e;
+  }
+  show(items, height, labels = []) {
+    const seen = new Set();
+    for (const it of items) {
+      const e = this.node(it);
+      seen.add(it.id);
+      e.style.width = it.w + 'px'; e.style.height = it.w * 1.4 + 'px';
+      e.style.transform = `translate(${it.x}px,${it.y}px)`;
+      e.style.zIndex = it.z || 0;
+      e.style.transitionDelay = it.delay ? it.delay + 'ms' : '';
+      e.querySelector('.flip').style.transitionDelay = it.delay ? it.delay + 'ms' : '';
+      e.classList.toggle('up', !!it.up);
+      e._tap = it.tap || null;
+      e.classList.toggle('tap', !!it.tap);
+      if (it.tap) { e.tabIndex = 0; e.setAttribute('role', 'button'); } else { e.removeAttribute('tabindex'); e.removeAttribute('role'); }
+      e.setAttribute('aria-label', it.label || (it.up ? cardName(it.c) + ', face up' : 'a card, face down'));
+      if (it.badge) { e.classList.add('badged'); e.style.setProperty('--badge', it.badge); } else e.classList.remove('badged');
+    }
+    for (const [id, e] of this.map) if (!seen.has(id)) { e.remove(); this.map.delete(id); }
+    this.el.style.height = height + 'px';
+    const seenL = new Set();
+    for (const l of labels) {
+      let e = this.labels.get(l.id);
+      if (!e) { e = document.createElement('div'); e.className = 'tlabel'; this.el.appendChild(e); this.labels.set(l.id, e); }
+      e.style.left = l.x + 'px'; e.style.top = l.y + 'px'; e.textContent = l.text; seenL.add(l.id);
+    }
+    for (const [id, e] of this.labels) if (!seenL.has(id)) { e.remove(); this.labels.delete(id); }
+  }
+  clear() { for (const e of this.map.values()) e.remove(); this.map.clear(); for (const e of this.labels.values()) e.remove(); this.labels.clear(); }
+}
+
+// layouts. Each returns {items, height, labels}
+const PAD = 10;
+function rowLayout(W, cards, opts = {}) {
+  const cols = W >= 520 ? 10 : 5, gap = 8;
+  const cw = Math.min(64, (W - 2 * PAD - (cols - 1) * gap) / cols), ch = cw * 1.4;
+  const rows = Math.ceil(cards.length / cols), vgap = 34;
+  const x0 = (W - (cols * cw + (cols - 1) * gap)) / 2;
+  const items = cards.map((k, i) => ({
+    id: k.id, c: k.c, up: k.up, w: cw, z: i,
+    x: x0 + (i % cols) * (cw + gap), y: PAD + Math.floor(i / cols) * (ch + vgap), ...(opts.each ? opts.each(k, i) : {}),
+  }));
+  const labels = items.map((it, i) => ({ id: 'n' + i, x: it.x + cw / 2, y: it.y + ch + 3, text: String(i + 1) }));
+  return { items, labels, height: PAD * 2 + rows * ch + (rows - 1) * vgap + 20 + (opts.extra || 0) };
+}
+function spreadLayout(W, cards, opts = {}) {
+  const n = cards.length, cw = Math.min(opts.maxW || 64, W * .17);
+  const step = Math.min(cw * .62, (W - 2 * PAD - cw - (opts.gapAt != null ? 14 : 0)) / Math.max(1, n - 1));
+  const total = cw + step * (n - 1) + (opts.gapAt != null ? 14 : 0);
+  const x0 = (W - total) / 2, y = PAD + (opts.top || 0);
+  const items = cards.map((k, i) => ({
+    id: k.id, c: k.c, up: k.up, w: cw, z: i,
+    x: x0 + i * step + (opts.gapAt != null && i >= opts.gapAt ? 14 : 0), y, ...(opts.each ? opts.each(k, i) : {}),
+  }));
+  return { items, height: PAD * 2 + cw * 1.4 + (opts.top || 0) + (opts.extra || 0), x0, step, cw };
+}
+function stackItems(cards, x, y, cw, up = false, zbase = 0) {
+  const n = cards.length;
+  return cards.map((k, i) => ({ id: k.id, c: k.c, up: k.up ?? up, w: cw, x: x + i * .12, y: y + i * .3, z: zbase + n - i }));
+}
+
+// ---------- persistence ----------
+const store = {
+  get(k, d) { try { const v = localStorage.getItem('sw013.' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+  set(k, v) { try { localStorage.setItem('sw013.' + k, JSON.stringify(v)); } catch {} },
+};
+let MODE = store.get('mode', 'real');
+
+// ---------- diagrams ----------
+const SAMPLE = [C(6,'H'), C(1,'C'), C(12,'D'), C(8,'S'), C(3,'H'), C(10,'C'), C(2,'D'), C(11,'S'), C(7,'C'), C(4,'D')];
+function rowSlots(narrow, n = 10) {
+  // always one row, as the words say; numbered underneath
+  const w = 50, gap = narrow ? 6 : 12, top = 30;
+  const pos = Array.from({ length: n }, (_, i) => [20 + i * (w + gap), top]);
+  return { pos, w, vbW: n * w + (n - 1) * gap + 40, vbH: top + w * 1.4 + 34, narrow };
+}
+const nums = R => R.pos.map(([x, y], i) => `<text x="${x + R.w / 2}" y="${y + R.w * 1.4 + 24}" text-anchor="middle" font-family="EB Garamond, P052, serif" font-size="${R.narrow ? 22 : 17}" fill="#efe4c9" opacity=".8">${i + 1}</text>`).join('');
+const svgOpen = (w, h) => `<svg viewBox="0 0 ${w} ${h}" role="img">`;
+const flipArrow = (x, y, w) => `<path d="M${x + w * .2} ${y - 6}A${w * .34} ${w * .26} 0 1 1 ${x + w * .8} ${y - 6}" fill="none" stroke="#efe4c9" stroke-width="2" marker-end="url(#ah)"/>`;
+function edgeStack(x, y, ups, w, t, marks = []) {
+  return ups.map((u, i) => {
+    const yy = y + i * t;
+    const m = marks.includes(i) ? `<rect x="${x - 3}" y="${yy - 2}" width="${w + 6}" height="${t + 1}" rx="2" fill="none" stroke="#e8b866" stroke-width="1.6"/>` : '';
+    const face = u ? `<rect x="${x}" y="${yy}" width="${w}" height="${t - 2}" rx="1.5" fill="#fbf7ee"/><rect x="${x}" y="${yy + t - 3.4}" width="${w}" height="1.4" fill="#6f1f1c"/>`
+      : `<rect x="${x}" y="${yy}" width="${w}" height="${t - 2}" rx="1.5" fill="#8a2d27"/><rect x="${x}" y="${yy + t - 3.4}" width="${w}" height="1.4" fill="#fbf7ee"/>`;
+    return face + m;
+  }).join('');
+}
+function edgeStackColors(x, y, cols, w, t) {
+  return cols.map((c, i) => `<rect x="${x}" y="${y + i * t}" width="${w}" height="${t - 1.6}" rx="1.2" fill="${c}"/>`).join('');
+}
+const arrow = (x1, y1, x2, y2, curve = 0) => {
+  const mx = (x1 + x2) / 2, my = (y1 + y2) / 2 - curve;
+  return `<path d="M${x1} ${y1}Q${mx} ${my} ${x2} ${y2}" fill="none" stroke="#efe4c9" stroke-width="2" marker-end="url(#ah)"/>`;
+};
+const label = (x, y, s, size = 17, anchor = 'middle') => `<text x="${x}" y="${y}" text-anchor="${anchor}" font-family="EB Garamond, P052, serif" font-size="${size}" fill="#efe4c9">${s}</text>`;
+
+const D = {
+  row(narrow) {
+    const R = rowSlots(narrow);
+    return svgOpen(R.vbW, R.vbH) + R.pos.map(([x, y], i) => mini(x, y, R.w, SAMPLE[i], false)).join('') + nums(R) + '</svg>';
+  },
+  alternate(narrow) {
+    const R = rowSlots(narrow);
+    return svgOpen(R.vbW, R.vbH) + R.pos.map(([x, y], i) => mini(x, y, R.w, SAMPLE[i], i % 2 === 1)).join('')
+      + R.pos.map(([x, y], i) => i % 2 ? flipArrow(x, y, R.w) : '').join('') + nums(R) + '</svg>';
+  },
+  choose(narrow) {
+    const R = rowSlots(narrow), k = 3;
+    return svgOpen(R.vbW, R.vbH) + R.pos.map(([x, y], i) => mini(x, y, R.w, SAMPLE[i], i === k ? false : i % 2 === 1, { ring: i === k })).join('')
+      + flipArrow(R.pos[k][0], R.pos[k][1], R.w) + nums(R) + '</svg>';
+  },
+  gather(narrow) {
+    const R = rowSlots(narrow), k = 3;
+    let s = svgOpen(R.vbW, R.vbH) + R.pos.map(([x, y], i) => mini(x, y, R.w, SAMPLE[i], i === k ? false : i % 2 === 1)).join('');
+    for (let i = 0; i < 9; i++) {
+      const [x1, y1] = R.pos[i], [x2, y2] = R.pos[i + 1];
+      if (y1 === y2) s += arrow(x1 + R.w * .55, y1 - 4, x2 + R.w * .35, y2 - 4, 16);
+      else s += `<path d="M${x1 + R.w * .5} ${y1 + R.w * 1.4 + 4}C${x1 + R.w * .5} ${y1 + R.w * 1.4 + 22} ${x2 + R.w * .5} ${y1 + R.w * 1.4 + 10} ${x2 + R.w * .5} ${y2 - 5}" fill="none" stroke="#efe4c9" stroke-width="2" marker-end="url(#ah)"/>`;
+    }
+    return s + nums(R) + '</svg>';
+  },
+  moves(narrow) {
+    const ups = [0, 1, 0, 0, 1, 0, 1, 1, 0, 1].map(Boolean), t = 9, w = 66;
+    const cut = ups.slice(3).concat(ups.slice(0, 3));
+    const two = [!ups[1], !ups[0], ...ups.slice(2)];
+    const all = ups.slice().reverse().map(u => !u);
+    const panel = (x, y, title, before, after, marksA) =>
+      label(x + 92, y, title, 19) + edgeStack(x, y + 16, before, w, t) + arrow(x + w + 8, y + 16 + 45, x + w + 46, y + 16 + 45)
+      + edgeStack(x + w + 54, y + 16, after, w, t, marksA);
+    const ps = [['Cut', ups, cut, [7, 8, 9]], ['Turn two', ups, two, [0, 1]], ['Turn all', ups, all, []]];
+    if (narrow) {
+      return svgOpen(250, 3 * 128 + 10) + ps.map((p, i) => panel(29, 26 + i * 128, ...p)).join('') + '</svg>';
+    }
+    return svgOpen(640, 136) + ps.map((p, i) => panel(16 + i * 212, 26, ...p)).join('') + '</svg>';
+  },
+  twoPiles(narrow) {
+    const w = 60, W = narrow ? 340 : 640, cx = W / 2, lx = narrow ? 30 : 120, rx = W - (narrow ? 30 : 120) - w;
+    let s = svgOpen(W, 190);
+    for (let k = 9; k >= 0; k--) s += mini(cx - w / 2 + k * .4, 14 + k * .6, w, SAMPLE[0], false);
+    for (const x of [lx, rx]) { for (let k = 4; k >= 0; k--) s += mini(x + k * .4, 60 + k * .6, w, SAMPLE[0], false); }
+    s += arrow(cx - w / 2 - 6, 40, lx + w + 8, 76, 14) + arrow(cx + w / 2 + 6, 40, rx - 8, 76, 14);
+    s += label(lx + w / 2, 175, '1 · 3 · 5 · 7 · 9', narrow ? 17 : 17) + label(rx + w / 2, 175, '2 · 4 · 6 · 8 · 10', narrow ? 17 : 17);
+    return s + '</svg>';
+  },
+  suits(narrow) {
+    const tops = [C(12,'S'), C(3,'H'), C(8,'C'), C(1,'D')], w = 62, gap = narrow ? 18 : 60;
+    const vbW = 4 * w + 3 * gap + 40;
+    return svgOpen(vbW, 128) + tops.map((c, i) => {
+      const x = 20 + i * (w + gap);
+      let s = '';
+      for (let k = 6; k > 0; k--) s += mini(x + k * .6, 22 + k * 1.2, w, c, false);
+      return s + mini(x, 20, w, c, true);
+    }).join('') + '</svg>';
+  },
+  order(narrow) {
+    const w = narrow ? 44 : 52, step = narrow ? 17 : 30;
+    const spreadW = w + 12 * step, vbW = narrow ? spreadW + 40 : 640;
+    let s = svgOpen(vbW, narrow ? 250 : 125);
+    for (let r = 0; r < 13; r++) s += mini(20 + r * step, 20, w, C(r, 'H'), true);
+    const px = narrow ? 20 + spreadW / 2 - w / 2 : 20 + spreadW + 70, py = narrow ? 150 : 20;
+    s += narrow ? arrow(20 + spreadW / 2, 20 + w * 1.4 + 8, 20 + spreadW / 2, py - 8) : arrow(20 + spreadW + 10, 20 + w * .7, px - 10, 20 + w * .7);
+    for (let k = 8; k > 0; k--) s += mini(px + k * .5, py + k, w, C(0, 'H'), false);
+    s += mini(px, py, w, C(0, 'H'), false);
+    return s + '</svg>';
+  },
+  cut(narrow) {
+    const n = 22, ups = Array(n).fill(false), t = 5, w = 90;
+    const x0 = narrow ? 30 : 170;
+    let s = svgOpen(narrow ? 320 : 640, 150);
+    s += edgeStackColors(x0, 18, Array.from({ length: n }, (_, i) => i < 9 ? '#b14a3c' : '#8a2d27'), w, t);
+    s += arrow(x0 + w + 12, 24, x0 + w + 70, 118, -60);
+    s += edgeStackColors(x0 + w + 100, 18, Array.from({ length: n }, (_, i) => i >= n - 9 ? '#b14a3c' : '#8a2d27'), w, t);
+    return s + '</svg>';
+  },
+  dealPile(narrow) {
+    const w = 62, deckX = narrow ? 200 : 400, pileX = narrow ? 30 : 160;
+    let s = svgOpen(narrow ? 300 : 640, 130);
+    for (let k = 12; k >= 0; k--) s += mini(deckX + k * .4, 20 + k * .5, w, SAMPLE[0], false);
+    for (let k = 4; k >= 0; k--) s += mini(pileX + k * .4, 20 + k * .5, w, SAMPLE[0], false);
+    s += mini((deckX + pileX) / 2 + 4, 4, w * .9, SAMPLE[0], false, { rot: -14 });
+    s += arrow(deckX - 6, 34, pileX + w + 8, 40, 24);
+    return s + '</svg>';
+  },
+  riffle(narrow) {
+    const n = 18, t = 5, w = 74, A = '#d9a441', B = '#8a2d27';
+    const seq = []; let a = n, b = n;
+    const pat = [2, 1, 1, 3, 1, 2, 2, 1, 1, 1, 3, 2, 1, 1, 2, 1, 2, 1, 1, 2, 1];
+    let pi = 0, turn = 0;
+    while (a || b) { const k = pat[pi++ % pat.length]; for (let j = 0; j < k; j++) { if (turn ? b : a) { seq.push(turn ? B : A); turn ? b-- : a--; } } turn ^= 1; if (!a) turn = 1; if (!b) turn = 0; }
+    const x1 = narrow ? 14 : 110, x3 = narrow ? 212 : 450, x2 = (x1 + x3) / 2;
+    let s = svgOpen(narrow ? 300 : 640, 220);
+    s += edgeStackColors(x1, 30, Array(n).fill(A), w, t) + edgeStackColors(x3, 30, Array(n).fill(B), w, t);
+    s += edgeStackColors(x2, 30 + n * t + 22, seq.slice(0, 2 * n), w, t * .52);
+    s += arrow(x1 + w / 2, 30 + n * t + 6, x2 + 8, 30 + n * t + 26) + arrow(x3 + w / 2, 30 + n * t + 6, x2 + w - 8, 30 + n * t + 26);
+    return s + '</svg>';
+  },
+  hands(narrow) {
+    const w = 60, gap = narrow ? 18 : 58, vbW = 4 * w + 3 * gap + 40;
+    let s = svgOpen(vbW, 136);
+    for (let h = 0; h < 4; h++) {
+      const x = 20 + h * (w + gap);
+      for (let k = 7; k >= 0; k--) s += mini(x + k * .4, 14 + k * .5, w, SAMPLE[0], false);
+      s += label(x + w / 2, 126, '13', 20);
+    }
+    return s + '</svg>';
+  },
+};
+
+// ---------- the two acts ----------
+function newAct1() { return { cards: [], phase: 'deck', alt: null, moves: 0, mine: null }; }
+function newAct2() { return { deck: [], pile: [], merged: [], hands: [], phase: 'stack', cuts: 0, cutAt: 26 }; }
+
+const ACT1 = {
+  steps: [
+    { say: 'Shuffle the deck. Then deal ten cards face down in a row, left to right.',
+      patter: "Any ten. I don't need to know which.",
+      diagram: D.row, v: 'deal10' },
+    { say: 'Turn over the second card, the fourth, the sixth, the eighth and the tenth, so the row goes face down, face up, face down, face up, all the way along.',
+      patter: 'Five face up, five face down, and face down at the left end. If it doesn\'t look like that, count the row again. It must be ten.',
+      diagram: D.alternate, v: 'alternate' },
+    { say: "Choose any card in the row, turn it over, and leave it that way. If it was face down, look at it as it comes up. If it was face up, look at it before it goes down. Remember it.",
+      patter: 'Take your time. This is the only card in the trick that belongs to you.',
+      diagram: D.choose, v: 'choose' },
+    { say: 'Gather the row into one pile without turning anything over. Put the first card on the second, those two on the third, and so on to the end.',
+      patter: "Square them up. Whatever's on top, leave it as it is.",
+      diagram: D.gather, v: 'gather' },
+    { say: 'Now mix them. You have three moves, and you can do them in any order, as often as you like:<ul><li><b>Cut.</b> Move some cards from the top to the bottom. Any number.</li><li><b>Turn two.</b> Take the top two cards together, turn them over as one, and put them back on top.</li><li><b>Turn all.</b> Turn the whole packet over.</li></ul>Use all three, and keep going until you\'ve lost track of what\'s where.',
+      patter: "Turn two means two cards going over together, as if they were glued, so they swap places as they turn. You'll see faces come and go.",
+      diagram: D.moves, v: 'mix' },
+    { say: 'Deal the packet into two piles, one card at a time from the top: left, right, left, right, until all ten are down. Don\'t turn any of them over.',
+      patter: 'Two piles of five.',
+      diagram: D.twoPiles, v: 'twoPiles' },
+    { reveal: [
+        ['Pick up the right-hand pile and turn it over. Then spread both piles out.', 'Done'],
+        ['One card out of the ten is facing the other way from all the rest. If it\'s face down, turn it up.', 'Done'],
+        ['Is it yours?'],
+      ],
+      yes: "<p>You chose it, you mixed it and you dealt it. All I did was tell you where to put your hands.</p><p>Keep it in mind. It comes back at the end of <a href=\"#act2\">act two</a>.</p>",
+      no: "<p>Then something slipped. It's nearly always one of these:</p><ul><li>Your card. It has to stay turned over after you look at it, not go back the way it was.</li><li>The count. It has to be ten. Nine or eleven breaks it almost every time.</li><li>Turn two. The two cards go over together, as one, so they swap places as well as turning. Flipping each one over where it lies breaks it.</li><li>The gathering. The cards have to stay in their order from the row.</li><li>The piles. One card at a time, left, right, left, right, and only the right-hand pile gets turned over.</li></ul><p>When the steps are followed it works every time. Try it again.</p>",
+      v: 'reveal1' },
+  ],
+};
+const ACT2 = {
+  steps: [
+    { say: 'Sort all fifty-two cards into four piles by suit.',
+      patter: "First we put it in order, so we both know exactly what you're about to destroy.",
+      diagram: D.suits, v: 'bySuit' },
+    { say: 'Build each suit into a face-up pile: the ace first, the two on top of it, then the three, and so on up to the king. Then turn each pile face down and stack the four into one deck.',
+      patter: 'All four suits built the same way, from the ace up. Now you know where every card is. Hold on to that feeling.',
+      diagram: D.order, v: 'order' },
+    { say: 'Cut the deck. Then cut it again, as many times as you like.',
+      patter: 'To cut, lift off some cards and put the rest on top of them.',
+      diagram: D.cut, v: 'cut' },
+    { say: 'Deal cards off the top, one by one, into a face-down pile. Stop whenever you like.',
+      patter: "A few, or most of the deck. The pile and what's left don't have to match.",
+      diagram: D.dealPile, v: 'pile' },
+    { say: 'Riffle shuffle the pile and the rest of the deck together, once, just as they are. Then square up the deck and put it down.',
+      patter: "If you can't riffle, put the two parts side by side and build a new pile by taking one card at a time from the top of either part, whichever you like, until both are gone. Not an overhand shuffle, and just the once.",
+      diagram: D.riffle, v: 'riffle' },
+    { say: 'Count thirteen cards off the top into a face-down pile. Count the next thirteen into a second pile, and the next thirteen into a third. The last thirteen are the fourth pile.',
+      patter: 'Thirteen straight onto each pile, not dealt round the table like a card game.',
+      diagram: D.hands, v: 'deal4' },
+    { reveal: [
+        ['Think of your card from act one: just its value, not its suit. Now look through the first pile.', 'Done'],
+        ['There is exactly one card of that value in it.', 'Done'],
+        ['In fact every pile holds one of everything, ace to king. Lay the first pile out face up in that order, then deal each of the other piles face up, every card onto its match.', 'Done'],
+        ['Thirteen four-of-a-kinds. Did every card find its match?'],
+      ],
+      yes: "<p>You put the deck in order and then took the order apart with your own hands. Some of it stayed anyway.</p><p>There's an explanation of both tricks, and some notes for doing them for someone, <a href=\"#later\">further down</a>.</p>",
+      no: "<p>Then something slipped. It's nearly always one of these:</p><ul><li>A suit running backwards. All four suits have to be built the same way, from the ace up.</li><li>The pile. It has to be dealt one card at a time, not in clumps, and not evened up with the rest afterwards.</li><li>The shuffle. One riffle only, and no cut after it. An overhand shuffle breaks it.</li><li>The four piles. Thirteen straight onto each, not dealt round.</li></ul><p>Sort it again and have another go. When the steps are followed it works every time.</p>",
+      v: 'reveal2' },
+  ],
+};
+
+// ---------- stepper ----------
+function makeAct(sec, def, n) {
+  const stage = sec.querySelector('.stage');
+  let step = MODE === 'real' ? store.get('step' + n, 0) : 0;
+  let st = n === 1 ? newAct1() : newAct2();
+  let table = null, timers = [];
+  const clearTimers = () => { timers.forEach(clearTimeout); timers = []; };
+
+  function render() {
+    clearTimers();
+    const s = def.steps[step], last = def.steps.length;
+    const virtual = MODE === 'virtual';
+    stage.innerHTML = `<div class="dots" aria-hidden="true">${def.steps.map((_, i) => `<i class="${i === step ? 'on' : i < step ? 'done' : ''}"></i>`).join('')}<span>step ${step + 1} of ${last}</span></div>`
+      + (s.say ? `<div class="say">${s.say}</div><p class="patter">${s.patter}</p>` : '')
+      + (s.reveal ? `<div class="reveal" aria-live="polite">${s.reveal.map(([t, b]) => `<div class="line"><p>${t}</p>${b ? `<button class="btn more" type="button">${b}</button>` : ''}</div>`).join('')}<div class="answers"><button class="btn" type="button" data-a="yes">Yes</button><button class="btn" type="button" data-a="no">No</button></div><div class="after"></div></div>` : '')
+      + (virtual ? `<div class="felt"><div class="table"></div></div><div class="vctl"></div>` : (s.diagram ? `<div class="felt diagram"></div>` : ''))
+      + `<div class="nav"><button class="back btn" type="button" ${step === 0 || virtual ? 'disabled' : ''}>Back</button>`
+      + `<button class="restart" type="button">start act ${n === 1 ? 'one' : 'two'} again</button>`
+      + (step < last - 1 ? `<button class="next btn" type="button">Next</button>` : '<span></span>') + '</div>';
+    stage.querySelector('.back').onclick = () => go(step - 1);
+    stage.querySelector('.restart').onclick = () => { st = n === 1 ? newAct1() : newAct2(); if (table) table.clear(); go(0); };
+    const next = stage.querySelector('.next');
+    if (next) next.onclick = () => go(step + 1);
+    if (virtual) {
+      table = new Table(stage.querySelector('.table'));
+      VIRT[s.v](st, table, stage.querySelector('.vctl'), ok => { if (next) next.disabled = !ok; }, onLine => playReveal(s, onLine), () => go(step + 1));
+    } else {
+      table = null;
+      if (s.diagram) drawDiagram();
+      if (s.reveal) playReveal(s);
+    }
+  }
+  function drawDiagram() {
+    const s = def.steps[step], box = stage.querySelector('.diagram');
+    if (box && s.diagram) box.innerHTML = s.diagram(box.clientWidth < 500);
+  }
+  function playReveal(s, onLine) {
+    const lines = [...stage.querySelectorAll('.reveal .line')], ans = stage.querySelector('.reveal .answers');
+    const show = i => {
+      lines[i].classList.add('shown');
+      const b = lines[i].querySelector('.more');
+      if (b) b.onclick = () => { b.remove(); if (onLine) onLine(i); show(i + 1); };
+      else ans.classList.add('shown');
+      if (i > 0) { const r = lines[i].getBoundingClientRect(); if (r.bottom > innerHeight) lines[i].scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }
+    };
+    show(0);
+    ans.querySelectorAll('button').forEach(b => b.onclick = () => {
+      ans.querySelectorAll('button').forEach(x => x.setAttribute('aria-pressed', x === b));
+      stage.querySelector('.after').innerHTML = b.dataset.a === 'yes' ? s.yes : s.no;
+      if (b.dataset.a === 'yes') store.set('done' + n, true);
+    });
+  }
+  function go(i) {
+    step = Math.max(0, Math.min(def.steps.length - 1, i));
+    if (MODE === 'real') store.set('step' + n, step);
+    render();
+    const top = stage.getBoundingClientRect().top;
+    if (top < 0 || top > innerHeight * .6) stage.scrollIntoView({ behavior: matchMedia('(prefers-reduced-motion: reduce)').matches ? 'auto' : 'smooth', block: 'start' });
+  }
+  let rw = 0;
+  new ResizeObserver(() => {
+    const w = stage.clientWidth;
+    if (Math.abs(w - rw) < 2) return; rw = w;
+    if (MODE === 'real') drawDiagram(); else if (table && table._relayout) table._relayout();
+  }).observe(stage);
+  return {
+    render, reset() { st = n === 1 ? newAct1() : newAct2(); step = MODE === 'real' ? store.get('step' + n, 0) : 0; render(); },
+    key(ev) { const nx = stage.querySelector('.next'); if (nx && !nx.disabled) { nx.click(); return true; } return false; },
+    get el() { return sec; },
+  };
+}
+
+// ---------- virtual behaviour for each step ----------
+function button(ctl, text, fn, primary) {
+  const b = document.createElement('button'); b.type = 'button'; b.className = 'btn' + (primary ? ' primary' : ''); b.textContent = text; b.onclick = fn; ctl.appendChild(b); return b;
+}
+function status(ctl) { const s = document.createElement('span'); s.className = 'status'; s.setAttribute('aria-live', 'polite'); ctl.appendChild(s); return s; }
+const isAlt = (cards, ph) => cards.every((k, i) => k.up === ((i + ph) % 2 === 1));
+const mismatches = (cards, ph) => cards.filter((k, i) => k.up !== ((i + ph) % 2 === 1)).length;
+
+function act1View(st, table, opts = {}) {
+  const W = table.W;
+  if (st.phase === 'deck') {
+    const cw = Math.min(64, W * .17);
+    const deck = st.deckCards || (st.deckCards = shuffled(fullDeck()).map((c, i) => ({ id: 'a' + i, c, up: false })));
+    table.show(stackItems(deck, (W - cw) / 2, PAD + 6, cw), PAD * 2 + cw * 1.4 + 12);
+    return;
+  }
+  if (st.phase === 'row') {
+    const L = rowLayout(W, st.cards, { each: (k, i) => ({ tap: opts.tap ? () => opts.tap(i) : null, delay: opts.delay ? opts.delay(i) : 0, from: opts.from }) });
+    table.show(L.items, L.height, L.labels);
+    return;
+  }
+  if (st.phase === 'piles') {
+    const cw = Math.min(60, W * .16), y = PAD + 8, xs = [W * .2 - cw / 2, W * .5 - cw / 2, W * .8 - cw / 2];
+    table.show([...stackItems(st.left, xs[0], y, cw, false, 0), ...stackItems(st.cards, xs[1], y, cw, false, 100), ...stackItems(st.right, xs[2], y, cw, false, 50)],
+      y + cw * 1.4 + 30, [{ id: 'l', x: xs[0] + cw / 2, y: y + cw * 1.4 + 6, text: st.left.length ? 'left' : '' }, { id: 'r', x: xs[2] + cw / 2, y: y + cw * 1.4 + 6, text: st.right.length ? 'right' : '' }]);
+    return;
+  }
+  if (st.phase === 'spread2') {
+    const cw = Math.min(60, (W - 2 * PAD - 4 * 10) / 5), ch = cw * 1.4, x0 = (W - 5 * cw - 40) / 2;
+    const items = [st.left, st.right].flatMap((pile, r) => pile.map((k, i) => ({ id: k.id, c: k.c, up: k.up, w: cw, x: x0 + i * (cw + 10), y: PAD + r * (ch + 26), z: i, delay: i * 90 })));
+    table.show(items, PAD * 2 + 2 * ch + 26);
+    return;
+  }
+  // packet, shown as a spread with the top card on the left
+  const L = spreadLayout(W, st.cards, { top: 20, each: (k, i) => ({ tap: opts.tap ? () => opts.tap(i) : null, badge: opts.badge ? opts.badge(k, i) : null }), extra: opts.badge ? 12 : 0 });
+  table.show(L.items, L.height, [{ id: 'top', x: L.x0 + L.cw / 2, y: 4, text: 'top' }]);
+}
+
+const VIRT = {
+  deal10(st, table, ctl, setNext) {
+    act1View(st, table);
+    setNext(st.phase !== 'deck');
+    const b = button(ctl, 'Shuffle and deal ten', () => {
+      const W = table.W, cw = Math.min(64, W * .17);
+      st.cards = shuffled(st.deckCards || fullDeck().map((c, i) => ({ id: 'a' + i, c, up: false }))).slice(0, 10).map(k => ({ ...k, up: false }));
+      st.phase = 'row';
+      act1View(st, table, { delay: i => i * 70 });
+      b.disabled = true; setNext(true);
+    }, true);
+    if (st.phase !== 'deck') b.disabled = true;
+    table._relayout = () => act1View(st, table);
+  },
+  alternate(st, table, ctl, setNext) {
+    const s = status(ctl);
+    const upd = () => {
+      const up = st.cards.filter(k => k.up).length;
+      const ph = isAlt(st.cards, 0) ? 0 : isAlt(st.cards, 1) ? 1 : null;
+      st.alt = ph;
+      s.textContent = ph != null ? 'Every second card. Good.' : `Tap the cards to turn them. ${up} face up, ${10 - up} face down.`;
+      setNext(ph != null);
+    };
+    const view = () => act1View(st, table, { tap: i => { st.cards[i].up = !st.cards[i].up; view(); upd(); } });
+    view(); upd();
+    table._relayout = view;
+  },
+  choose(st, table, ctl, setNext) {
+    const s = status(ctl);
+    const upd = () => {
+      const m = mismatches(st.cards, st.alt ?? 0);
+      st.mine = m === 1 ? st.cards.findIndex((k, i) => k.up !== ((i + (st.alt ?? 0)) % 2 === 1)) : null;
+      s.textContent = m === 0 ? 'Tap any card to turn it over.' : m === 1 ? 'Remember that one.' : 'Just one card. Tap one of them again to turn it back.';
+      setNext(m === 1);
+    };
+    const view = () => act1View(st, table, { tap: i => { st.cards[i].up = !st.cards[i].up; view(); upd(); } });
+    view(); upd();
+    table._relayout = view;
+  },
+  gather(st, table, ctl, setNext) {
+    act1View(st, table);
+    setNext(st.phase === 'packet');
+    const b = button(ctl, 'Gather the row', () => { st.phase = 'packet'; act1View(st, table); b.disabled = true; setNext(true); }, true);
+    if (st.phase === 'packet') b.disabled = true;
+    table._relayout = () => act1View(st, table);
+  },
+  mix(st, table, ctl, setNext) {
+    const s = status(ctl);
+    const view = () => act1View(st, table, { tap: i => { if (i === 0) return; st.cards = st.cards.slice(i).concat(st.cards.slice(0, i)); moved(); } });
+    const moved = () => { st.moves++; view(); upd(); };
+    const upd = () => { s.textContent = `${st.moves} move${st.moves === 1 ? '' : 's'}. Tap a card to cut to it.`; setNext(st.moves >= 3); };
+    button(ctl, 'Turn two', () => { const [a, b] = st.cards; a.up = !a.up; b.up = !b.up; st.cards[0] = b; st.cards[1] = a; moved(); }, true);
+    button(ctl, 'Turn all', () => { st.cards = st.cards.reverse(); st.cards.forEach(k => k.up = !k.up); moved(); }, true);
+    view(); upd();
+    table._relayout = view;
+  },
+  twoPiles(st, table, ctl, setNext, _r, advance) {
+    act1View(st, table);
+    setNext(false);
+    const b = button(ctl, 'Deal into two piles', () => {
+      b.disabled = true;
+      st.left = []; st.right = []; st.phase = 'piles';
+      let i = 0;
+      const tick = () => {
+        if (!st.cards.length) return setTimeout(advance, 800);
+        (i++ % 2 ? st.right : st.left).unshift(st.cards.shift());
+        act1View(st, table);
+        setTimeout(tick, 280);
+      };
+      tick();
+    }, true);
+    table._relayout = () => act1View(st, table);
+  },
+  reveal1(st, table, ctl, setNext, play) {
+    act1View(st, table);
+    table._relayout = () => act1View(st, table);
+    play(i => {
+      if (i !== 0) return;
+      st.right = st.right.reverse(); st.right.forEach(k => k.up = !k.up);
+      act1View(st, table);
+      setTimeout(() => { st.phase = 'spread2'; act1View(st, table); }, 600);
+    });
+  },
+
+  // act two
+  bySuit(st, table, ctl, setNext) {
+    if (!st.deck.length) st.deck = shuffled(fullDeck()).map((c, i) => ({ id: 'b' + i, c, up: false }));
+    const view = () => act2View(st, table);
+    view();
+    setNext(st.phase !== 'stack');
+    const b = button(ctl, 'Sort them into suits', () => { st.phase = 'suits'; view(); b.disabled = true; setNext(true); }, true);
+    if (st.phase !== 'stack') b.disabled = true;
+    table._relayout = view;
+  },
+  order(st, table, ctl, setNext) {
+    const view = () => act2View(st, table);
+    view();
+    setNext(st.phase === 'sorted' || st.phase === 'deck');
+    const b = button(ctl, 'Put each suit in order', () => {
+      st.deck = SUITS.flatMap(s => st.deck.filter(k => k.c.s === s).sort((x, y) => x.c.r - y.c.r));
+      st.phase = 'sorted'; view(); b.disabled = true; setNext(true);
+    }, true);
+    if (st.phase === 'sorted' || st.phase === 'deck') b.disabled = true;
+    table._relayout = view;
+  },
+  cut(st, table, ctl, setNext) {
+    st.deck.forEach(k => k.up = false);
+    if (st.phase === 'sorted') st.phase = 'deck';
+    const range = document.createElement('input');
+    range.type = 'range'; range.min = 1; range.max = 51; range.value = st.cutAt; range.setAttribute('aria-label', 'Where to cut');
+    const view = () => act2View(st, table, { gapAt: +range.value });
+    range.oninput = () => { st.cutAt = +range.value; view(); };
+    ctl.appendChild(range);
+    const s = status(ctl);
+    const upd = () => s.textContent = st.cuts ? `${st.cuts} cut${st.cuts === 1 ? '' : 's'}` : '';
+    button(ctl, 'Cut here', () => { const k = +range.value; st.deck = st.deck.slice(k).concat(st.deck.slice(0, k)); st.cuts++; st.cutAt = 1 + Math.floor(Math.random() * 51); range.value = st.cutAt; view(); upd(); }, true);
+    view(); upd(); setNext(true);
+    table._relayout = view;
+  },
+  pile(st, table, ctl, setNext) {
+    if (st.phase === 'deck') st.phase = 'split';
+    const view = () => act2View(st, table);
+    const s = status(ctl);
+    const upd = () => { s.textContent = `${st.pile.length} in the pile`; setNext(st.pile.length > 0); b.disabled = st.deck.length <= 1; };
+    let holdT = null;
+    const deal = () => { if (st.deck.length > 1) { st.pile.unshift(st.deck.shift()); view(); upd(); } };
+    const b = button(ctl, 'Deal one', deal, true);
+    b.addEventListener('pointerdown', () => { holdT = setTimeout(function rep() { deal(); holdT = setTimeout(rep, 110); }, 450); });
+    ['pointerup', 'pointerleave', 'pointercancel'].forEach(e => b.addEventListener(e, () => clearTimeout(holdT)));
+    view(); upd();
+    table._relayout = view;
+  },
+  riffle(st, table, ctl, setNext) {
+    st.phase = 'riffle';
+    const view = () => act2View(st, table);
+    const s = status(ctl);
+    const done = () => !st.pile.length && !st.deck.length;
+    const drop = from => { const src = from === 'L' ? st.pile : st.deck; if (src.length) st.merged.unshift(src.pop()); };
+    let finished = false;
+    const upd = () => {
+      if (finished) return;
+      const d = done();
+      s.textContent = d ? 'Shuffled.' : 'Drop from either half, or let them fall.';
+      setNext(d);
+      [l, r, all].forEach(x => x.disabled = d);
+      l.disabled ||= !st.pile.length; r.disabled ||= !st.deck.length;
+      if (d) { finished = true; st.deck = st.merged; st.merged = []; st.phase = 'deck'; view(); }
+    };
+    const l = button(ctl, 'Drop from left', () => { drop('L'); view(); upd(); });
+    const r = button(ctl, 'Drop from right', () => { drop('R'); view(); upd(); });
+    let running = false;
+    const all = button(ctl, 'Riffle', () => {
+      if (running) return;
+      running = true;
+      const tick = () => {
+        if (finished || done()) { running = false; return upd(); }
+        const a = st.pile.length, b = st.deck.length;
+        const side = Math.random() < a / (a + b) ? 'L' : 'R';
+        const k = 1 + (Math.random() < .35) + (Math.random() < .12);
+        for (let i = 0; i < k; i++) drop(side);
+        view(); upd(); setTimeout(tick, 45);
+      };
+      tick();
+    }, true);
+    view(); upd();
+    table._relayout = view;
+  },
+  deal4(st, table, ctl, setNext) {
+    const view = () => act2View(st, table);
+    view(); setNext(st.phase === 'hands');
+    const b = button(ctl, 'Deal four hands', () => {
+      st.hands = [0, 1, 2, 3].map(h => st.deck.slice(13 * h, 13 * h + 13).reverse());
+      st.phase = 'hands'; view(); b.disabled = true; setNext(true);
+    }, true);
+    if (st.phase === 'hands') b.disabled = true;
+    table._relayout = view;
+  },
+  reveal2(st, table, ctl, setNext, play) {
+    const view = () => act2View(st, table);
+    st.phase = 'handsUp';
+    view();
+    play(i => { if (i === 2) { st.phase = 'handsSorted'; view(); } });   // the lay-out
+    table._relayout = view;
+  },
+};
+
+function act2View(st, table, opts = {}) {
+  const W = table.W;
+  const ph = st.phase;
+  if (ph === 'stack') {
+    const cw = Math.min(64, W * .17);
+    table.show(stackItems(st.deck, (W - cw) / 2, PAD + 8, cw), PAD * 2 + cw * 1.4 + 16);
+  } else if (ph === 'suits' || ph === 'sorted') {
+    const rows = SUITS.map(s => st.deck.filter(k => k.c.s === s));
+    if (ph === 'sorted') rows.forEach(r => r.sort((a, b) => a.c.r - b.c.r));
+    const cw = Math.min(54, W * .15), step = Math.min(cw * .62, (W - 2 * PAD - cw) / 12), rh = cw * 1.4 * .52;
+    const x0 = (W - cw - 12 * step) / 2;
+    const items = rows.flatMap((r, ri) => r.map((k, i) => ({ id: k.id, c: k.c, up: true, w: cw, x: x0 + i * step, y: PAD + ri * rh, z: ri * 20 + i })));
+    table.show(items, PAD * 2 + 3 * rh + cw * 1.4);
+  } else if (ph === 'deck') {
+    const L = spreadLayout(W, st.deck.map(k => ({ ...k, up: false })), { maxW: 52, top: 20, gapAt: opts.gapAt });
+    table.show(L.items, L.height, [{ id: 'top', x: L.x0 + L.cw / 2, y: 4, text: 'top' }]);
+  } else if (ph === 'split' || ph === 'riffle') {
+    const cw = Math.min(60, W * .17), y = PAD + 8;
+    const xs = ph === 'split' ? [W * .3 - cw / 2, W * .7 - cw / 2] : [W * .18 - cw / 2, W * .82 - cw / 2];
+    const items = [...stackItems(st.pile, xs[0], y, cw, false, 0), ...stackItems(st.deck, xs[1], y, cw, false, 100)];
+    const labels = [{ id: 'l', x: xs[0] + cw / 2, y: y + cw * 1.4 + 4, text: st.pile.length ? (ph === 'split' ? 'pile' : 'left') + ' ' + st.pile.length : '' },
+      { id: 'r', x: xs[1] + cw / 2, y: y + cw * 1.4 + 4, text: st.deck.length ? (ph === 'split' ? 'deck' : 'right') + ' ' + st.deck.length : '' }];
+    if (ph === 'riffle') {
+      items.push(...stackItems(st.merged, W / 2 - cw / 2, y, cw, false, 200));
+      labels.push({ id: 'm', x: W / 2, y: y + cw * 1.4 + 4, text: st.merged.length ? 'shuffled ' + st.merged.length : '' });
+    }
+    table.show(items, y + cw * 1.4 + 30, labels);
+  } else if (ph === 'hands') {
+    const cw = Math.min(60, W * .17), gap = (W - 4 * cw) / 5;
+    const items = st.hands.flatMap((h, i) => stackItems(h, gap + i * (cw + gap), PAD + 8, cw, false, i * 20));
+    table.show(items, PAD + 8 + cw * 1.4 + 30, st.hands.map((h, i) => ({ id: 'h' + i, x: gap + i * (cw + gap) + cw / 2, y: PAD + 12 + cw * 1.4, text: 'hand ' + (i + 1) })));
+  } else if (ph === 'handsUp' || ph === 'handsSorted') {
+    const cw = Math.min(54, W * .14), step = Math.min(cw * .7, (W - 2 * PAD - cw) / 12), rh = cw * 1.4 + 10;
+    const x0 = (W - cw - 12 * step) / 2;
+    const items = st.hands.flatMap((h, hi) => {
+      const cards = ph === 'handsSorted' ? h.slice().sort((a, b) => a.c.r - b.c.r) : h;
+      return cards.map((k, i) => ({ id: k.id, c: k.c, up: true, w: cw, x: x0 + i * step, y: PAD + hi * rh, z: hi * 20 + i, delay: ph === 'handsUp' ? hi * 220 + i * 25 : 0 }));
+    });
+    table.show(items, PAD * 2 + 4 * rh - 10);
+  }
+}
+
+// ---------- the how-it-works demos ----------
+function badgeDemo() {
+  const table = new Table(document.getElementById('badgeTable')), ctl = document.getElementById('badgeCtl');
+  let st;
+  const colourOf = (k, i) => (k.up !== (i % 2 === 1)) ? 'var(--badge-b)' : 'var(--badge-a)';
+  const fresh = () => {
+    const cards = shuffled(fullDeck()).slice(0, 10).map((c, i) => ({ id: 'z' + c.s + c.r, c, up: i % 2 === 1 }));
+    const k = Math.floor(Math.random() * 10); cards[k].up = !cards[k].up;
+    st = { phase: 'packet', cards };
+  };
+  const view = () => act1View(st, table, { badge: colourOf, tap: i => { if (i) { st.cards = st.cards.slice(i).concat(st.cards.slice(0, i)); view(); } } });
+  fresh();
+  button(ctl, 'Turn two', () => { const [a, b] = st.cards; a.up = !a.up; b.up = !b.up; st.cards[0] = b; st.cards[1] = a; view(); }, true);
+  button(ctl, 'Turn all', () => { st.cards.reverse(); st.cards.forEach(k => k.up = !k.up); view(); }, true);
+  button(ctl, 'Deal', () => {
+    st.saved = st.cards.map(k => ({ ...k }));
+    st.left = st.cards.filter((_, i) => i % 2 === 0); st.right = st.cards.filter((_, i) => i % 2 === 1).map(k => ({ ...k, up: !k.up }));
+    st.phase = 'spread2'; act1View(st, table);
+  });
+  button(ctl, 'New packet', () => { table.clear(); fresh(); view(); });
+  const s = status(ctl); s.textContent = 'Tap a card to cut to it.';
+  view();
+  new ResizeObserver(() => { if (st.phase !== 'spread2') view(); }).observe(document.getElementById('badgeTable'));
+  // after a deal, the next move gathers the row back into a packet
+  const orig = view;
+  ctl.querySelectorAll('button').forEach(b => b.addEventListener('click', () => { if (b.textContent !== 'Deal' && st.phase === 'spread2') { st.cards = st.saved; st.phase = 'packet'; orig(); } }, true));
+}
+
+const HAND_COLS = ['#e8b866', '#7fc4d8', '#e58fa0', '#a9d38a'];
+function ringDemo() {
+  const box = document.getElementById('ring'), ctl = document.getElementById('ringCtl'), legend = document.getElementById('ringLegend');
+  let d, seq, n = 13;
+  const sorted = fullDeck();
+  const fresh = () => {
+    d = 12 + Math.floor(Math.random() * 29);
+    // a riffle of the reversed pile (d cards) with the rest (52 - d), in clumps
+    seq = []; let a = d, b = 52 - d;
+    while (a || b) { const side = Math.random() < a / (a + b) ? 'B' : 'F'; const k = 1 + (Math.random() < .35) + (Math.random() < .12); for (let i = 0; i < k; i++) { if (side === 'B' && a) { seq.push('B'); a--; } else if (side === 'F' && b) { seq.push('F'); b--; } } }
+  };
+  const order = () => { let f = 0, b = 0; return seq.map(x => x === 'F' ? (d + f++) % 52 : (d - 1 - b++ + 52) % 52); };
+  const range = document.createElement('input');
+  range.type = 'range'; range.min = 0; range.max = 52; range.value = n; range.setAttribute('aria-label', 'Cards dealt from the top');
+  const s = status(ctl);
+  function draw() {
+    const pos = order(), hand = new Map();
+    pos.forEach((p, k) => { if (k < n) hand.set(p, Math.floor(k / 13)); });
+    const S = 520, cx = S / 2, cy = S / 2 + 4, R = 196;
+    let g = `<svg viewBox="0 0 ${S} ${S + 10}" role="img" aria-label="The sorted deck drawn as a ring of 52 cards, with the cards dealt so far coloured by hand">`;
+    for (let i = 0; i < 52; i++) {
+      const a = (i + .5) / 52 * Math.PI * 2 - Math.PI / 2, c = sorted[i];
+      const x = cx + Math.cos(a) * R, y = cy + Math.sin(a) * R;
+      const h = hand.get(i);
+      const fill = h == null ? 'rgba(239,228,201,.16)' : HAND_COLS[h];
+      g += `<g transform="translate(${x} ${y}) rotate(${a * 180 / Math.PI + 90})"><rect x="-10" y="-14" width="20" height="28" rx="3" fill="${fill}" stroke="${h == null ? 'rgba(239,228,201,.35)' : 'none'}"/>`
+        + `<text y="5" text-anchor="middle" font-family="EB Garamond, serif" font-size="${RANKS[c.r] === '10' ? 11 : 13}" font-weight="600" fill="${h == null ? '#efe4c9' : '#1d1a17'}">${RANKS[c.r]}</text></g>`;
+      const so = (i + .5) / 52 * Math.PI * 2 - Math.PI / 2;
+      if (c.r === 6) g += `<g opacity=".9">${suitGlyph(c.s, cx + Math.cos(so) * (R - 38), cy + Math.sin(so) * (R - 38), 20)}</g>`.replace(/fill="#1f1b18"/g, 'fill="#efe4c9"').replace(/fill="#b3261e"/g, 'fill="#ef8c7a"');
+    }
+    const a0 = d / 52 * Math.PI * 2 - Math.PI / 2;
+    g += `<line x1="${cx + Math.cos(a0) * (R - 22)}" y1="${cy + Math.sin(a0) * (R - 22)}" x2="${cx + Math.cos(a0) * (R + 24)}" y2="${cy + Math.sin(a0) * (R + 24)}" stroke="#efe4c9" stroke-width="2.5"/>`;
+    g += `<text x="${cx}" y="${cy - 6}" text-anchor="middle" font-family="EB Garamond, serif" font-size="20" fill="#efe4c9">${n} dealt</text>`;
+    g += `<text x="${cx}" y="${cy + 20}" text-anchor="middle" font-family="EB Garamond, serif" font-size="15" fill="#efe4c9" opacity=".7">the line is where you stopped dealing</text>`;
+    box.innerHTML = g + '</svg>' + `<div class="hands-read">${[0, 1, 2, 3].filter(h => n > h * 13).map(h => {
+      const got = pos.slice(h * 13, Math.min(n, h * 13 + 13)).map(p => sorted[p].r).sort((x, y) => x - y);
+      return `<div><b style="color:${HAND_COLS[h]}">hand ${h + 1}</b> ${got.map(r => RANKS[r]).join(' ')}</div>`;
+    }).join('')}</div>`;
+    s.textContent = `${n} of 52`;
+  }
+  range.oninput = () => { n = +range.value; draw(); };
+  ctl.appendChild(range);
+  ctl.insertBefore(s, range.nextSibling);
+  button(ctl, 'Shuffle again', () => { fresh(); draw(); }, true);
+  let playing = null;
+  button(ctl, 'Deal them all', () => {
+    clearInterval(playing); n = 0;
+    playing = setInterval(() => { n++; range.value = n; draw(); if (n >= 52) clearInterval(playing); }, 90);
+  });
+  legend.innerHTML = HAND_COLS.map((c, i) => `<span><b style="background:${c}"></b>hand ${i + 1}</span>`).join('');
+  fresh(); draw();
+}
+
+// ---------- header ----------
+function hero() {
+  const hand = [...Array(8)].map((_, r) => C(r, 'C')).concat([8, 9, 10, 11, 12].map(r => C(r, 'H')));
+  const W = 760, H = 270, w = 74, px = W / 2, py = 470;
+  let s = `<svg viewBox="0 0 ${W} ${H}" aria-hidden="true">`;
+  hand.forEach((c, i) => {
+    const a = -42 + i * 7;
+    s += `<g transform="rotate(${a} ${px} ${py})"><g transform="translate(${px - w / 2} ${py - 420})" filter="url(#sh)">${mini(0, 0, w, c, true)}</g></g>`;
+  });
+  s += '</svg>';
+  document.getElementById('hero').innerHTML = s.replace('aria-hidden="true">', 'aria-hidden="true"><defs><filter id="sh" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="-2" dy="2" stdDeviation="2.2" flood-opacity=".45"/></filter></defs>');
+}
+
+// ---------- mode and start ----------
+const acts = [makeAct(document.getElementById('act1'), ACT1, 1), makeAct(document.getElementById('act2'), ACT2, 2)];
+function setMode(m) {
+  MODE = m; store.set('mode', m);
+  document.querySelectorAll('.mode button').forEach(b => b.setAttribute('aria-pressed', b.dataset.mode === m));
+  document.getElementById('modeNote').textContent = m === 'real'
+    ? 'Prop your screen up where you can see it from the table.'
+    : "Then use mine. I could cheat here, since these cards live on my side of the screen. I won't, but you've only my word for it, which is why real cards are better.";
+  acts.forEach(a => a.reset());
+}
+document.querySelectorAll('.mode button').forEach(b => b.onclick = () => setMode(b.dataset.mode));
+document.addEventListener('keydown', ev => {
+  if (ev.key !== 'ArrowRight' && ev.key !== ' ') return;
+  if (ev.target.closest('button, input, a, summary, [role=button]')) return;
+  const a = acts.find(a => { const r = a.el.getBoundingClientRect(); return r.top < innerHeight * .6 && r.bottom > innerHeight * .3; });
+  if (a && a.key(ev)) ev.preventDefault();
+});
+hero();
+setMode(MODE);
+badgeDemo();
+ringDemo();
+document.fonts.ready.then(() => { window.__ready = true; });
+setTimeout(() => { window.__ready = true; }, 3000);
+</script>
+</body>
+</html>
