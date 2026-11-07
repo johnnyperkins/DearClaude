@@ -1,0 +1,13 @@
+e
+open airing cupboard
+look in airing cupboard
+d
+x note on steam button
+take loaves
+take batteries
+take dough
+e
+x wall
+w
+x floor
+x jar by the till

@@ -1,0 +1,943 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>a place in the sun</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #f1e8d6; --panel: #f8f2e5; --ink: #2b241c; --muted: #6c604f; --faint: #9d8f79; --line: #d8cab0;
+    --heads: #c38d24; --heads-deep: #8a5f12; --tails: #3d4c61; --tails-deep: #232f3f;
+    --sun: #f0a92e; --turn: #b4502c;
+    --serif: "EB Garamond", P052, "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font-family: var(--serif); font-size: 19px; line-height: 1.55; }
+  main { max-width: 1100px; margin: 0 auto; padding: 36px 16px 80px; }
+  a { color: var(--heads-deep); }
+  header .back { font-size: 14px; letter-spacing: .14em; color: var(--faint); text-decoration: none; }
+  header .back:hover { color: var(--muted); }
+  h1 { font-weight: 400; font-style: italic; font-size: 44px; margin: 4px 0 2px; line-height: 1.1; }
+  .lede { margin: 0 0 20px; color: var(--muted); max-width: 660px; }
+
+  .table { display: grid; grid-template-columns: minmax(0, 1fr) 280px; gap: 20px; align-items: start; }
+  .boardwrap { position: relative; }
+  #board { display: block; width: 100%; height: auto; touch-action: manipulation; user-select: none; -webkit-user-select: none; }
+  #board:focus { outline: none; }
+  #board:focus-visible .cursor { opacity: 1; }
+  .cell { cursor: pointer; }
+  .cell.taken, .over .cell, .waiting .cell { cursor: default; }
+  .cursor { opacity: 0; pointer-events: none; }
+  .sh { transition: transform 1.1s cubic-bezier(.45, 0, .25, 1); }
+
+  .side { display: flex; flex-direction: column; gap: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 14px 16px; }
+  .turn { display: flex; align-items: center; gap: 10px; font-size: 21px; line-height: 1.25; min-height: 44px; }
+  .turn svg { flex: none; }
+  .sunline { margin: 8px 0 0; font-size: 16px; color: var(--muted); line-height: 1.4; }
+  .buttons { display: flex; gap: 8px; margin-top: 12px; }
+  button, select {
+    font: inherit; font-size: 17px; color: var(--ink); background: var(--paper);
+    border: 1px solid var(--line); border-radius: 5px; padding: 5px 12px; cursor: pointer;
+  }
+  button:hover:not(:disabled), select:hover { border-color: var(--faint); }
+  button:disabled { opacity: .4; cursor: default; }
+  button:focus-visible, select:focus-visible { outline: 2px solid var(--heads); outline-offset: 1px; }
+  #new { border-color: var(--heads); color: var(--heads-deep); font-style: italic; }
+  .field { display: flex; flex-direction: column; gap: 4px; margin-bottom: 10px; }
+  .field:last-child { margin-bottom: 0; }
+  .field > span { font-size: 13px; letter-spacing: .12em; color: var(--faint); text-transform: uppercase; }
+  .seg { display: flex; flex-wrap: wrap; gap: 5px; }
+  .seg button { padding: 4px 10px; font-size: 16px; }
+  .seg button[aria-pressed=true] { border-color: var(--ink); background: var(--panel); box-shadow: inset 0 0 0 1px var(--ink); }
+  .choose { display: flex; flex-direction: column; gap: 6px; margin-top: 12px; }
+  .choose[hidden] { display: none; }
+  .choose button { text-align: left; border-color: var(--heads); }
+  .note { font-size: 15px; color: var(--faint); margin: 8px 0 0; line-height: 1.35; min-height: 0; }
+  .check { display: flex; gap: 8px; align-items: center; font-size: 16px; color: var(--muted); cursor: pointer; }
+  .check input { accent-color: var(--turn); width: 16px; height: 16px; margin: 0; }
+  .tally { font-size: 16px; color: var(--muted); margin-top: 10px; }
+  .moves { font-size: 15px; color: var(--muted); line-height: 1.5; max-height: 210px; overflow-y: auto; margin: 0; padding: 0; list-style: none; }
+  .moves li { break-inside: avoid; white-space: nowrap; }
+  .moves .n { color: var(--faint); display: inline-block; min-width: 1.8em; }
+  .moves .h { color: var(--heads-deep); }
+  .moves .t { color: var(--tails); }
+  .moves .x { color: var(--turn); }
+  .moves:empty::before { content: "No moves yet."; color: var(--faint); }
+
+  .prose { max-width: 680px; margin-top: 48px; }
+  .prose h2 { font-weight: 400; font-style: italic; font-size: 30px; margin: 0 0 8px; }
+  .prose h3 { font-weight: 500; font-size: 19px; margin: 22px 0 4px; }
+  .prose ol { padding-left: 1.3em; }
+  .prose li { margin-bottom: 6px; }
+  .figs { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; margin: 18px 0 6px; }
+  .figs figure { margin: 0; }
+  .figs svg { display: block; width: 100%; height: auto; background: var(--panel); border: 1px solid var(--line); border-radius: 6px; }
+  .figs figcaption { font-size: 15px; color: var(--muted); line-height: 1.35; margin-top: 6px; }
+  .quiet { color: var(--muted); }
+
+  .sheet { display: none; }
+
+  @media (max-width: 820px) {
+    .table { grid-template-columns: 1fr; }
+    .figs { grid-template-columns: 1fr; max-width: 360px; }
+    h1 { font-size: 36px; }
+  }
+
+  @media print {
+    @page { size: A4 landscape; margin: 8mm; }
+    body { background: #fff; font-size: 9.6pt; line-height: 1.42; }
+    main { display: none; }
+    .sheet { display: block; color: #000; }
+    .sheet .page { page-break-after: always; break-after: page; position: relative; }
+    .sheet .page:last-child { page-break-after: auto; break-after: auto; }
+    .sheet h1 { font-size: 20pt; margin: 0; }
+    .sheet svg { display: block; }
+    .sheet .cols { columns: 2; column-gap: 12mm; }
+    .sheet .cols p, .sheet .cols li { break-inside: avoid; }
+    .sheet h2 { font-weight: 400; font-style: italic; font-size: 14pt; margin: 0 0 2mm; break-after: avoid; }
+    .sheet ol { padding-left: 5mm; margin: 0 0 3mm; }
+    .sheet li { margin-bottom: 1.5mm; }
+    .sheet p { margin: 0 0 2.5mm; }
+    .sheet .figs { grid-template-columns: repeat(3, 44mm); gap: 8mm; margin: 3mm 0 0; }
+    .sheet .figs svg { border: .3mm solid #999; background: #fff; }
+    .sheet .figs figcaption { font-size: 9pt; color: #333; }
+    .sheet .screen-only { display: none; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <a class="back" href="../index.html">SKETCHBOOK · 008</a>
+    <h1>a place in the sun</h1>
+    <p class="lede">A game for two, played with coins. Heads joins top to bottom, Tails joins side to side. The sun goes round the board, and every coin you put down throws a shadow that can turn one of theirs over.</p>
+  </header>
+
+  <section class="table">
+    <div class="boardwrap" id="boardwrap">
+      <svg id="board" tabindex="0" role="application" aria-label="Game board. Arrow keys move, Enter places a coin."></svg>
+    </div>
+    <aside class="side">
+      <div class="card" aria-live="polite">
+        <div class="turn" id="turn"></div>
+        <p class="sunline" id="sunline"></p>
+        <div class="buttons">
+          <button id="new">New game</button>
+          <button id="undo">Undo</button>
+        </div>
+        <div class="choose" id="choose" hidden>
+          <button data-v="1">Play Heads <span class="quiet">(this coin is yours)</span></button>
+          <button data-v="2">Play Tails <span class="quiet">(you move next)</span></button>
+        </div>
+        <p class="note" id="note"></p>
+      </div>
+      <div class="card">
+        <div class="field">
+          <span>Opponent</span>
+          <div class="seg" id="opp">
+            <button data-v="easy">Claude, easy</button>
+            <button data-v="fair">Claude, fair</button>
+            <button data-v="hard">Claude, hard</button>
+            <button data-v="friend">A friend, here</button>
+          </div>
+        </div>
+        <div class="field" id="cutfield">
+          <span>First coin</span>
+          <div class="seg" id="cutsel">
+            <button data-v="toss">Toss for it</button>
+            <button data-v="you">I put it down</button>
+            <button data-v="claude">Claude does</button>
+          </div>
+        </div>
+        <label class="check"><input type="checkbox" id="risk"> Mark coins that can be turned over next</label>
+        <div class="tally" id="tally"></div>
+      </div>
+      <div class="card">
+        <div class="field"><span>Moves</span></div>
+        <ol class="moves" id="moves"></ol>
+      </div>
+    </aside>
+  </section>
+
+  <section class="prose" id="rules">
+    <h2>How to play</h2>
+    <ol>
+      <li>Toss a coin to see who puts down the first coin. It goes heads up, on any space. The other player then chooses a side: Heads, which makes that coin theirs, or Tails.</li>
+      <li>Tails moves next. From then on, take turns putting a coin on any empty space, your side up.</li>
+      <li>The new coin throws a shadow onto the next space, directly away from the sun. If one of your opponent's coins is lying there, turn it over. It's yours now.</li>
+      <li>The sun has six places around the board, numbered 1 to 6. It starts at 1, in the east. Each time Heads has played, the first coin included, it moves on to the next number, clockwise.</li>
+      <li>Heads wins by joining the top and bottom edges with an unbroken chain of heads. Tails wins by joining left and right.</li>
+    </ol>
+    <div class="figs" id="figs"></div>
+    <h3>Worth knowing</h3>
+    <p>Only the coin you just put down turns anything over, and it turns at most one coin. Every coin on the board has a shadow, but the old ones are only telling you where the sun is.</p>
+    <p>So to turn over one of your opponent's coins, put yours on the space beside it on its sunny side. And to see whether one of your own coins is safe, look at that same space. If it's filled, or off the board, nothing can be put there to throw a shadow on your coin. Look under the sun your opponent will play by: the same sun if you're Tails, the next one if you're Heads.<span class="screen-only"> On screen, a small red mark on the edge of a coin shows it could be turned over on the next move, and from which side.</span></p>
+    <p>The sun goes all the way round every six rounds, so shadows fall each of the six ways in turn. A coin that's safe now may not be safe in two rounds. The sun always moves the same way, so you can see it coming.</p>
+    <p>A game can't end in a draw. It's the same as in Hex, which this game borrows its board and its goal from: once every space is full, exactly one player has a chain. Most games are over long before that.</p>
+    <p>The first rule is there to make the game fair. Under each new position of the sun, Tails plays first and Heads answers, so Heads always gets the last word. In thousands of games Claude played against itself, that was worth about 60 wins in 100 to Heads, and the first coin pays for it. Put it somewhere strong and your opponent will take Heads. Put it somewhere weak and they'll leave it to you. The fair place is somewhere in between. It's the swap rule from Hex, or cutting a cake for someone else to choose from.</p>
+    <p class="quiet">Hex was invented by Piet Hein in 1942 and again, on his own, by John Nash in 1948. The sun and the shadows are new.</p>
+
+    <h2 style="margin-top:40px">To play at a table</h2>
+    <p>You need a board, about forty coins of any kinds, and something to mark the sun: a button, a ring, a sweet. You share the coins. One of you plays whatever lands heads up, and the other plays tails.</p>
+    <p><button id="print">Print the board</button> <span class="quiet">It prints on A4 or Letter, landscape, with room for coins up to about 22 mm. Pennies and cents are ideal. The rules come on a second page.</span></p>
+  </section>
+</main>
+
+<div class="sheet" id="sheet" aria-hidden="true"></div>
+
+<script id="engine">
+// The rules, and Claude's player. Shared by the page and by the tests in making/.
+// Board: an n by n diamond of hexagons. Cell i = r * n + q. Heads (1) joins top and bottom, Tails (2) left and right.
+// Directions, as seen on screen with pointy-topped hexagons: 0 E, 1 NE, 2 NW, 3 W, 4 SW, 5 SE.
+(function (root) {
+  const DQ = [1, 1, 0, -1, -1, 0], DR = [0, -1, -1, 0, 1, 1];
+
+  function board(n) {
+    const N = n * n, step = [], nb = [];
+    for (let i = 0; i < N; i++) {
+      const q = i % n, r = (i / n) | 0, s = [];
+      for (let d = 0; d < 6; d++) {
+        const q2 = q + DQ[d], r2 = r + DR[d];
+        s.push(q2 >= 0 && q2 < n && r2 >= 0 && r2 < n ? r2 * n + q2 : -1);
+      }
+      step.push(s); nb.push(s.filter(j => j >= 0));
+    }
+    return { n, N, step, nb };
+  }
+
+  // The sun starts in the east and goes clockwise, one step after each round.
+  // Round k: the sun is in direction sunDir(k), so shadows fall the opposite way.
+  const T = Object.assign({ start: 0, every: 2, phase: 1 }, root.SHADE_TUNE);  // tests may override
+  const sunDir = k => (((T.start - k) % 6) + 6) % 6;    // E, SE, SW, W, NW, NE
+  const shadowDir = k => (sunDir(k) + 3) % 6;           // W, NW, NE, E, SE, SW
+  const roundOf = ply => Math.floor((ply + T.phase) / T.every);
+
+  function start(B) { return { b: new Int8Array(B.N), ply: 0, winner: 0, empty: B.N }; }
+  const copy = s => ({ b: s.b.slice(), ply: s.ply, winner: s.winner, empty: s.empty });
+  const toMove = s => 1 + (s.ply & 1);
+
+  function connected(B, b, p) {
+    const n = B.n, seen = new Uint8Array(B.N), st = [];
+    for (let k = 0; k < n; k++) { const i = p === 1 ? k : k * n; if (b[i] === p) { seen[i] = 1; st.push(i); } }
+    while (st.length) {
+      const i = st.pop();
+      if (p === 1 ? i >= B.N - n : i % n === n - 1) return true;
+      for (const j of B.nb[i]) if (!seen[j] && b[j] === p) { seen[j] = 1; st.push(j); }
+    }
+    return false;
+  }
+
+  // The winning chain (for drawing): the cells of p's group that touches both edges.
+  function chain(B, b, p) {
+    const n = B.n, comp = new Int32Array(B.N).fill(-1);
+    for (let i0 = 0; i0 < B.N; i0++) {
+      if (b[i0] !== p || comp[i0] >= 0) continue;
+      const st = [i0], cells = []; comp[i0] = i0;
+      let a = false, z = false;
+      while (st.length) {
+        const i = st.pop(); cells.push(i);
+        const q = i % n, r = (i / n) | 0;
+        if (p === 1 ? r === 0 : q === 0) a = true;
+        if (p === 1 ? r === n - 1 : q === n - 1) z = true;
+        for (const j of B.nb[i]) if (comp[j] < 0 && b[j] === p) { comp[j] = i0; st.push(j); }
+      }
+      if (a && z) return cells;
+    }
+    return [];
+  }
+
+  // Place a coin. Returns the cell whose coin was turned over, or -1.
+  function play(B, s, c) {
+    const p = toMove(s), b = s.b;
+    b[c] = p; s.empty--;
+    const j = B.step[c][shadowDir(roundOf(s.ply))];
+    let flipped = -1;
+    if (j >= 0 && b[j] === 3 - p) { b[j] = p; flipped = j; }
+    s.ply++;
+    if (connected(B, b, p)) s.winner = p;
+    return flipped;
+  }
+
+  const legal = s => { const m = []; for (let i = 0; i < s.b.length; i++) if (!s.b[i]) m.push(i); return m; };
+
+  // Claude: Monte Carlo tree search with random playouts.
+  function think(B, root, opts) {
+    const iters = opts.iters || 1e9, until = opts.ms ? Date.now() + opts.ms : Infinity, C = opts.C || 0.8;
+    const rnd = opts.random || Math.random;
+    const R = { mv: -1, parent: null, kids: null, untried: null, n: 0, w: 0, who: 3 - toMove(root) };
+    const empties = new Int32Array(B.N);
+    let it = 0;
+    for (; it < iters; it++) {
+      if ((it & 255) === 0 && Date.now() > until) break;
+      const s = copy(root);
+      let node = R;
+      while (!s.winner) {
+        if (!node.kids) { node.kids = []; node.untried = legal(s); }
+        if (node.untried.length) {
+          const k = (rnd() * node.untried.length) | 0, mv = node.untried[k];
+          node.untried[k] = node.untried[node.untried.length - 1]; node.untried.pop();
+          const who = toMove(s); play(B, s, mv);
+          const ch = { mv, parent: node, kids: null, untried: null, n: 0, w: 0, who };
+          node.kids.push(ch); node = ch; break;
+        }
+        let best = null, bv = -1, ln = Math.log(node.n);
+        for (const ch of node.kids) { const v = ch.w / ch.n + C * Math.sqrt(ln / ch.n); if (v > bv) { bv = v; best = ch; } }
+        play(B, s, best.mv); node = best;
+      }
+      if (!s.winner) {                                  // random playout
+        let m = 0; for (let i = 0; i < B.N; i++) if (!s.b[i]) empties[m++] = i;
+        while (!s.winner && m) { const k = (rnd() * m) | 0, c = empties[k]; empties[k] = empties[--m]; play(B, s, c); }
+      }
+      for (let x = node; x; x = x.parent) { x.n++; if (s.winner === x.who) x.w++; }
+    }
+    let best = null;
+    for (const ch of R.kids) if (!best || ch.n > best.n) best = ch;
+    return { mv: best.mv, value: best.w / best.n, iters: it };
+  }
+
+  // How often Heads wins from each first coin on the 7 by 7 board, between strong players (openings.mjs, 30 games each).
+  const OPENING = [0.5, 0.63, 0.53, 0.53, 0.63, 0.57, 0.6, 0.63, 0.33, 0.57, 0.37, 0.33, 0.63, 0.57, 0.73, 0.5, 0.33, 0.47, 0.47, 0.47, 0.4, 0.47, 0.63, 0.33, 0.8, 0.67, 0.53, 0.43, 0.47, 0.4, 0.7, 0.57, 0.53, 0.67, 0.5, 0.47, 0.43, 0.6, 0.77, 0.7, 0.67, 0.63, 0.43, 0.53, 0.67, 0.57, 0.7, 0.63, 0.33];
+
+  root.Shade = { OPENING, board, start, copy, toMove, play, legal, connected, chain, think, sunDir, shadowDir, roundOf, DQ, DR };
+})(typeof window !== 'undefined' ? window : typeof self !== 'undefined' ? self : globalThis);
+</script>
+
+<script>
+(() => {
+  const S = window.Shade;
+  const n = 7, B = S.board(n), NS = 'http://www.w3.org/2000/svg';
+  const W = 60, R = W / Math.sqrt(3);                   // hex width across the flats, and circumradius
+  const COIN = 0.36 * W, SHADOW = 0.62 * W;
+  const px = i => W * ((i % n) + ((i / n) | 0) / 2), py = i => 1.5 * R * ((i / n) | 0);
+  const CX = W * 1.5 * (n - 1) / 2, CY = 1.5 * R * (n - 1) / 2;
+  const NAME = ['', 'Heads', 'Tails'];
+  const DIRNAME = ['east', 'northeast', 'northwest', 'west', 'southwest', 'southeast'];
+  const ANG = d => -60 * d;                              // screen angle of direction d, in degrees
+  const stationNumber = d => ((S.sunDir(0) - d) % 6 + 6) % 6 + 1;   // 1 is where the sun starts, counting clockwise
+  const cellName = i => 'abcdefghijk'[i % n] + (((i / n) | 0) + 1);
+  const params = new URLSearchParams(location.search);
+
+  // ---------- drawing helpers ----------
+  const el = (tag, attrs = {}, parent) => {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    if (parent) parent.appendChild(e);
+    return e;
+  };
+  const hexPts = (x, y, r) => Array.from({ length: 6 }, (_, k) => {
+    const a = Math.PI / 180 * (30 + 60 * k);
+    return (x + r * Math.cos(a)).toFixed(2) + ',' + (y - r * Math.sin(a)).toFixed(2);
+  }).join(' ');
+  // The sun's station for direction d: on an ellipse around the board, along the ray from the centre.
+  function station(d, rx, ry, cx = CX, cy = CY) {
+    const a = Math.PI / 180 * 60 * d, c = Math.cos(a), s = Math.sin(a);
+    const t = 1 / Math.sqrt(c * c / (rx * rx) + s * s / (ry * ry));
+    return [cx + t * c, cy - t * s];
+  }
+
+  // Coin faces, drawn once in <defs>. Heads is a head. Tails is a tail.
+  const PROFILE = 'M.30 .66C.27 .46 .38 .36 .42 .16C.5 -.18 .38 -.56 .03 -.6C-.26 -.62 -.42 -.44 -.43 -.2L-.53 .01L-.43 .05L-.45 .13L-.38 .17L-.4 .27C-.33 .35 -.18 .33 -.14 .42L-.16 .66Z';
+  const TAIL = 'M-.5 .42C-.14 .52 .34 .36 .4 -.04C.45 -.4 .12 -.56 -.08 -.38C-.24 -.22 -.06 -.02 .1 -.14';
+  function defs(svg, unit) {
+    const d = el('defs', {}, svg);
+    const grad = (id, a, b, c) => {
+      const g = el('radialGradient', { id, cx: '38%', cy: '32%', r: '75%' }, d);
+      el('stop', { offset: '0', 'stop-color': a }, g); el('stop', { offset: '.6', 'stop-color': b }, g); el('stop', { offset: '1', 'stop-color': c }, g);
+    };
+    grad('gH', '#f7dc8a', '#d9a53c', '#a8761c');
+    grad('gT', '#8fa0b8', '#566880', '#34445a');
+    const sunG = el('radialGradient', { id: 'gSun' }, d);
+    el('stop', { offset: '0', 'stop-color': '#fff3c4' }, sunG); el('stop', { offset: '.45', 'stop-color': '#f6c24e' }, sunG);
+    el('stop', { offset: '1', 'stop-color': '#f0a92e', 'stop-opacity': '0' }, sunG);
+    const blur = el('filter', { id: 'soft', x: '-50%', y: '-50%', width: '200%', height: '200%' }, d);
+    el('feGaussianBlur', { stdDeviation: 0.07 * unit }, blur);
+    for (const [id, fill, deep, light] of [['coinH', 'url(#gH)', '#8a5f12', '#fbe6a6'], ['coinT', 'url(#gT)', '#1f2a39', '#b9c6d8']]) {
+      const g = el('g', { id, transform: `scale(${COIN})` }, d);
+      el('circle', { r: 1, fill, stroke: deep, 'stroke-width': .05 }, g);
+      el('circle', { r: .84, fill: 'none', stroke: deep, 'stroke-width': .035, opacity: .55 }, g);
+      el('circle', { r: .78, fill: 'none', stroke: light, 'stroke-width': .025, opacity: .5 }, g);
+      if (id === 'coinH') el('path', { d: PROFILE, fill: deep, opacity: .72, transform: 'scale(.92)' }, g);
+      else el('path', { d: TAIL, fill: 'none', stroke: light, 'stroke-width': .15, 'stroke-linecap': 'round', opacity: .85 }, g);
+    }
+    return d;
+  }
+  const faceHref = p => p === 1 ? '#coinH' : '#coinT';
+
+  function drawSun(parent, r) {
+    const g = el('g', { class: 'sun' }, parent);
+    el('circle', { r: r * 2.1, fill: 'url(#gSun)', opacity: .8 }, g);
+    for (let k = 0; k < 12; k++) {
+      const a = Math.PI / 6 * k;
+      el('line', { x1: Math.cos(a) * r * 1.3, y1: Math.sin(a) * r * 1.3, x2: Math.cos(a) * r * (k % 2 ? 1.6 : 1.85), y2: Math.sin(a) * r * (k % 2 ? 1.6 : 1.85),
+        stroke: '#e39a1f', 'stroke-width': r * .16, 'stroke-linecap': 'round' }, g);
+    }
+    el('circle', { r, fill: '#f6c24e', stroke: '#e39a1f', 'stroke-width': r * .12 }, g);
+    return g;
+  }
+
+  // The board's outer edges, walked vertex by vertex, for the coloured bands.
+  function edgeBands(g, x, y, r, width) {
+    const walk = (cells, angles) => {
+      const pts = [];
+      for (const i of cells) for (const a of angles) {
+        const t = Math.PI / 180 * a;
+        pts.push((x(i) + r * Math.cos(t)).toFixed(2) + ',' + (y(i) - r * Math.sin(t)).toFixed(2));
+      }
+      return pts.join(' ');
+    };
+    const top = [], bot = [], left = [], right = [];
+    for (let k = 0; k < n; k++) { top.push(k); bot.push((n - 1) * n + k); left.push(k * n); right.push(k * n + n - 1); }
+    for (const [cells, angles, p] of [[top, [150, 90, 30], 1], [bot, [210, 270, 330], 1], [left, [150, 210, 270], 2], [right, [90, 30, 330], 2]]) {
+      el('polyline', { points: walk(cells, angles), fill: 'none', stroke: p === 1 ? '#c38d24' : '#3d4c61',
+        'stroke-width': width, 'stroke-linejoin': 'round', 'stroke-linecap': 'round' }, g);
+    }
+  }
+
+  // ---------- the board on screen ----------
+  const svg = document.getElementById('board');
+  const RX = W * 4.55, RY = W * 4.25;
+  const VB = { x: CX - RX - W * .8, y: CY - RY - W * .75, w: 2 * RX + 1.6 * W, h: 2 * RY + 1.5 * W };
+  svg.setAttribute('viewBox', `${VB.x} ${VB.y} ${VB.w} ${VB.h}`);
+  defs(svg, W);
+
+  const gTrack = el('g', {}, svg);
+  el('ellipse', { cx: CX, cy: CY, rx: RX, ry: RY, fill: 'none', stroke: '#cdbd9f', 'stroke-width': 1.2, 'stroke-dasharray': '2 7', 'stroke-linecap': 'round' }, gTrack);
+  const stationDots = [], stationNums = [];
+  for (let d = 0; d < 6; d++) {
+    const [x, y] = station(d, RX, RY);
+    stationDots[d] = el('circle', { cx: x, cy: y, r: 4, fill: '#cdbd9f' }, gTrack);
+    const [lx, ly] = station(d, RX + W * .42, RY + W * .36);
+    const t = el('text', { x: lx, y: ly + 5, 'text-anchor': 'middle', 'font-size': 15, fill: '#a39580', 'font-family': 'EB Garamond, P052, serif' }, gTrack);
+    t.textContent = stationNumber(d); stationNums[d] = t;
+  }
+  const gBands = el('g', {}, svg);
+  edgeBands(gBands, px, py, R + 3, 7);
+  const gCells = el('g', {}, svg);
+  const cellEls = [];
+  for (let i = 0; i < B.N; i++) {
+    const tone = ((i * 7919) % 13) / 13;
+    const c = el('polygon', { points: hexPts(px(i), py(i), R - 0.6), class: 'cell',
+      fill: `hsl(${38 + tone * 4}, ${34 + tone * 8}%, ${86 - tone * 3}%)`, stroke: '#c9b692', 'stroke-width': 1.2 }, gCells);
+    c.dataset.i = i;
+    cellEls.push(c);
+  }
+  // light from the sun's side, darker away from it
+  const lightG = el('linearGradient', { id: 'gLight', gradientUnits: 'userSpaceOnUse', x1: CX + RX, y1: CY, x2: CX - RX, y2: CY }, svg.querySelector('defs'));
+  el('stop', { offset: '0', 'stop-color': '#fff6d8', 'stop-opacity': '.32' }, lightG);
+  el('stop', { offset: '1', 'stop-color': '#5a3f18', 'stop-opacity': '.10' }, lightG);
+  const gLight = el('g', { 'pointer-events': 'none' }, svg);
+  for (let i = 0; i < B.N; i++) el('polygon', { points: hexPts(px(i), py(i), R - 0.6), fill: 'url(#gLight)' }, gLight);
+  const gMarks = el('g', { 'pointer-events': 'none' }, svg);     // last move, target highlight
+  const gShadows = el('g', { filter: 'url(#soft)', 'pointer-events': 'none' }, svg);
+  const gCoins = el('g', { 'pointer-events': 'none' }, svg);
+  const gOver = el('g', { 'pointer-events': 'none' }, svg);      // preview, chain, cursor
+  const sunEl = drawSun(svg, W * .3);
+  sunEl.style.pointerEvents = 'none';
+
+  // ---------- game state ----------
+  const store = {
+    get(k, d) { try { const v = localStorage.getItem('place-in-the-sun:' + k); return v == null ? d : JSON.parse(v); } catch { return d; } },
+    set(k, v) { try { localStorage.setItem('place-in-the-sun:' + k, JSON.stringify(v)); } catch {} },
+  };
+  let opp = store.get('opp', 'easy'), cutPref = store.get('cut', 'toss');
+  let tally = store.get('tally', { you: 0, claude: 0 });
+  // human: which side the person plays against Claude (0 until chosen). cutter: who put down the first coin.
+  let G = { moves: [], human: 0, cutter: 'you', opp, counted: false };
+  let s = S.start(B), flips = [];
+  let sunAngle = null;                                       // cumulative shadow angle, so shadows always turn clockwise
+  let showRisk = store.get('risk', true);
+  let thinking = null, previewCell = -1, cursor = (n >> 1) * n + (n >> 1), touchArmed = -1;
+  const coinEls = new Array(B.N).fill(null), shEls = new Array(B.N).fill(null);
+
+  function replay(moves) {
+    s = S.start(B); flips = [];
+    for (const c of moves) flips.push(S.play(B, s, c));
+  }
+  const vsClaude = () => G.opp !== 'friend';
+  const claudeToMove = () => vsClaude() && !s.winner && G.human > 0 && S.toMove(s) !== G.human;
+  const claudeCuts = () => vsClaude() && !s.winner && !G.moves.length && G.cutter === 'claude';
+
+  function shadowAngleFor(ply) {
+    const target = ANG(S.shadowDir(S.roundOf(ply)));
+    if (sunAngle === null) return (sunAngle = target);
+    let a = target;
+    while (a < sunAngle - 1e-6) a += 360;                       // clockwise on screen = increasing angle
+    while (a - 360 >= sunAngle - 1e-6) a -= 360;
+    return (sunAngle = a);
+  }
+
+  // ---------- rendering ----------
+  function makeCoin(i, p) {
+    const g = el('g', { transform: `translate(${px(i)},${py(i)})` }, gCoins);
+    const spin = el('g', {}, g);
+    const u = el('use', { href: faceHref(p) }, spin);
+    g._spin = spin; g._use = u; g._p = p;
+    const sg = el('g', { transform: `translate(${px(i)},${py(i)})` }, gShadows);
+    const sh = el('g', { class: 'sh' }, sg);
+    el('rect', { x: -COIN * .92, y: -COIN * .92, width: SHADOW + COIN * 1.84, height: COIN * 1.84, rx: COIN * .92, fill: '#4a3214', opacity: .3 }, sh);
+    sh.style.transform = `rotate(${sunAngle}deg)`;
+    coinEls[i] = g; shEls[i] = sg; sg._sh = sh;
+    return g;
+  }
+  function clearCoins() {
+    for (let i = 0; i < B.N; i++) { if (coinEls[i]) coinEls[i].remove(); if (shEls[i]) shEls[i].remove(); coinEls[i] = shEls[i] = null; }
+  }
+  function placeSun(angleDeg, animate) {
+    // the sun sits opposite the shadows
+    const put = a => {
+      const d = (a + 180) / -60;                                 // fractional direction index
+      const [x, y] = station(d, RX, RY);
+      sunEl.setAttribute('transform', `translate(${x.toFixed(2)},${y.toFixed(2)})`);
+      const rad = Math.PI / 180 * (a + 180), c = Math.cos(rad), sn = Math.sin(rad);
+      lightG.setAttribute('x1', CX + c * RX); lightG.setAttribute('y1', CY + sn * RY);
+      lightG.setAttribute('x2', CX - c * RX); lightG.setAttribute('y2', CY - sn * RY);
+    };
+    if (!animate || placeSun.last == null) { put(angleDeg); placeSun.last = angleDeg; return; }
+    const a0 = placeSun.last, t0 = performance.now(), dur = 1100;
+    placeSun.last = angleDeg;
+    const step = t => {
+      const k = Math.min(1, (t - t0) / dur), e = k < .5 ? 2 * k * k : 1 - Math.pow(-2 * k + 2, 2) / 2;
+      put(a0 + (angleDeg - a0) * e);
+      if (k < 1 && placeSun.last === angleDeg) requestAnimationFrame(step);
+    };
+    requestAnimationFrame(step);
+  }
+  function setShadows(animate) {
+    const a = shadowAngleFor(s.ply);
+    for (let i = 0; i < B.N; i++) if (shEls[i]) {
+      const sh = shEls[i]._sh;
+      if (!animate) { sh.style.transition = 'none'; sh.style.transform = `rotate(${a}deg)`; sh.getBoundingClientRect(); sh.style.transition = ''; }
+      else sh.style.transform = `rotate(${a}deg)`;
+    }
+    placeSun(a, animate);
+    const sd = S.sunDir(S.roundOf(s.ply)), nd = S.sunDir(S.roundOf(s.ply) + 1);
+    stationDots.forEach((c, d) => { c.setAttribute('r', d === nd ? 6 : 4); c.setAttribute('fill', d === nd ? '#e3b25a' : '#cdbd9f'); c.style.opacity = d === sd ? 0 : 1; stationNums[d].style.opacity = d === sd ? 0 : 1; });
+  }
+  function fullRender() {
+    clearCoins();
+    sunAngle = null; placeSun.last = null;
+    shadowAngleFor(s.ply);
+    for (let i = 0; i < B.N; i++) if (s.b[i]) makeCoin(i, s.b[i]);
+    setShadows(false);
+    marks();
+    ui();
+  }
+  function marks() {
+    gMarks.textContent = ''; gOver.textContent = '';
+    const last = G.moves[G.moves.length - 1];
+    if (last != null) el('circle', { cx: px(last), cy: py(last), r: COIN + 4.5, fill: 'none', stroke: '#b4502c', 'stroke-width': 2, opacity: .8 }, gMarks);
+    const lf = flips[flips.length - 1];
+    if (lf != null && lf >= 0) el('circle', { cx: px(lf), cy: py(lf), r: COIN + 4.5, fill: 'none', stroke: '#b4502c', 'stroke-width': 1.5, 'stroke-dasharray': '3 4', opacity: .8 }, gMarks);
+    if (s.winner) drawChain();
+    else drawRisk();
+    drawPreview();
+    const cur = el('polygon', { class: 'cursor', points: hexPts(px(cursor), py(cursor), R - 4), fill: 'none', stroke: '#2b241c', 'stroke-width': 2.5 }, gOver);
+  }
+  function drawChain() {
+    const p = s.winner, cells = new Set(S.chain(B, s.b, p));
+    // shortest path through the chain from one edge to the other
+    const isA = i => p === 1 ? i < n : i % n === 0, isZ = i => p === 1 ? i >= B.N - n : i % n === n - 1;
+    const prev = new Map(), q = [];
+    for (const i of cells) if (isA(i)) { prev.set(i, -1); q.push(i); }
+    let end = -1;
+    while (q.length && end < 0) {
+      const i = q.shift();
+      if (isZ(i)) { end = i; break; }
+      for (const j of B.nb[i]) if (cells.has(j) && !prev.has(j)) { prev.set(j, i); q.push(j); }
+    }
+    const path = [];
+    for (let i = end; i >= 0; i = prev.get(i)) path.push(i);
+    const pts = path.map(i => px(i).toFixed(1) + ',' + py(i).toFixed(1)).join(' ');
+    el('polyline', { points: pts, fill: 'none', stroke: '#fff8e6', 'stroke-width': 11, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', opacity: .75 }, gOver);
+    el('polyline', { points: pts, fill: 'none', stroke: p === 1 ? '#8a5f12' : '#232f3f', 'stroke-width': 4, 'stroke-linecap': 'round', 'stroke-linejoin': 'round' }, gOver);
+    for (let i = 0; i < B.N; i++) if (coinEls[i]) coinEls[i].style.opacity = cells.has(i) ? 1 : .55;
+  }
+  // Coins of the player to move that the other player could turn over on the next move: a red notch on the sunny side.
+  function drawRisk() {
+    if (!showRisk || !humanTurn() || !G.moves.length) return;
+    const p = S.toMove(s), d = S.shadowDir(S.roundOf(s.ply + 1)), sunny = (d + 3) % 6, a = Math.PI / 3 * sunny;
+    for (let y = 0; y < B.N; y++) {
+      if (s.b[y] !== p) continue;
+      const x = B.step[y][sunny];
+      if (x < 0 || s.b[x]) continue;
+      const cx = px(y) + Math.cos(a) * (COIN + 1), cy = py(y) - Math.sin(a) * (COIN + 1);
+      el('circle', { cx, cy, r: 5, fill: '#b4502c', stroke: '#fbf3e2', 'stroke-width': 1.6 }, gOver);
+    }
+  }
+  function drawPreview() {
+    const i = previewCell;
+    if (i < 0 || s.b[i] || s.winner || !humanTurn()) return;
+    const p = S.toMove(s), a = sunAngle;
+    const d = S.shadowDir(S.roundOf(s.ply)), j = B.step[i][d];
+    const sg = el('g', { transform: `translate(${px(i)},${py(i)})`, opacity: .9 }, gOver);
+    el('rect', { x: -COIN * .92, y: -COIN * .92, width: SHADOW + COIN * 1.84, height: COIN * 1.84, rx: COIN * .92, fill: '#4a3214', opacity: .16, transform: `rotate(${a})` }, sg);
+    if (j >= 0) {
+      const hit = s.b[j] === 3 - p;
+      el('polygon', { points: hexPts(px(j), py(j), R - 3), fill: hit ? '#b4502c' : '#4a3214', opacity: hit ? .28 : .08 }, gOver);
+      if (hit) el('circle', { cx: px(j), cy: py(j), r: COIN + 4.5, fill: 'none', stroke: '#b4502c', 'stroke-width': 3 }, gOver);
+    }
+    el('use', { href: faceHref(p), x: px(i), y: py(i), opacity: .62 }, gOver);
+  }
+
+  function animatePlace(i, p) {
+    const g = makeCoin(i, p);
+    g._spin.animate([{ transform: 'scale(1.25)', opacity: 0 }, { transform: 'scale(1)', opacity: 1 }], { duration: 260, easing: 'cubic-bezier(.3,.7,.4,1)' });
+    shEls[i].animate([{ opacity: 0 }, { opacity: 1 }], { duration: 300 });
+  }
+  function animateFlip(j, p) {
+    const g = coinEls[j];
+    if (!g) return;
+    const a = g._spin.animate([{ transform: 'scale(1,1)' }, { transform: 'scale(1.12,0.02)' }], { duration: 170, delay: 230, easing: 'ease-in', fill: 'forwards' });
+    a.onfinish = () => {
+      g._use.setAttribute('href', faceHref(p)); g._p = p;
+      const b = g._spin.animate([{ transform: 'scale(1.12,0.02)' }, { transform: 'scale(1,1)' }], { duration: 200, easing: 'ease-out' });
+      a.cancel();
+    };
+  }
+
+  // ---------- turn logic ----------
+  const humanTurn = () => !s.winner && !thinking && (!vsClaude() ||
+    (G.moves.length ? G.human > 0 && S.toMove(s) === G.human : G.cutter === 'you'));
+
+  function commit(c) {
+    const p = S.toMove(s), round0 = S.roundOf(s.ply);
+    const f = S.play(B, s, c);
+    G.moves.push(c); flips.push(f);
+    previewCell = -1; touchArmed = -1;
+    animatePlace(c, p);
+    if (f >= 0) animateFlip(f, p);
+    if (S.roundOf(s.ply) !== round0 && !s.winner) setTimeout(() => setShadows(true), f >= 0 ? 520 : 300);
+    marks();
+    if (s.winner) finish();
+    save(); ui();
+    if (vsClaude() && G.moves.length === 1 && !G.human) afterCut();
+    else if (claudeToMove()) setTimeout(claudeMove, 60);
+  }
+
+  // The first coin. Claude uses a table of how often Heads wins from each first coin between strong players
+  // (making/openings.mjs): it cuts somewhere close to even, and chooses whichever side the table favours.
+  function claudeCut() {
+    if (!claudeCuts() || thinking) return;                  // a newer game may have started since this was scheduled
+    const id = ++ask; thinking = id; ui();
+    const near = S.OPENING.map((v, c) => [Math.abs(v - .5), c]).sort((a, b) => a[0] - b[0]).slice(0, 6);
+    const c = near[(Math.random() * near.length) | 0][1];
+    setTimeout(() => { if (thinking !== id) return; thinking = null; commit(c); }, 900);
+  }
+  function afterCut() {
+    if (G.cutter === 'claude') { ui(); return; }              // the person chooses, with the buttons
+    const id = ++ask; thinking = id; ui();
+    setTimeout(() => {
+      if (thinking !== id) return; thinking = null;
+      const takeHeads = S.OPENING[G.moves[0]] > .5;
+      choose(takeHeads ? 2 : 1, takeHeads ? 'Claude takes Heads, so that coin is Claude\u2019s. You play Tails, and it\u2019s your move.'
+        : 'Claude leaves you Heads and plays Tails.');
+    }, 900);
+  }
+  function choose(side, msg) {
+    G.human = side; save(); ui(); note(msg || '');
+    if (claudeToMove()) setTimeout(claudeMove, 400);
+  }
+
+  function finish() {
+    if (!vsClaude() || G.counted) return;
+    G.counted = true;
+    if (s.winner === G.human) tally.you++; else tally.claude++;
+    store.set('tally', tally);
+  }
+
+  // Claude thinks in a worker so the page never freezes. Stale answers are ignored.
+  let worker = null, ask = 0;
+  function makeWorker() {
+    try {
+      const src = document.getElementById('engine').textContent + `
+        onmessage = e => { const m = e.data, B = Shade.board(m.n);
+          const s = { b: new Int8Array(m.b), ply: m.ply, winner: 0, empty: m.b.filter(v => !v).length };
+          postMessage({ id: m.id, r: Shade.think(B, s, m.opts) }); };`;
+      return new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
+    } catch { return null; }
+  }
+  const LEVEL = { easy: { iters: 500 }, fair: { iters: 6000 }, hard: { ms: 2600 } };
+  function claudeMove() {
+    if (!claudeToMove() || thinking) return;
+    const id = ++ask, opts = LEVEL[G.opp], t0 = performance.now();
+    thinking = id; ui();
+    const done = r => {
+      if (thinking !== id) return;
+      const wait = Math.max(0, 650 - (performance.now() - t0));
+      setTimeout(() => { if (thinking !== id) return; thinking = null; commit(r.mv); }, wait);
+    };
+    if (!worker) worker = makeWorker();
+    if (worker) {
+      worker.onmessage = e => { if (e.data.id === id) done(e.data.r); };
+      worker.onerror = () => { worker = null; thinking = null; setTimeout(claudeMove, 0); };
+      worker.postMessage({ id, n, b: Array.from(s.b), ply: s.ply, opts });
+    } else {
+      setTimeout(() => done(S.think(B, S.copy(s), { ...opts, ms: Math.min(opts.ms || 1e9, 1500) })), 30);
+    }
+  }
+  function stopThinking() {
+    if (thinking && worker) { worker.terminate(); worker = null; }
+    thinking = null;
+  }
+
+  function newGame() {
+    stopThinking();
+    let cutter = cutPref, msg = '';
+    if (cutPref === 'toss') {
+      cutter = Math.random() < .5 ? 'you' : 'claude';
+      msg = cutter === 'you' ? 'The toss says you put down the first coin. ' : 'The toss says Claude puts down the first coin. ';
+    }
+    G = { moves: [], human: 0, cutter, opp, counted: false };
+    cursor = (n >> 1) * n + (n >> 1);
+    replay([]);
+    fullRender();
+    if (vsClaude()) note(msg + (cutter === 'you' ? 'Claude will choose a side after, so put it somewhere you\u2019d be happy either way.' : 'Then you choose a side.'));
+    else note('Whoever puts it down, the other player chooses a side after. Tails moves next.');
+    save();
+    if (claudeCuts()) setTimeout(claudeCut, 300);
+  }
+  const undoable = () => !vsClaude() ? G.moves.length > 0
+    : G.moves.length > (G.cutter === 'claude' ? 1 : 0) || (G.cutter === 'claude' && G.human > 0);
+  function undo() {
+    if (!undoable()) return;
+    stopThinking();
+    const m = G.moves.slice();
+    if (!(vsClaude() && G.cutter === 'claude' && m.length === 1)) m.pop();   // otherwise only the choice is taken back
+    if (vsClaude()) {
+      while (m.length >= 2 && ((m.length & 1) + 1) !== G.human) m.pop();
+      if (m.length < 2) { m.length = G.cutter === 'claude' ? 1 : 0; G.human = 0; }   // back to the first coin and the choice
+    }
+    if (s.winner && G.counted) {                           // taking back a finished game takes back its result
+      if (s.winner === G.human) tally.you--; else tally.claude--;
+      G.counted = false; store.set('tally', tally);
+    }
+    G.moves = m;
+    replay(m);
+    fullRender(); note('');
+    save();
+    if (claudeToMove()) setTimeout(claudeMove, 300);
+  }
+  function save() { store.set('game', { moves: G.moves, human: G.human, cutter: G.cutter, opp: G.opp, counted: G.counted }); }
+  function note(t) { document.getElementById('note').textContent = t; }
+
+  // ---------- panel ----------
+  function coinIcon(p, size = 30) {
+    return `<svg width="${size}" height="${size}" viewBox="${-COIN - 2} ${-COIN - 2} ${2 * COIN + 4} ${2 * COIN + 4}" aria-hidden="true"><use href="${faceHref(p)}"/></svg>`;
+  }
+  function ui() {
+    const turn = document.getElementById('turn'), p = S.toMove(s);
+    let who;
+    if (s.winner) {
+      const w = s.winner;
+      who = vsClaude() ? (w === G.human ? `You win. ${NAME[w]} joins up in ${G.moves.length} moves.` : `Claude wins. ${NAME[w]} joins up in ${G.moves.length} moves.`)
+        : `${NAME[w]} wins, in ${G.moves.length} moves.`;
+      turn.innerHTML = coinIcon(w) + '<span>' + who + '</span>';
+    } else {
+      const first = !G.moves.length, choosing = vsClaude() && G.moves.length === 1 && !G.human;
+      if (!vsClaude()) who = first ? 'Put down the first coin' : `${NAME[p]} to play`;
+      else if (first) who = G.cutter === 'you' ? 'Put down the first coin' : 'Claude is putting down the first coin…';
+      else if (choosing) who = G.cutter === 'claude' ? 'Choose your side' : 'Claude is choosing a side…';
+      else if (p === G.human) who = `Your move <span class="quiet">(${NAME[p]})</span>`;
+      else who = thinking ? 'Claude is thinking…' : 'Claude to play';
+      turn.innerHTML = coinIcon(choosing ? 1 : p) + '<span>' + who + '</span>';
+    }
+    const ch = document.getElementById('choose');
+    ch.hidden = !(vsClaude() && !s.winner && G.moves.length === 1 && !G.human && G.cutter === 'claude');
+    const k = S.roundOf(s.ply), sd = S.sunDir(k), shd = S.shadowDir(k);
+    const moveNote = s.winner ? '' : p === 1 ? ' It moves on after this turn.' : ' It moves on after Heads has played.';
+    const nx = S.sunDir(k + 1);
+    document.getElementById('sunline').textContent = `The sun is in the ${DIRNAME[sd]}, so shadows fall ${DIRNAME[shd]}.${moveNote}` +
+      (s.winner ? '' : ` Next it goes ${DIRNAME[nx]}, and shadows will fall ${DIRNAME[(nx + 3) % 6]}.`);
+    document.getElementById('undo').disabled = !undoable();
+    document.querySelectorAll('#opp button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === opp));
+    document.querySelectorAll('#cutsel button').forEach(b => b.setAttribute('aria-pressed', b.dataset.v === cutPref));
+    document.getElementById('cutfield').style.display = opp === 'friend' ? 'none' : '';
+    document.getElementById('tally').textContent = (tally.you || tally.claude) ? `Games against Claude: you ${tally.you}, Claude ${tally.claude}.` : '';
+    svg.classList.toggle('over', !!s.winner);
+    svg.classList.toggle('waiting', !humanTurn());
+    for (let i = 0; i < B.N; i++) cellEls[i].classList.toggle('taken', !!s.b[i]);
+    const ml = document.getElementById('moves');
+    ml.innerHTML = G.moves.map((c, k) => {
+      const pl = k & 1 ? 't' : 'h', f = flips[k];
+      return `<li><span class="n">${k + 1}.</span><span class="${pl}">${NAME[pl === 'h' ? 1 : 2]} ${cellName(c)}</span>${f >= 0 ? `<span class="x">, turns ${cellName(f)} over</span>` : ''}</li>`;
+    }).join('');
+    ml.scrollTop = ml.scrollHeight;
+  }
+
+  // ---------- input ----------
+  const cellAt = e => { const t = e.target.closest && e.target.closest('.cell'); return t ? +t.dataset.i : -1; };
+  svg.addEventListener('pointermove', e => {
+    if (e.pointerType !== 'mouse') return;
+    const i = cellAt(e);
+    if (i !== previewCell) { previewCell = i; marks(); }
+  });
+  svg.addEventListener('pointerleave', e => { if (e.pointerType === 'mouse' && previewCell >= 0) { previewCell = -1; marks(); } });
+  svg.addEventListener('click', e => {
+    const i = cellAt(e);
+    if (i < 0 || s.b[i] || !humanTurn()) return;
+    cursor = i;
+    const touch = e.pointerType && e.pointerType !== 'mouse';
+    if (touch && touchArmed !== i) {                          // on a touchscreen, the first tap shows the shadow
+      touchArmed = i; previewCell = i; marks(); note('Tap again to put your coin there.');
+      return;
+    }
+    note('');
+    commit(i);
+  });
+  svg.addEventListener('keydown', e => {
+    const q = cursor % n, r = (cursor / n) | 0;
+    const mv = { ArrowLeft: [-1, 0], ArrowRight: [1, 0], ArrowUp: [0, -1], ArrowDown: [0, 1] }[e.key];
+    if (mv) {
+      e.preventDefault();
+      const q2 = Math.max(0, Math.min(n - 1, q + mv[0])), r2 = Math.max(0, Math.min(n - 1, r + mv[1]));
+      cursor = r2 * n + q2; previewCell = cursor; marks();
+    } else if ((e.key === 'Enter' || e.key === ' ') && humanTurn() && !s.b[cursor]) {
+      e.preventDefault(); commit(cursor);
+    }
+  });
+  svg.addEventListener('focus', () => { previewCell = cursor; marks(); });
+  svg.addEventListener('blur', () => { previewCell = -1; marks(); });
+  document.getElementById('new').onclick = newGame;
+  document.getElementById('undo').onclick = undo;
+  // a change of opponent or side starts again at once, unless someone is in the middle of a game
+  const fresh = () => s.winner || !G.moves.some((_, k) => !vsClaude() || (k ? (k & 1) + 1 === G.human : G.cutter === 'you'));
+  document.getElementById('opp').onclick = e => {
+    const b = e.target.closest('button'); if (!b) return;
+    opp = b.dataset.v; store.set('opp', opp);
+    if (fresh()) newGame(); else { ui(); note('That starts with the next new game.'); }
+  };
+  document.getElementById('choose').onclick = e => {
+    const b = e.target.closest('button'); if (!b) return;
+    choose(+b.dataset.v, +b.dataset.v === 1 ? 'That coin is yours. Claude plays Tails, and moves next.' : 'Claude keeps Heads. Your move.');
+  };
+  document.getElementById('cutsel').onclick = e => {
+    const b = e.target.closest('button'); if (!b) return;
+    cutPref = b.dataset.v; store.set('cut', cutPref);
+    if (fresh()) newGame(); else { ui(); note('That starts with the next new game.'); }
+  };
+  document.getElementById('print').onclick = () => window.print();
+  const riskBox = document.getElementById('risk');
+  riskBox.checked = showRisk;
+  riskBox.onchange = () => { showRisk = riskBox.checked; store.set('risk', showRisk); marks(); };
+
+  // ---------- figures and the print sheet ----------
+  // Small diagrams for the rules. cells: [q, r, owner, mark]; mark is 'new', 'turned', 'ghost' or 'target'.
+  function figure(parent, spec) {
+    const f = el('svg', { viewBox: spec.vb, role: 'img', 'aria-label': spec.label }, parent);
+    defs(f, W);
+    const m = el('marker', { id: 'arr' + spec.id, viewBox: '0 0 10 10', refX: 8, refY: 5, markerWidth: 6, markerHeight: 6, orient: 'auto-start-reverse' }, f.querySelector('defs'));
+    el('path', { d: 'M0,0 L10,5 L0,10 z', fill: '#b4502c' }, m);
+    const x = ([q, r]) => W * (q + r / 2), y = ([q, r]) => 1.5 * R * r;
+    for (const c of spec.cells) el('polygon', { points: hexPts(x(c), y(c), R - .6), fill: '#ecdfc4', stroke: '#c9b692', 'stroke-width': 1.2 }, f);
+    const shg = el('g', { filter: 'url(#soft)' }, f);
+    for (const c of spec.cells) if (c[2]) {
+      const g = el('g', { transform: `translate(${x(c)},${y(c)})` }, shg);
+      el('rect', { x: -COIN * .92, y: -COIN * .92, width: SHADOW + COIN * 1.84, height: COIN * 1.84, rx: COIN * .92, fill: '#4a3214',
+        opacity: c[3] === 'ghost' ? .22 : .3, transform: `rotate(${ANG(spec.shadow)})` }, g);
+    }
+    for (const c of spec.cells) if (c[3] === 'target') el('polygon', { points: hexPts(x(c), y(c), R - 3), fill: '#b4502c', opacity: .22 }, f);
+    for (const c of spec.cells) if (c[2]) el('use', { href: faceHref(c[2]), x: x(c), y: y(c), opacity: c[3] === 'ghost' ? .6 : 1 }, f);
+    for (const c of spec.cells) {
+      if (c[3] === 'new' || c[3] === 'target') el('circle', { cx: x(c), cy: y(c), r: COIN + 4.5, fill: 'none', stroke: '#b4502c', 'stroke-width': c[3] === 'target' ? 3 : 2 }, f);
+      if (c[3] === 'turned') el('circle', { cx: x(c), cy: y(c), r: COIN + 4.5, fill: 'none', stroke: '#b4502c', 'stroke-width': 1.5, 'stroke-dasharray': '3 4' }, f);
+    }
+    if (spec.sun) { const g = drawSun(f, W * .22); g.setAttribute('transform', `translate(${spec.sun[0]},${spec.sun[1]})`); }
+    return f;
+  }
+  function figures(host) {
+    const add = (make, cap) => { const fig = document.createElement('figure'); make(fig); const c = document.createElement('figcaption'); c.textContent = cap; fig.appendChild(c); host.appendChild(fig); };
+    // a patch of three rows; the middle row is where things happen, the sun off to the east
+    const patch = extra => {
+      const cells = [];
+      for (const [r, q0, q1] of [[-1, 1, 3], [0, 0, 3], [1, -1, 2]]) for (let q = q0; q <= q1; q++) cells.push([q, r, 0]);
+      return cells.map(c => extra.find(e => e[0] === c[0] && e[1] === c[1]) || c);
+    };
+    const vb = `${-W * 1.1} ${-R * 2.6} ${W * 6.1} ${R * 5.2}`, sun = [W * 4.25, 0];
+    add(fig => figure(fig, { id: 'a', vb, sun, shadow: 3, label: 'Heads about to play next to a tail, with the sun in the east',
+      cells: patch([[1, 0, 2, 'target'], [2, 0, 1, 'ghost'], [2, -1, 1], [0, 1, 2], [1, -1, 2]]) }),
+      'The sun is in the east, so shadows fall west. If Heads plays the marked space, its shadow lands on the tail.');
+    add(fig => figure(fig, { id: 'b', vb, sun, shadow: 3, label: 'The tail has been turned over and is now heads',
+      cells: patch([[1, 0, 1, 'turned'], [2, 0, 1, 'new'], [2, -1, 1], [0, 1, 2], [1, -1, 2]]) }),
+      'So the tail turns over and becomes a head. That one coin is all that changes.');
+    add(fig => {
+      const sv = figure(fig, { id: 'c', vb: `${-W * 2.55} ${-W * 2.05} ${W * 5.1} ${W * 4.1}`, shadow: S.shadowDir(0), cells: [[0, 0, 1]], label: 'The six places the sun visits, numbered clockwise from where it starts' });
+      for (let d = 0; d < 6; d++) {
+        const [sx, sy] = station(d, W * 1.4, W * 1.4, 0, 0);
+        if (d === S.sunDir(0)) { const g = drawSun(sv, W * .2); g.setAttribute('transform', `translate(${sx},${sy})`); }
+        else el('circle', { cx: sx, cy: sy, r: 4, fill: '#cdbd9f' }, sv);
+        const [lx, ly] = station(d, W * 2.15, W * 1.8, 0, 0);
+        const t = el('text', { x: lx, y: ly + 6, 'text-anchor': 'middle', 'font-size': 18, fill: '#6c604f', 'font-family': 'EB Garamond, P052, serif' }, sv);
+        t.textContent = stationNumber(d);
+      }
+      const d0 = S.sunDir(0), [x1, y1] = station(d0 - .28, W * 1.4, W * 1.4, 0, 0), [x2, y2] = station(d0 - .78, W * 1.4, W * 1.4, 0, 0);
+      el('path', { d: `M${x1},${y1} A${W * 1.4},${W * 1.4} 0 0 1 ${x2},${y2}`, fill: 'none', stroke: '#b4502c', 'stroke-width': 2, 'marker-end': 'url(#arrc)' }, sv);
+    }, `The sun starts at 1, in the ${DIRNAME[S.sunDir(0)]}, and moves one place clockwise each time Heads has played. The shadows turn with it.`);
+  }
+  figures(document.getElementById('figs'));
+
+  function printSheet() {
+    const sheet = document.getElementById('sheet');
+    const mm = 22, r = mm / Math.sqrt(3);                   // 22 mm across the flats
+    const x = i => mm * ((i % n) + ((i / n) | 0) / 2), y = i => 1.5 * r * ((i / n) | 0);
+    const cx = mm * 1.5 * (n - 1) / 2, cy = 1.5 * r * (n - 1) / 2;
+    const rx = mm * 4.6, ry = mm * 3.95;
+    const vb = [cx - rx - mm * .75, cy - ry - mm * .62, 2 * rx + 1.5 * mm, 2 * ry + 1.24 * mm];
+    const p1 = document.createElement('div'); p1.className = 'page';
+    p1.innerHTML = `<div style="position:absolute;left:0;top:0;font-size:9pt;color:#555"><span style="font-style:italic;font-size:15pt;color:#000">a place in the sun</span><br>Heads joins top and bottom.<br>Tails joins left and right.</div>`;
+    const b = el('svg', { viewBox: vb.join(' '), width: vb[2] + 'mm', height: vb[3] + 'mm', style: 'margin:0 auto' }, p1);
+    for (let i = 0; i < B.N; i++) el('polygon', { points: hexPts(x(i), y(i), r - .15), fill: '#fff', stroke: '#777', 'stroke-width': .3 }, b);
+    edgeBands(b, x, y, r + .9, 2.2);
+    for (let d = 0; d < 6; d++) {
+      const [sx, sy] = station(d, rx, ry, cx, cy);
+      const g = drawSun(b, mm * .2); g.setAttribute('transform', `translate(${sx},${sy})`);
+      if (d !== S.sunDir(0)) g.setAttribute('opacity', '.45');
+      const t = el('text', { x: sx, y: sy + mm * .13, 'text-anchor': 'middle', 'font-size': mm * .36, fill: '#000', 'font-family': 'EB Garamond, P052, serif' }, b);
+      t.textContent = stationNumber(d);
+    }
+    // an arrow along the sun's path from 1 toward 2, so the way round is plain on paper
+    const d0 = S.sunDir(0), arc = [];
+    for (let k = 0; k <= 12; k++) arc.push(station(d0 - .1 - .17 * k / 12, rx * 1.1, ry * 1.1, cx, cy).map(v => v.toFixed(2)).join(','));
+    const mk = el('marker', { id: 'parr', viewBox: '0 0 10 10', refX: 8, refY: 5, markerWidth: 5, markerHeight: 5, orient: 'auto' }, el('defs', {}, b));
+    el('path', { d: 'M0,0 L10,5 L0,10 z', fill: '#b4502c' }, mk);
+    el('polyline', { points: arc.join(' '), fill: 'none', stroke: '#b4502c', 'stroke-width': .6, 'marker-end': 'url(#parr)' }, b);
+    sheet.appendChild(p1);
+    const p2 = document.createElement('div'); p2.className = 'page';
+    const rules = document.getElementById('rules');
+    p2.innerHTML = `<h1 style="margin-bottom:4mm">a place in the sun</h1><div class="cols">
+      <h2>What you need</h2><p>This board, about forty coins of any kinds, and something to mark the sun. Coins up to about 22 mm fit the spaces. You share the coins: one of you plays whatever lies heads up, the other tails.</p>
+      <h2>How to play</h2>${rules.querySelector('ol').outerHTML}
+      <p>The sun starts at 1, in the ${DIRNAME[S.sunDir(0)]}. Put the marker there. Each time Heads has played, the first coin included, move it on to the next number.</p>
+      <h2>Worth knowing</h2>${[...rules.querySelectorAll('h3 ~ p')].slice(0, 5).map(p => p.outerHTML).join('')}
+      <p style="color:#555">Hex was invented by Piet Hein in 1942 and again, on his own, by John Nash in 1948. The sun and the shadows are new.</p></div>
+      <div class="figs">${document.getElementById('figs').innerHTML}</div>`;
+    sheet.appendChild(p2);
+  }
+  printSheet();
+
+  // ---------- start ----------
+  const saved = store.get('game', null);
+  if (params.has('moves')) {
+    const cells = params.get('moves').split(',').filter(Boolean).map(m => (+m.slice(1) - 1) * n + 'abcdefghijk'.indexOf(m[0]));
+    G = { moves: [], human: +(params.get('human') || 1), cutter: 'you', opp: params.get('opp') || 'friend', counted: true };
+    opp = G.opp;
+    replay(cells); G.moves = cells; fullRender();
+    if (params.has('preview')) { const m = params.get('preview'); previewCell = (+m.slice(1) - 1) * n + 'abcdefghijk'.indexOf(m[0]); marks(); }
+  } else if (saved && saved.moves) {
+    G = { moves: saved.moves, human: saved.human || 0, cutter: saved.cutter || 'you', opp: saved.opp, counted: saved.counted };
+    replay(G.moves); fullRender();
+    if (claudeCuts()) setTimeout(claudeCut, 600);
+    else if (vsClaude() && G.moves.length === 1 && !G.human) afterCut();
+    else if (claudeToMove()) setTimeout(claudeMove, 600);
+  } else newGame();
+  window.__ready = true;
+  window.__game = () => ({ moves: G.moves.map(cellName), winner: s.winner, ply: s.ply, thinking: !!thinking, human: G.human, cutter: G.cutter,
+    faces: coinEls.map(g => g ? (g._use.getAttribute('href') === '#coinH' ? 'H' : 'T') : '.').join('') });
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,489 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Offcut</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap">
+<style>
+  :root {
+    --paper: #f4efe5; --ink: #2b2620; --soft: #5a5147; --muted: #7d7366; --line: #d8cebd; --accent: #b0512f; --card: #fbf8f1;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: "EB Garamond", P052, "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    font-size: 19px; line-height: 1.55;
+  }
+  main { max-width: 980px; margin: 0 auto; padding: 48px 16px 72px; }
+  a { color: var(--accent); }
+  .kicker { font-size: 13px; letter-spacing: .16em; color: var(--muted); margin: 0 0 6px; text-transform: uppercase; }
+  .kicker a { color: inherit; text-decoration: none; }
+  h1 { font-weight: 400; font-style: italic; font-size: 52px; line-height: 1; margin: 0 0 14px; }
+  h2 { font-weight: 400; font-style: italic; font-size: 30px; margin: 0 0 10px; }
+  h3 { font-weight: 500; font-size: 19px; margin: 0 0 2px; }
+  .lede { max-width: 640px; margin: 0; color: var(--soft); }
+  section { margin-top: 56px; }
+
+  /* the toy */
+  #play { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 36px; align-items: start; margin-top: 36px; }
+  .stage { position: relative; }
+  #flex { display: block; width: 100%; max-width: 560px; margin: 0 auto; touch-action: manipulation; -webkit-tap-highlight-color: transparent; overflow: visible; }
+  #flex .corner { cursor: pointer; outline: none; }
+  #flex .corner .hit { fill: transparent; }
+  #flex .corner .dot { fill: var(--accent); opacity: 0; transition: opacity .3s; }
+  #flex .corner.ok .dot { opacity: .75; }
+  #flex .corner:focus-visible .ring { stroke: var(--ink); }
+  #flex .corner .ring { fill: none; stroke: transparent; stroke-width: .012; }
+  .caption { text-align: center; margin: 12px 0 0; min-height: 1.6em; }
+  .caption .face { font-style: italic; }
+  .hint { text-align: center; margin: 2px 0 0; color: var(--muted); font-size: 16px; min-height: 1.5em; }
+  .buttons { display: flex; justify-content: center; gap: 12px; margin-top: 14px; flex-wrap: wrap; }
+  button {
+    font: inherit; font-size: 17px; color: var(--ink); background: var(--card); border: 1px solid var(--line);
+    border-radius: 999px; padding: 6px 18px; cursor: pointer;
+  }
+  button:hover, button:focus-visible { border-color: var(--accent); color: var(--accent); outline: none; }
+
+  /* found */
+  .found h2 { font-size: 24px; margin-bottom: 2px; }
+  .found .count { color: var(--muted); font-size: 16px; margin: 0 0 14px; }
+  .facerow { display: grid; grid-template-columns: 88px repeat(3, 1fr); align-items: center; gap: 6px; margin-bottom: 6px; }
+  .facerow .name { font-size: 16px; font-style: italic; color: var(--soft); }
+  .slot { position: relative; }
+  .slot svg { display: block; width: 100%; height: auto; }
+  .slot.new svg { animation: pop .7s ease-out; }
+  @keyframes pop { 0% { transform: scale(.6); } 60% { transform: scale(1.12); } 100% { transform: scale(1); } }
+  .slot .never { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; text-align: center; font-size: 11.5px; line-height: 1.15; color: var(--muted); font-style: italic; padding: 0 6px; }
+  .found .small { font-size: 15px; color: var(--muted); margin: 10px 0 0; }
+  .linkish { border: 0; background: none; padding: 0; font-size: 15px; color: var(--muted); text-decoration: underline; border-radius: 0; }
+
+  /* making */
+  .make-intro { display: grid; grid-template-columns: minmax(0, 1fr) 260px; gap: 32px; align-items: start; }
+  .preview { background: #fff; box-shadow: 0 1px 2px rgba(0,0,0,.12), 0 6px 18px rgba(60,40,20,.10); }
+  .preview svg { display: block; width: 100%; height: auto; }
+  ol.steps { list-style: none; padding: 0; margin: 28px 0 0; counter-reset: step; }
+  ol.steps > li { counter-increment: step; display: grid; grid-template-columns: 44px minmax(0, 1fr); gap: 4px 12px; margin-bottom: 30px; break-inside: avoid; }
+  ol.steps > li::before { content: counter(step); font-style: italic; font-size: 34px; line-height: 1; color: var(--accent); }
+  ol.steps p { margin: 0 0 8px; }
+  .figs { display: flex; flex-wrap: wrap; gap: 14px 22px; align-items: flex-end; margin-top: 8px; }
+  figure { margin: 0; display: table; }
+  figcaption { display: table-caption; caption-side: bottom; }
+  figure svg { display: block; height: auto; max-width: 100%; }
+  figcaption { font-size: 14px; color: var(--muted); font-style: italic; margin-top: 4px; }
+
+  .notes { max-width: 680px; }
+  .notes p { margin: 0 0 14px; }
+  footer { margin-top: 64px; font-size: 15px; color: var(--muted); }
+
+  #sheet { display: none; }
+
+  @media (max-width: 760px) {
+    body { font-size: 18px; }
+    h1 { font-size: 42px; }
+    #play { grid-template-columns: 1fr; gap: 28px; }
+    .make-intro { grid-template-columns: 1fr; }
+    .preview { max-width: 260px; }
+    ol.steps > li { grid-template-columns: 30px minmax(0, 1fr); }
+  }
+
+  @media print {
+    @page { margin: 10mm; }
+    body { background: #fff; font-size: 11.5pt; line-height: 1.4; }
+    main { max-width: none; padding: 0; }
+    header, #play, .found, .notes, footer, .make-intro, .noprint { display: none !important; }
+    #sheet { display: block; break-after: page; }
+    #sheet svg { display: block; width: 190mm; height: 257mm; }
+    section { margin-top: 0; }
+    #make h2 { font-size: 20pt; }
+    ol.steps { margin-top: 8px; }
+    ol.steps > li { margin-bottom: 14px; }
+    ol.steps > li::before { font-size: 22pt; }
+    * { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs id="defs"></defs></svg>
+
+<div id="sheet" aria-hidden="true"></div>
+
+<main>
+  <header>
+    <p class="kicker"><a href="../index.html">sketchbook</a> · 004</p>
+    <h1>offcut</h1>
+    <p class="lede">In 1939 Arthur Stone, a British graduate student at Princeton, trimmed his English notebook paper to fit an American binder. He started folding the leftover strips, and one of them folded into a hexagon that showed a different face every time he flexed it. This is one of those, a hexahexaflexagon. It has six faces, and three of them are hard to find. Play with it here, then print it, fold it, and hold it.</p>
+  </header>
+
+  <div id="play">
+    <div class="stage">
+      <svg id="flex" viewBox="-1.25 -1.25 2.5 2.5" role="img" aria-labelledby="caption"></svg>
+      <p class="caption" id="caption" aria-live="polite"></p>
+      <p class="hint" id="hint">Tap a marked corner to pinch it there.</p>
+      <div class="buttons">
+        <button id="turn" type="button">turn it over</button>
+      </div>
+    </div>
+    <div class="found">
+      <h2>Windows</h2>
+      <p class="count" id="count"></p>
+      <div id="rows"></div>
+      <p class="small">Each face is a kaleidoscope. Every time you flex, you look at a face through a hexagonal window centred on a different point. <button class="linkish" id="forget" type="button">start over</button></p>
+    </div>
+  </div>
+
+  <section id="make">
+    <h2>Make one</h2>
+    <div class="make-intro">
+      <div>
+        <p>You need a printer, one sheet of paper (letter or A4), scissors and a glue stick. It takes about twenty minutes, and the first time you flex a hidden face out of it makes up for all of them.</p>
+        <p>The printout has the pieces on the first page and these instructions after it.</p>
+        <div class="buttons noprint" style="justify-content:flex-start"><button id="print" type="button">print it</button></div>
+      </div>
+      <div class="preview" id="preview"></div>
+    </div>
+
+    <ol class="steps">
+      <li>
+        <div>
+          <h3>Print at actual size</h3>
+          <p>In the print settings choose 100% or "actual size", not "fit to page". The bar at the bottom of the page should measure 5 cm. Print in colour, because the folding steps go by colour.</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>Cut, fold, glue</h3>
+          <p>Cut out both pieces along the solid outline. Fold each one in half lengthwise, along the dashed line down its middle, with the pictures on the outside. Glue the two halves together, except for the triangle at each end of piece A. Leave both of those open for now.</p>
+          <p>Put glue on piece B's first grey flap, slide it between the two layers of the open triangle at the notched end of piece A, and press that triangle shut. The other open triangle, at the pointed end of piece A, stays open until the very end. It's the pocket. You now have one long strip, with the pocket at one end and B's last grey flap at the other.</p>
+          <div class="figs"><figure id="fig-strip"></figure></div>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>Crease every hinge</h3>
+          <p>Fold along every line between two triangles, firmly, forwards and then backwards. The flexagon will flex much more easily for it.</p>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>Hide the dark pairs</h3>
+          <p>Turn the strip over. The dark triangles come in pairs of the same colour, side by side. Starting at the pocket end, fold each pair together so they meet face to face and disappear. The strip coils as you go, into a shorter strip that is light on both sides except at its two ends.</p>
+          <p>Then turn it back over, so the pocket is on the left again with its garden side up, as in the second picture.</p>
+          <div class="figs"><figure id="fig-back"></figure><figure id="fig-rolled"></figure></div>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>Fold it into a hexagon</h3>
+          <p>Keep the pocket on the left, lying flat on the table. At the marked line, lift everything to the right of it, flip it over along that line, and lay it down face down on top. Do this three times, at the three marked lines, one after another. Each picture shows the strip before that fold, which is also how it looks after the fold before. The garden triangles gather around a shared corner as you go.</p>
+          <div class="figs"><figure id="fig-f1"></figure><figure id="fig-f2"></figure><figure id="fig-f3"></figure></div>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>Tuck and close</h3>
+          <p>The last triangle now lies on top of the pocket triangle, showing its dark back. Lift it and tuck it underneath the pocket triangle instead, so the pocket's garden side is on top. The grey flap hangs off the last triangle, right at the pocket's open edge. Put glue on the flap, fold it back into the pocket, between the pocket's two layers, and press the pocket shut. That closes the loop, and you're holding a hexagon with the garden on top.</p>
+          <div class="figs"><figure id="fig-tuck"></figure><figure id="fig-done"></figure></div>
+        </div>
+      </li>
+      <li>
+        <div>
+          <h3>Flex</h3>
+          <p>Pinch two neighbouring triangles together along the line between them, so that the hexagon folds up into a three-pointed star. Then push the centre open from the top, like a flower opening, and a new face appears. If it won't open, try the next corner. If you keep flexing at the same corner, and move one corner over whenever it won't open, you'll see all six faces within twelve flexes. Turn it over now and then. Some windows only appear from the back.</p>
+        </div>
+      </li>
+    </ol>
+  </section>
+
+  <section class="notes">
+    <h2>Notes</h2>
+    <p>Each hinge of a flexagon reflects one triangle into the next, the way a mirror would. So I drew each face only once, in a single triangle, and let the paper make the kaleidoscope. When you flex, the triangles come back with a different corner pointing inward. The picture doesn't scramble. You just see the same wallpaper through a window centred somewhere else.</p>
+    <p>That gives fifteen windows: three each for the garden, the sky and the shore, and two each for the three inside faces. Each of the inside faces has one corner that never reaches the middle, however long you flex. Its stars, its sparks, its slime mold only ever show up at the edges.</p>
+    <p>I can't hold paper. I folded this one in a simulation instead, hinge by hinge, until it came out the same as the flexagon it was meant to be, and the drawings above come from that simulation. I'd love to know whether it works in real hands.</p>
+  </section>
+
+  <footer><a href="../index.html">back to the sketchbook</a></footer>
+</main>
+
+<script>
+/*ART*/
+const D = /*DATA*/;
+const ST = D.states;
+const FRONT = k => (k - 1) % 3 + 1;
+const BACK = k => [4, 5, 5, 6, 6, 4][(k - 1) % 6];
+function classes(face, leaf) {
+  if (face <= 3) return [0, 1, 2];
+  const a = { 4: [1, 7, 13], 5: [2, 8, 14], 6: [4, 10, 16] }[face];
+  if (a.includes(leaf)) return [0, 1, 2];
+  return face === 4 ? [1, 2, 0] : [2, 0, 1];
+}
+function stripTri(k) {
+  if (k % 2) { const i = (k - 1) / 2; return [['b', i], ['b', i + 1], ['t', i]]; }
+  const i = k / 2; return [['t', i - 1], ['t', i], ['b', i]];
+}
+const stripXY = ([s, i]) => s === 'b' ? [i, 0] : [i + 0.5, H3];
+const NAMES = {
+  1: ['garden', ['a flower', 'leaves', 'berries']],
+  2: ['sky', ['the sun', 'a cloud', 'swallows']],
+  3: ['shore', ['a scallop shell', 'a wave', 'sea glass']],
+  4: ['night', ['the moon', null, 'moths']],
+  5: ['deep sea', [null, 'a jellyfish', 'a radiolarian']],
+  6: ['underground', [null, 'a seed', 'roots']],
+};
+const NEVER = { 4: 'the stars never reach the middle', 5: 'the sparks never reach the middle', 6: 'the slime mold never reaches the middle' };
+const VIEWS = [[1, 0], [1, 1], [1, 2], [2, 0], [2, 1], [2, 2], [3, 0], [3, 1], [3, 2], [4, 0], [4, 2], [5, 1], [5, 2], [6, 1], [6, 2]];
+
+document.getElementById('defs').innerHTML = faceDefs();
+
+// ---------- the virtual flexagon ----------
+const V = j => [Math.cos(j * Math.PI / 3), Math.sin(j * Math.PI / 3)];
+const svg = document.getElementById('flex');
+let cur = { id: D.start, o: 0 };
+let busy = false;
+
+function viewOf(st) { const [face, leaf, , cO] = st.top[0]; return [face, classes(face, leaf)[cO]]; }
+function sectorContent(id, o, j) {
+  const r = ((j - o) % 6 + 6) % 6;
+  const [face, leaf, , cO, cA, cB] = ST[id].top[r];
+  const cl = classes(face, leaf);
+  return triUse(face, [cl[cO], cl[cA], cl[cB]], [[0, 0], V(j), V(j + 1)]);
+}
+const hexPts = R => [0, 1, 2, 3, 4, 5].map(j => V(j).map(v => (v * R).toFixed(4)).join(',')).join(' ');
+function validCorners(id, o) {
+  return [0, 1, 2, 3, 4, 5].map(v => ST[id].flex[((v - o) % 6 + 6) % 6] !== null);
+}
+function build() {
+  let s = `<g id="wrap"><polygon id="ground" points="${hexPts(1)}"/>`;
+  for (let j = 0; j < 6; j++) s += `<g class="sec" id="sec${j}"><g class="art"></g><polygon class="shade" points="0,0 ${V(j).join(',')} ${V(j + 1).join(',')}" fill="#1b140c" opacity="0"/></g>`;
+  s += `<polygon points="${hexPts(1)}" fill="none" stroke="rgba(40,30,20,.35)" stroke-width=".006"/></g>`;
+  for (let v = 0; v < 6; v++) {
+    const [x, y] = V(v);
+    s += `<g class="corner" id="c${v}" tabindex="0" role="button" aria-label="pinch at corner ${v + 1}">` +
+      `<circle class="hit" cx="${x}" cy="${y}" r=".24"/><circle class="ring" cx="${x * 1.12}" cy="${y * 1.12}" r=".07"/>` +
+      `<circle class="dot" cx="${x * 1.12}" cy="${y * 1.12}" r=".03"/></g>`;
+  }
+  svg.innerHTML = s;
+  for (let v = 0; v < 6; v++) {
+    const el = document.getElementById('c' + v);
+    el.addEventListener('click', () => pinch(v));
+    el.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); pinch(v); } });
+  }
+}
+function paint() {
+  const st = ST[cur.id];
+  const [face, cls] = viewOf(st);
+  document.getElementById('ground').setAttribute('fill', FACES[face].ground);
+  for (let j = 0; j < 6; j++) document.querySelector(`#sec${j} .art`).innerHTML = sectorContent(cur.id, cur.o, j);
+  const ok = validCorners(cur.id, cur.o);
+  for (let v = 0; v < 6; v++) document.getElementById('c' + v).classList.toggle('ok', ok[v]);
+  document.getElementById('caption').innerHTML = `<span class="face">${NAMES[face][0]}</span>, with ${NAMES[face][1][cls]} in the middle`;
+  svg.setAttribute('aria-label', `${NAMES[face][0]}, with ${NAMES[face][1][cls]} in the middle`);
+  see(face, cls);
+}
+// fold sector j toward the spine through vertex sp: c = 1 flat, c = 0 edge-on
+function squash(j, sp, c) {
+  const [ux, uy] = V(sp), k = 1 - c;
+  const a = 1 - k * uy * uy, b = k * ux * uy, d = 1 - k * ux * ux;
+  const g = document.getElementById('sec' + j);
+  g.setAttribute('transform', c >= 0.999 ? '' : `matrix(${a} ${b} ${b} ${d} 0 0)`);
+  g.querySelector('.shade').setAttribute('opacity', ((1 - c) * 0.55).toFixed(3));
+}
+const ease = t => t < .5 ? 2 * t * t : 1 - Math.pow(-2 * t + 2, 2) / 2;
+function tween(ms, fn) {
+  return new Promise(res => {
+    if (matchMedia('(prefers-reduced-motion: reduce)').matches) { fn(1); return res(); }
+    const t0 = performance.now();
+    const step = now => { const t = Math.min(1, (now - t0) / ms); fn(ease(t)); t < 1 ? requestAnimationFrame(step) : res(); };
+    requestAnimationFrame(step);
+  });
+}
+const hint = t => { document.getElementById('hint').textContent = t; };
+async function pinch(v) {
+  if (busy) return;
+  const f = ((v - cur.o) % 6 + 6) % 6;
+  const r = ST[cur.id].flex[f];
+  const wrap = document.getElementById('wrap');
+  if (!r) {
+    busy = true;
+    const any = validCorners(cur.id, cur.o).some(x => x);
+    hint(any ? "It won't open there. Try the next corner." : "It won't open anywhere on this side. Turn it over.");
+    await tween(380, t => wrap.setAttribute('transform', `rotate(${(Math.sin(t * Math.PI * 3) * 3 * (1 - t)).toFixed(3)})`));
+    wrap.setAttribute('transform', '');
+    busy = false;
+    return;
+  }
+  busy = true;
+  hint('');
+  const p = v % 2;   // the spines run through every other corner, starting at this one
+  const spine = j => (j % 2 === p ? j : j + 1) % 6;
+  document.getElementById('ground').setAttribute('opacity', 0);
+  await tween(300, t => { for (let j = 0; j < 6; j++) squash(j, spine(j), 1 - t * 0.97); });
+  cur = { id: r[0], o: (cur.o + r[1]) % 6 };
+  paint();
+  await tween(420, t => { for (let j = 0; j < 6; j++) squash(j, spine(j), 0.03 + t * 0.97); });
+  for (let j = 0; j < 6; j++) squash(j, 0, 1);
+  document.getElementById('ground').setAttribute('opacity', 1);
+  busy = false;
+}
+async function turnOver() {
+  if (busy) return;
+  busy = true; hint('');
+  const wrap = document.getElementById('wrap');
+  await tween(220, t => wrap.setAttribute('transform', `scale(${(1 - t * 0.98).toFixed(3)} 1)`));
+  const [id, m] = ST[cur.id].turn;
+  cur = { id, o: ((cur.o + m - 3) % 6 + 6) % 6 };
+  paint();
+  await tween(260, t => wrap.setAttribute('transform', `scale(${(0.02 + t * 0.98).toFixed(3)} 1)`));
+  wrap.setAttribute('transform', '');
+  busy = false;
+}
+document.getElementById('turn').addEventListener('click', turnOver);
+
+// ---------- windows found ----------
+let found = new Set();
+try { found = new Set(JSON.parse(localStorage.getItem('offcut-found') || '[]')); } catch (e) {}
+const slotSVG = (face, cls, on) => on
+  ? `<svg viewBox="-1.08 -1.08 2.16 2.16" role="img" aria-label="${NAMES[face][0]}, ${NAMES[face][1][cls]}"><polygon points="${hexPts(1)}" fill="${FACES[face].ground}"/>${kaleidoView(face, cls)}</svg>`
+  : `<svg viewBox="-1.08 -1.08 2.16 2.16" aria-hidden="true"><polygon points="${hexPts(1)}" fill="none" stroke="#cbbfac" stroke-width=".03" stroke-dasharray=".08 .07"/></svg>`;
+function drawRows() {
+  let s = '';
+  for (let face = 1; face <= 6; face++) {
+    const seenFace = VIEWS.some(([f2, c2]) => f2 === face && found.has(f2 + '-' + c2));
+    s += `<div class="facerow"><span class="name">${face <= 3 || seenFace ? NAMES[face][0] : '?'}</span>`;
+    const order = [0, 1, 2].sort((x, y) => (NAMES[face][1][x] === null) - (NAMES[face][1][y] === null));
+    for (const cls of order) {
+      const name = NAMES[face][1][cls];
+      if (name === null) {
+        s += `<div class="slot">${seenFace ? `<span class="never">${NEVER[face]}</span>` : ''}</div>`;
+      } else {
+        const key = face + '-' + cls;
+        s += `<div class="slot" id="slot-${key}" title="${found.has(key) ? name : ''}">${slotSVG(face, cls, found.has(key))}</div>`;
+      }
+    }
+    s += '</div>';
+  }
+  document.getElementById('rows').innerHTML = s;
+  document.getElementById('count').textContent = `${found.size} of 15 found`;
+}
+function see(face, cls) {
+  const key = face + '-' + cls;
+  if (found.has(key)) return;
+  found.add(key);
+  try { localStorage.setItem('offcut-found', JSON.stringify([...found])); } catch (e) {}
+  drawRows();
+  const el = document.getElementById('slot-' + key);
+  if (el && found.size > 1) el.classList.add('new');
+  if (found.size === 15) hint('All fifteen. That is every window this flexagon has.');
+}
+document.getElementById('forget').addEventListener('click', () => {
+  found = new Set();
+  try { localStorage.removeItem('offcut-found'); } catch (e) {}
+  cur = { id: D.start, o: 0 };
+  drawRows(); paint(); hint('Tap a marked corner to pinch it there.');
+});
+
+// ---------- the printed sheet ----------
+const MM = 44;   // triangle side on paper, in millimetres
+function tri(face, leaf, pts) { const cl = classes(face, leaf); return triUse(face, cl, pts); }
+function pieceSVG(leaves, tabs, x0) {
+  // strip units; front half above the fold (y < 0), its mirror image below
+  const P = (v, back) => { const [x, y] = stripXY(v); return [x - x0, back ? y : -y]; };
+  let art = '', creases = '';
+  for (const k of leaves) {
+    const tf = stripTri(k).map(v => P(v, false)), tb = stripTri(k).map(v => P(v, true));
+    art += tri(FRONT(k), k, tf) + tri(BACK(k), k, tb);
+    for (const t of [tf, tb]) creases += `<path d="M${t[0]}L${t[1]}L${t[2]}Z"/>`;
+  }
+  let tabsvg = '';
+  for (const k of tabs) {
+    const t = stripTri(k).map(v => P(v, false));
+    const cx = (t[0][0] + t[1][0] + t[2][0]) / 3, cy = (t[0][1] + t[1][1] + t[2][1]) / 3;
+    tabsvg += `<path d="M${t[0]}L${t[1]}L${t[2]}Z" fill="#dcd6cc"/><text x="${cx.toFixed(3)}" y="${(cy + 0.03).toFixed(3)}" font-size=".1" text-anchor="middle" fill="#6d665c" transform="rotate(-90 ${cx.toFixed(3)} ${cy.toFixed(3)})">glue</text>`;
+  }
+  return { art, creases, tabsvg, P };
+}
+function sheetSVG() {
+  const h = H3;
+  const A = pieceSVG([1, 2, 3, 4, 5, 6, 7, 8, 9, 10], [], 0);
+  const B = pieceSVG([11, 12, 13, 14, 15, 16, 17, 18], [10, 19], 4.5);
+  const outA = `M0 0L.5 ${-h}L5.5 ${-h}L5 0L5.5 ${h}L.5 ${h}Z`;
+  const outB = `M0 ${-h}L5 ${-h}L5.5 0L4.5 0L5 ${h}L1 ${h}L.5 0Z`;
+  const W = 190, Hh = 257, halfW = h * MM, len = 5.5 * MM;
+  const gap = 18, xA = (W - 4 * halfW - gap) / 2 + halfW, xB = xA + 2 * halfW + gap, y0 = 3;
+  const piece = (p, out, fold, x, label, notes) => `<g transform="translate(${x.toFixed(2)} ${y0.toFixed(2)}) rotate(90) scale(${MM})">` +
+    `<clipPath id="cl${label}"><path d="${out}"/></clipPath><g clip-path="url(#cl${label})">${p.art}${p.tabsvg}</g>` +
+    `<g fill="none" stroke="rgba(30,20,10,.28)" stroke-width="${0.2 / MM}">${p.creases}</g>` +
+    `<path d="${fold}" stroke="#fff" stroke-width="${0.9 / MM}"/><path d="${fold}" stroke="#2b2620" stroke-width="${0.45 / MM}" stroke-dasharray="${2.5 / MM} ${1.5 / MM}"/>` +
+    `<path d="${out}" fill="none" stroke="#2b2620" stroke-width="${0.35 / MM}"/>${notes}</g>`;
+  const note = (x, y, t, anchor = 'middle', size = 3.4) => `<text x="${x}" y="${y}" font-size="${size / MM}" text-anchor="${anchor}" fill="#2b2620" font-style="italic">${t}</text>`;
+  const pa = piece(A, outA, 'M0 0L5 0', xA, 'A',
+    note(2.75, -h - 0.1, 'piece A', 'middle', 5) + note(0.02, -h - 0.1, 'pointed end: the pocket. Leave it open.', 'start') + note(5.45, -h - 0.1, "notched end: B's first flap goes in here", 'end'));
+  const pb = piece(B, outB, 'M.5 0L4.5 0', xB, 'B',
+    note(2.75, -h - 0.1, 'piece B', 'middle', 5) + note(0.02, -h - 0.1, 'first flap: goes inside piece A', 'start') + note(5.45, -h - 0.1, 'last flap: goes in the pocket', 'end'));
+  const by = y0 + len + 6;
+  const bar = `<path d="M${xA - halfW} ${by}h50M${xA - halfW} ${by - 1.5}v3M${xA - halfW + 50} ${by - 1.5}v3" stroke="#2b2620" stroke-width=".4" fill="none"/>`;
+  const title = `<text x="${xA - halfW + 54}" y="${by + 1.2}" font-size="3.4" fill="#2b2620" font-style="italic">this bar should measure 5 cm. If it doesn't, print again at 100%.</text>` +
+    `<text x="${xB + halfW}" y="${by + 1.2}" font-size="3.4" fill="#2b2620" font-style="italic" text-anchor="end">offcut</text>`;
+  return `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 ${W} ${Hh}" width="${W}mm" height="${Hh}mm" font-family="EB Garamond, P052, Palatino, Georgia, serif">${pa}${pb}${bar}${title}</svg>`;
+}
+document.getElementById('sheet').innerHTML = sheetSVG();
+document.getElementById('preview').innerHTML = sheetSVG().replace(/ width="190mm" height="257mm"/, '');
+document.getElementById('print').addEventListener('click', () => window.print());
+
+// ---------- folding diagrams, drawn from the folding simulation ----------
+function diagram(stepName, { side = 'top', rot = 0, marks = [], markLabels = [], labels = [], k = 58, extra = '' } = {}) {
+  const step = D.steps.find(s => s.note === stepName);
+  const back = side === 'bottom';
+  const a = rot * Math.PI / 180, ca = Math.cos(a), sa = Math.sin(a);
+  const T = ([x, y]) => { const X = back ? -x : x, Y = -y; return [X * ca - Y * sa, X * sa + Y * ca]; };
+  let s = '', xs = [], ys = [];
+  for (const [t, up, pts] of step[side]) {
+    const q = pts.map(T);
+    q.forEach(([x, y]) => { xs.push(x); ys.push(y); });
+    const showsFront = back ? up === -1 : up === 1;
+    if (t === 19) { s += `<path d="M${q[0]}L${q[1]}L${q[2]}Z" fill="#dcd6cc" stroke="#9a9184" stroke-width=".012"/>`; continue; }
+    const face = showsFront ? FRONT(t) : BACK(t);
+    s += tri(face, t, q) + `<path d="M${q[0]}L${q[1]}L${q[2]}Z" fill="none" stroke="rgba(30,20,10,.35)" stroke-width=".01"/>`;
+  }
+  marks.forEach((k, i) => {
+    const tk = stripTri(k), tn = stripTri(k + 1);
+    const shared = tk.map((v, idx) => [v, idx]).filter(([v]) => tn.some(w => w[0] === v[0] && w[1] === v[1]));
+    const [p, q] = shared.map(([, idx]) => T(step.pos[k][idx]));
+    const dx = q[0] - p[0], dy = q[1] - p[1];
+    const e1 = [p[0] - dx * .18, p[1] - dy * .18], e2 = [q[0] + dx * .18, q[1] + dy * .18];
+    s += `<path d="M${e1}L${e2}" stroke="#b0512f" stroke-width=".035" stroke-dasharray=".07 .05" stroke-linecap="round"/>`;
+    if (markLabels[i]) {
+      const L = [e2[0] + dx * .12, e2[1] + dy * .12];
+      s += `<circle cx="${L[0]}" cy="${L[1]}" r=".13" fill="#b0512f"/><text x="${L[0]}" y="${L[1] + .06}" font-size=".18" text-anchor="middle" fill="#fff">${markLabels[i]}</text>`;
+      xs.push(L[0] + .15, L[0] - .15); ys.push(L[1] + .15, L[1] - .15);
+    }
+    xs.push(e1[0], e2[0]); ys.push(e1[1], e2[1]);
+  });
+  for (const [t, text] of labels) {
+    const q = step.pos[t].map(T), cx = (q[0][0] + q[1][0] + q[2][0]) / 3, cy = (q[0][1] + q[1][1] + q[2][1]) / 3;
+    s += `<text x="${cx.toFixed(3)}" y="${(cy + .045).toFixed(3)}" font-size=".15" text-anchor="middle" fill="#2b2620" stroke="#fbf8f1" stroke-width=".05" paint-order="stroke" font-style="italic">${text}</text>`;
+  }
+  const pad = .08, x0 = Math.min(...xs) - pad, y0 = Math.min(...ys) - pad, w = Math.max(...xs) + pad - x0, hh = Math.max(...ys) + pad - y0;
+  const pxw = Math.round(k * w), pxh = Math.round(k * hh);
+  return `<svg viewBox="${x0.toFixed(3)} ${y0.toFixed(3)} ${w.toFixed(3)} ${hh.toFixed(3)}" width="${pxw}" height="${pxh}" font-family="EB Garamond, P052, Georgia, serif">${s}${extra}</svg>`;
+}
+const fig = (id, svgText, cap) => { document.getElementById(id).innerHTML = svgText + (cap ? `<figcaption>${cap}</figcaption>` : ''); };
+fig('fig-strip', diagram('flat', { k: 62, labels: [[1, 'pocket'], [19, 'flap']] }), 'The joined strip, front.');
+fig('fig-back', diagram('flat', { side: 'bottom', k: 62, marks: [2, 4, 6, 8, 10, 12, 14, 16], labels: [[1, 'pocket']] }), 'The back. Fold on each marked line so the matching pair meet face to face.');
+fig('fig-rolled', diagram('rolled', { rot: 60, labels: [[1, 'pocket'], [18, 'last']] }), 'After hiding the pairs, turned back over: pocket on the left, garden side up.');
+fig('fig-f1', diagram('rolled', { rot: 60, k: 46, marks: [3], markLabels: ['1'], labels: [[1, 'pocket']] }), 'Before fold 1');
+fig('fig-f2', diagram('fold 3', { rot: 60, k: 46, marks: [9], markLabels: ['2'], labels: [[1, 'pocket'], [18, 'last']] }), 'After fold 1, before fold 2. The dark triangle is the last one, seen from the back.');
+fig('fig-f3', diagram('fold 9', { rot: 60, k: 46, marks: [15], markLabels: ['3'] }), 'After fold 2, before fold 3');
+fig('fig-tuck', diagram('fold 15', { rot: 60, k: 46, labels: [[18, 'last'], [19, 'flap']] }), 'After fold 3. The last triangle lies on the pocket. Tuck it under, then put the flap inside the pocket.');
+fig('fig-done', diagram('tucked', { rot: 60, k: 46 }), 'Closed.');
+
+build();
+paint();
+drawRows();
+window.__ready = true;
+</script>
+</body>
+</html>

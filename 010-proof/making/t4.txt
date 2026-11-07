@@ -1,0 +1,59 @@
+turn off alarm
+e
+d
+read note
+turn on oven
+open drawer
+take torch
+open fridge
+take batteries
+put batteries in torch
+turn on torch
+d
+push breaker
+take tin
+u
+put tin in oven
+feed gerald
+read card
+e
+n
+take sack
+s
+w
+pour sack into bin
+add 2 kg flour
+add 1300 ml water
+add 50 g yeast
+add 40 g salt
+mix
+take dough
+u
+open airing cupboard
+put tub in airing cupboard
+e
+wake win
+ask win about lame
+take lame
+w
+d
+wait for oven
+turn out loaves
+score loaves
+load loaves
+pour water on stones
+set timer for 40
+wait for timer
+take loaves out
+knock on loaves
+set dial to 220
+u
+take tub
+d
+shape dough
+put trays on oven
+wait for rolls
+x rolls
+put rolls in oven
+wait 40
+x rolls

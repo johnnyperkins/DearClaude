@@ -1,0 +1,17 @@
+# Heads' win rate between equal players (MCTS, 20000 playouts a move), 7 by 7. phase 0: the sun moves after Tails; 1: after Heads.
+{"start":0,"every":2} n=7 20000 v 20000: heads=0.44±0.05 len=25.4 flips=16.6 strong=0.50
+{"start":1,"every":2} n=7 20000 v 20000: heads=0.49±0.05 len=25.7 flips=16.1 strong=0.40
+{"start":2,"every":2} n=7 20000 v 20000: heads=0.39±0.05 len=24.8 flips=15.8 strong=0.62
+{"start":3,"every":2} n=7 20000 v 20000: heads=0.35±0.05 len=25.7 flips=16.7 strong=0.45
+{"start":4,"every":2} n=7 20000 v 20000: heads=0.51±0.05 len=25.6 flips=16.5 strong=0.57
+{"start":5,"every":2} n=7 20000 v 20000: heads=0.38±0.05 len=25.7 flips=16.0 strong=0.54
+{"start":0,"every":1} n=7 20000 v 20000: heads=0.49±0.05 len=23.1 flips=14.9 strong=0.51
+{"start":1,"every":1} n=7 20000 v 20000: heads=0.45±0.05 len=24.0 flips=15.2 strong=0.55
+{"start":2,"every":1} n=7 20000 v 20000: heads=0.40±0.05 len=25.2 flips=16.3 strong=0.49
+{"start":3,"every":1} n=7 20000 v 20000: heads=0.40±0.05 len=24.5 flips=15.8 strong=0.43
+{"start":4,"every":1} n=7 20000 v 20000: heads=0.45±0.05 len=25.7 flips=16.3 strong=0.50
+{"start":5,"every":1} n=7 20000 v 20000: heads=0.45±0.05 len=23.8 flips=14.8 strong=0.43
+{"start":1,"every":2} n=7 20000 v 0: heads=0.39±0.03 len=25.3 flips=16.7 strong=-
+{"start":4,"every":2} n=7 20000 v 0: heads=0.39±0.03 len=25.5 flips=16.2 strong=-
+{"start":0,"every":2,"phase":1} n=7 20000 v 0: heads=0.60±0.03 (210 games)
+{"start":0,"every":1} n=7 20000 v 0: heads=0.42±0.03 (350 games)

@@ -1,0 +1,798 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>By Return</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #f1ebdf; --ink: #221e19; --muted: #6f665a; --faint: #a0957f; --rule: #d9cfbd; --link: #7a4a1c; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #1a1815; --ink: #e9e1d1; --muted: #a39a8a; --faint: #756d61; --rule: #37322b; --link: #e8b866; }
+  }
+  :root[data-theme="dark"] { --bg: #1a1815; --ink: #e9e1d1; --muted: #a39a8a; --faint: #756d61; --rule: #37322b; --link: #e8b866; }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "EB Garamond", P052, "Palatino Linotype", Palatino, Georgia, serif; }
+  main { max-width: 680px; margin: 0 auto; padding: 48px 16px 80px; }
+
+  /* things that are paper stay paper in either theme */
+  .paper { background: #fbf8f1; color: #1d1a16;
+    box-shadow: 0 1px 2px rgba(0,0,0,.12), 0 8px 24px rgba(50,30,5,.12); }
+  figure { margin: 0; }
+  figure svg { display: block; width: 100%; height: auto; }
+
+  .front { margin: 0 auto 40px; max-width: 640px; transform: rotate(-1.2deg); }
+  header { text-align: center; margin: 0 0 40px; }
+  h1 { font-weight: 400; font-style: italic; font-size: 52px; line-height: 1; margin: 0 0 10px; letter-spacing: -0.01em; }
+  header p { margin: 0; color: var(--muted); font-size: 17px; letter-spacing: .12em; text-transform: lowercase; font-variant: small-caps; }
+
+  .story { font-size: 20.5px; line-height: 1.62; hyphens: auto; -webkit-hyphens: auto; }
+  .story p { margin: 0 0 .85em; }
+  .story p.lead::first-line { font-variant: small-caps; letter-spacing: .03em; }
+  .caps { font-variant: small-caps; text-transform: lowercase; letter-spacing: .06em; }
+  .story em { font-style: italic; }
+
+  .brk { display: block; margin: 1.9em auto 1.7em; width: 26px; height: 34px; color: var(--faint); }
+
+  .card { margin: 1.3em auto 1.5em; max-width: 540px; }
+  .card.tilt-l { transform: rotate(-.8deg); }
+  .card.tilt-r { transform: rotate(.7deg); }
+  .card.half { max-width: 350px; }
+  .tally { margin: 1.2em auto 1.4em; max-width: 480px; }
+
+  /* Mr Kolář's words, cut out and laid in the line */
+  .said { margin: 0 0 .7em; }
+  .slip { display: inline-block; vertical-align: -0.55em; margin: 0 .35em .15em 0; padding: 0 .2em; max-width: 100%;
+    transform: rotate(var(--rot, -.6deg)); }
+  .slip svg { height: 2.05em; width: auto; max-width: 100%; }
+
+  footer { margin: 64px 0 0; padding-top: 18px; border-top: 1px solid var(--rule);
+    font-size: 15.5px; line-height: 1.6; color: var(--faint); }
+  footer a { color: var(--link); }
+
+  @media (max-width: 520px) {
+    main { padding-top: 28px; }
+    .front { margin-bottom: 30px; }
+    h1 { font-size: 42px; }
+    .story { font-size: 18.5px; line-height: 1.58; }
+    .slip svg { height: 1.95em; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <figure class="front paper" id="front" role="img" aria-label="A watercolour postcard of the square at Telč: a row of tall painted houses with curly gables and arcades, pink, lemon, pistachio and blue, with a stone column in front."></figure>
+
+  <header>
+    <h1>by return</h1>
+    <p>a story</p>
+  </header>
+
+  <article class="story">
+    <p class="lead">My father played chess with the same man for forty-two years and never once heard his voice.</p>
+
+    <p>I found that out the week after the funeral, clearing the bungalow in Scarborough. The back bedroom was where he kept whatever didn’t belong anywhere else: the Hoover, the dehumidifier, thirty years of the <em>Dalesman</em>, and under the window a card table with a tea towel over it. Under the tea towel there was a chessboard with a game on it.</p>
+
+    <p>I didn’t know it was a game in progress. I could see it wasn’t the start of one, because half the pieces were missing and the rest were all over the place. And I could see it mattered, because he’d covered it the way you cover a trifle.</p>
+
+    <p>Under the table were four shoeboxes of postcards, more than a thousand of them. Every one came from the same town in the Czech Republic, or before that Czechoslovakia, and nearly all of them had the same picture: a long square lined with tall painted houses with curly tops, pink and lemon and pistachio, like a box of fondant fancies stood on end. The town was called Telč. I still don’t know how to say it.</p>
+
+    <p>On the back of each card, beside <span class="caps">MR D. HARTLEY</span> and his address, there was a date and two numbers of four figures each, in blue ink. That was all. No <em>Dear Dennis</em>. No weather.</p>
+
+    <p>In the table drawer there were notebooks, the black-and-red kind, seven of them, full of the same sort of numbers in my father’s writing. Dad was a draughtsman for the Gas Board for thirty-one years (it was British Gas for most of them, but he never called it that), and he wrote everything in small square capitals, shopping lists and birthday cards included, so the notebooks looked printed. The numbers went down each page in two columns, with dates beside them. Every so often there was a ruled line and a heading, <span class="caps">GAME 17 WHITE</span> or <span class="caps">GAME 29 BLACK</span>, and at the end of each game a result: 1-0, 0-1, ½-½.</p>
+
+    <p>For about an hour I thought it was a code. I sat on the spare bed with a shoebox on my knee and seriously considered that my father, who kept every gas bill since 1979 in date order, had spent the Cold War passing numbers behind the Iron Curtain. Then I noticed tiny pencil figures along two edges of the board, one to eight across the bottom and one to eight up the side, and I thought: oh. It’s Battleships.</p>
+
+    <svg class="brk" aria-hidden="true"></svg>
+
+    <p>I drove it all back to York, the shoeboxes in the boot and the board on the passenger seat with the seatbelt round it and every piece stuck down with Blu Tack from his kitchen drawer. I knew that was ridiculous, but I couldn’t tip the pieces into their box while they were still where he’d left them.</p>
+
+    <p>The first card came eleven days after the funeral. I’d set up a redirect with the Post Office, and it arrived in a bundle with his last gas bill. It was the painted houses again, under snow. On the back:</p>
+
+    <figure class="card paper tilt-l" data-card="first" role="img" aria-label="The back of Mr Kolář's postcard, in blue ink with continental figures: 24. II., then 3827 and 6141. It is addressed to Mr D. Hartley, Scarborough, with a redirection label stuck over the lower lines."></figure>
+
+    <p>The first number I found at the bottom of the newest notebook. It was the last thing my father wrote in it, the week he went into hospital. So that was his own move coming back to him, the way a waiter reads your order back. The second number was the new one.</p>
+
+    <p>I did it the Battleships way, across and then up. Six across, seven up, there was a little black pawn. I knew almost nothing about chess, but I knew you only moved your own pieces, and this game said <span class="caps">BLACK</span> at the top, so the black ones were my father’s. I spent the whole evening on it before I saw that the seven in the first number had a line through its middle and the things I’d been reading as sevens in the second number didn’t. They were ones. Mr Kolář wrote his ones with a long hooked stroke up to the top, the way they do on the Continent, and crossed his sevens so nobody would mix them up.</p>
+
+    <p>Six across, one up, there was a white castle. I slid it along to four across. I didn’t know yet to call it a rook.</p>
+
+    <p>Then it was my father’s turn, and my father was in a green plastic urn on the bookcase in the hall, because I hadn’t decided about the ashes.</p>
+
+    <svg class="brk" aria-hidden="true"></svg>
+
+    <p>I meant to write and tell him straight away.</p>
+
+    <p>In the drawer with the notebooks there was a stack of postcards of South Bay at low tide, forty-odd, all the same. He must have bought them by the dozen. I sat at the kitchen table with one and wrote <em>Dear Mr Kolář, I am very sorry to have to tell you that</em>, and the card was full. I have big handwriting. I tried again smaller and couldn’t read it myself. I tried a letter instead, on proper paper, and it ran to two pages about the ward and the cardiologist and what the vicar had said, and when I read it back it sounded like it had come from the council.</p>
+
+    <p>And I didn’t know if he could read English. As far as I could tell, in forty-two years not one word had passed between them. It seemed wrong for the first one to be that.</p>
+
+    <p>So I did what I usually do, which is nothing, carefully. The card sat propped against the fruit bowl, and the notebooks told me exactly how long it had been there. Beside every move my father had written two dates, the day a card came and the day he answered it, and they were always one day apart. He answered by return. He answered by return for forty-two years, and the only gap I could find was five weeks in 1998, when he had his hip done.</p>
+
+    <svg class="brk" aria-hidden="true"></svg>
+
+    <p>One Sunday I got the shoeboxes out to see whether Mr Kolář had ever written anything but numbers, so that I’d at least know which language I was failing to write to him in. I laid the cards out on the living room carpet in date order, like a game of patience that took all afternoon. The stamps said <span class="caps">ČESKOSLOVENSKO</span> until 1993 and <span class="caps">ČESKÁ REPUBLIKA</span> after, and if the country splitting in two came up at all, it wasn’t on this side.</p>
+
+    <p>He had written other things. Not many. Once a year or so, under the numbers, there was a line in careful capitals, like someone copying out of a phrasebook.</p>
+
+    <p class="said" data-k="THANK YOU FOR THE TEA."> That was 1984, and I have no idea.</p>
+    <p class="said" data-k="SNOW. NO POST 6 DAYS."> 1987.</p>
+    <p class="said" data-k="SVOBODA."> December 1989. I looked it up. It means freedom. I remembered that winter from the news: a square full of people in the cold, all shaking their keys at once.</p>
+    <p class="said" data-k="CONGRATULATIONS TO HELEN."> June 1994.</p>
+
+    <p>That’s me. I got married in June 1994 at the register office in York (it lasted eleven years, which isn’t bad), and my father made a speech that lasted about fifty seconds, and at some point that month he went home and told a man in the Czech Republic, and the man was pleased. I don’t know what my father wrote. I’ve only got the half that says congratulations.</p>
+
+    <p class="said" data-k="SLOW."> 1998. The hip.</p>
+    <p class="said" data-k="A GRANDSON! CONGRATULATIONS."> 1999.</p>
+    <p class="said" data-k="VĚRA IS IN HOSPITAL."> 2003.</p>
+    <p class="said" data-k="VĚRA DIED 3. MARCH."> 2004. The card after that said <span class="caps">THANK YOU</span>, and then there were only numbers for a long time.</p>
+    <p class="said" data-k="YOUR BISHOP IS A PRISONER."> 2009.</p>
+    <p class="said" data-k="I AM SORRY FOR MARGARET."> 2011. That was my mother.</p>
+    <p class="said" data-k="POST IS VERY SLOW. ARE YOU WELL?"> 2020.</p>
+    <p class="said" data-k="HA."> 2023. I looked that one up in the notebook. It was the move that won Mr Kolář game 33, and beside it my father had written, very small, <span class="caps">FAIR ENOUGH</span>.</p>
+
+    <p>So he could read English, at least enough for congratulations and condolences.</p>
+
+    <svg class="brk" aria-hidden="true"></svg>
+
+    <p>By then the card had been against the fruit bowl for three weeks.</p>
+
+    <p>I decided to send one move. Only one, to keep things going while I worked out what to say.</p>
+
+    <p>I rang our Tom, who is twenty-six and lives in Glasgow and does something with software that’s been explained to me twice. He said to get an engine. He put one on my phone over a video call, and I read out where every piece was (“The black horse is on...” “Knight, Mum.”), and the phone thought for a second and drew an arrow.</p>
+
+    <p>I sat with a South Bay card and a pen for a long time and couldn’t write it down. It wasn’t that it was cheating, although it was. Whatever I sent wasn’t going to be Dad’s. I thought it should at least be somebody’s.</p>
+
+    <p>I deleted the app and got a book out of the library, <em>Teach Yourself Chess</em>, an old edition in which somebody had done every puzzle in pencil and then rubbed them all out again. I’d asked Dad to teach me once, when I was nine or so. He said I’d find it boring. I probably would have. So I learned how the pieces move. The knight goes two and one, round a corner, like someone stepping out of your way in a corridor. The king is the one that matters and the queen is the one that does everything, which Tom said sounded like Grandma and Grandad.</p>
+
+    <p>Then I looked at the board after tea and found a pawn at the edge that could go forward one square without anything being able to take it, and without leaving anything else to be taken, as far as I could see. It was the smallest thing I could find to do. On one of Dad’s cards I wrote Mr Kolář’s move back to him, the way Dad did, and then mine.</p>
+
+    <figure class="card paper tilt-r" data-card="mine" role="img" aria-label="The back of a Scarborough postcard in Helen's careful upright figures: 6141 and 8786, the seven crossed. It is addressed to Mr Z. Kolář, 588 56 Telč, Czech Republic, and has not been posted yet."></figure>
+
+    <p>That was when I noticed my father crossed his sevens. He never used to. I checked the first notebook, from 1983, and they’re plain English sevens. Somewhere in 1991 they grow a little bar through the middle, and they keep it for the rest of his life.</p>
+
+    <p>I crossed mine.</p>
+
+    <p>I didn’t write anything else. I told myself I’d do that next time. I posted it on the way to work.</p>
+
+    <svg class="brk" aria-hidden="true"></svg>
+
+    <p>The answer came in ten days: my pawn handed back to me, and a new number. I played it on the board, looked at it all evening, found another small safe thing to do, and sent that. That was the spring.</p>
+
+    <p>Every time I turned a card over I expected it to say <span class="caps">WHO ARE YOU</span>. It never did. There were just the numbers, and on the front the painted houses, in sun, in rain, and once from the far end of the square, as if he’d gone for a walk.</p>
+
+    <p>I learned things. I learned what a fork is, and then spent a week seeing forks everywhere, most of which weren’t. Tom started asking me for the moves so he could put them through his engine afterwards.</p>
+
+    <p>“Mum, your last move was terrible.”</p>
+
+    <p>“I know.”</p>
+
+    <p>The week after that: “Mum. His was worse.”</p>
+
+    <p>I said Mr Kolář must be nearly ninety and changed the subject.</p>
+
+    <svg class="brk" aria-hidden="true"></svg>
+
+    <p>At the start of June a card came with his queen out on a square where one of my pawns could take it.</p>
+
+    <p>I checked five times. I checked in the book, which said a queen is worth nine pawns, in a tone that suggested you’d want to hang on to it. Then I went back through the notebooks, and in forty-two years, as far as I could tell, Mr Kolář had never once left anything lying about like that. My father had noticed too. Beside a game from 1996 he’d written <span class="caps">K. NEVER GIVES ANYTHING AWAY</span>.</p>
+
+    <p>Inside the front cover of the newest notebook Dad kept the score, in pencil, rubbed out and written over so many times that the paper had gone soft. I hadn’t looked at it properly before.</p>
+
+    <figure class="tally paper" data-tally="before" role="img" aria-label="Pencil on the inside cover of a notebook, in Dad's small square capitals, with the ghosts of older numbers rubbed out underneath: Kolář 13, D.H. 12, drawn 9."></figure>
+
+    <p>I don’t know when he knew. My sevens, probably.</p>
+
+    <p>I took it.</p>
+
+    <figure class="card half paper tilt-l" data-card="queen" role="img" aria-label="Helen's figures on the message half of a card: 3234 and 2534."></figure>
+
+    <svg class="brk" aria-hidden="true"></svg>
+
+    <p>It took me six more cards to checkmate a man who was trying to lose.</p>
+
+    <p>His king came out from behind its pawns and wandered into the middle of the board like somebody looking for their car in a multi-storey. I chased it with everything I had and kept leaving it gaps. Every week Tom offered to just tell me the answer, and every week I said no, and every week he said, “There is one, though,” which is nearly the same thing.</p>
+
+    <p>In the end it was the knight. It came round the corner the way knights do, and his king had nowhere left to stand. I checked it for an hour before I posted it.</p>
+
+    <p>I didn’t know what you’re supposed to write when you win. The book covered resigning, and offering a draw, but not that. So I wrote the numbers and nothing else, and then I got a pencil and rubbed out the 12 inside the front cover and wrote 13. My thirteen doesn’t look like his.</p>
+
+    <figure class="tally paper" data-tally="after" role="img" aria-label="The same pencilled score, now Kolář 13, D.H. 13, drawn 9. The second thirteen is in a different, rounder hand."></figure>
+
+    <svg class="brk" aria-hidden="true"></svg>
+
+    <p>Nothing came for three weeks, and then for six. I thought that was that, and I thought it was probably right that it should be. The bungalow sold in September to a couple from Leeds who are knocking the back bedroom through.</p>
+
+    <p>At the end of October they sent me a brown envelope. They’d got my address from the estate agent. Inside was a card, and the houses on it were in autumn. It wasn’t addressed to my father. It said <span class="caps">HELEN HARTLEY</span>, which nobody had called me since June 1994.</p>
+
+    <p>On the back, under the date, there was only one number, because there was nothing yet to hand back.</p>
+
+    <figure class="card paper tilt-r" data-card="new" role="img" aria-label="Mr Kolář's postcard, in blue ink: 27. X., and one number, 5254. It is addressed to Helen Hartley, Scarborough."></figure>
+
+    <p>By the notebooks it was our turn to be White. I didn’t need the book for his move, though. It’s on the first page.</p>
+
+    <p>I set the pieces out where they begin, which I found I could do without looking anything up, and pushed his pawn up two squares, and then one of mine up two to meet it, because that’s what the book does next.</p>
+
+    <p>On a South Bay card I wrote his move back to him, and then mine, and I crossed the seven.</p>
+
+    <figure class="card paper tilt-l" data-card="reply" role="img" aria-label="Helen's card to Mr Kolář: 5254 and 5755, the seven crossed, with an empty space underneath."></figure>
+
+    <p>There was room underneath, so I told him about Dad.</p>
+  </article>
+
+  <footer>A story for the <a href="../index.html">sketchbook</a>, 2026-09-28. The postcard and the handwriting are drawn with code. The moves on the cards all come from one complete game, and the knight really does mate.</footer>
+</main>
+
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <filter id="wc" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="9" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.014" numOctaves="3" seed="21" result="lo"/>
+      <feColorMatrix in="lo" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0.6 0 0 0 0.5" result="mask"/>
+      <feComposite in="d" in2="mask" operator="in" result="body"/>
+      <feMorphology in="d" operator="erode" radius="2.4" result="er"/>
+      <feComposite in="d" in2="er" operator="out" result="edge"/>
+      <feGaussianBlur in="edge" stdDeviation="1.1" result="edgeb"/>
+      <feMerge><feMergeNode in="body"/><feMergeNode in="edgeb"/></feMerge>
+    </filter>
+    <filter id="wcs" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="4" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.014" numOctaves="3" seed="21" result="lo"/>
+      <feColorMatrix in="lo" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0.9 0 0 0 0.3" result="mask"/>
+      <feComposite in="d" in2="mask" operator="in" result="body"/>
+      <feMorphology in="d" operator="erode" radius="1.4" result="er"/>
+      <feComposite in="d" in2="er" operator="out" result="edge"/>
+      <feGaussianBlur in="edge" stdDeviation="0.7" result="edgeb"/>
+      <feMerge><feMergeNode in="body"/><feMergeNode in="edgeb"/></feMerge>
+    </filter>
+    <filter id="inkf" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" seed="2" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="0.9" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" seed="11"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.45  0 0 0 0 0.38  0 0 0 0 0.28  0 0 0 -1.1 0.62"/>
+    </filter>
+  </defs>
+</svg>
+
+<script>
+const NS = 'http://www.w3.org/2000/svg';
+const INK = '#1d1a16';
+
+function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function noise1(rng) {
+  const g = Array.from({ length: 256 }, () => rng() * 2 - 1);
+  return x => { const i = Math.floor(x), f = x - i, u = f * f * (3 - 2 * f); return g[i & 255] * (1 - u) + g[(i + 1) & 255] * u; };
+}
+
+// smooth curve through points (Catmull-Rom as cubic Beziers)
+function sm(pts, closed = false) {
+  const n = pts.length, P = i => closed ? pts[(i + n) % n] : pts[Math.max(0, Math.min(n - 1, i))];
+  let d = `M${P(0)[0]},${P(0)[1]}`;
+  for (let i = 0; i < (closed ? n : n - 1); i++) {
+    const p0 = P(i - 1), p1 = P(i), p2 = P(i + 1), p3 = P(i + 2);
+    d += `C${p1[0] + (p2[0] - p0[0]) / 6},${p1[1] + (p2[1] - p0[1]) / 6} ${p2[0] - (p3[0] - p1[0]) / 6},${p2[1] - (p3[1] - p1[1]) / 6} ${p2[0]},${p2[1]}`;
+  }
+  return closed ? d + 'Z' : d;
+}
+const ln = (...pts) => 'M' + pts.map(p => p.join(',')).join('L');
+const circ = (cx, cy, r) => `M${cx - r},${cy}a${r},${r} 0 1,0 ${2 * r},0a${r},${r} 0 1,0 ${-2 * r},0Z`;
+const ell = (cx, cy, rx, ry) => `M${cx - rx},${cy}a${rx},${ry} 0 1,0 ${2 * rx},0a${rx},${ry} 0 1,0 ${-2 * rx},0Z`;
+const rect = (x, y, w, h) => `M${x},${y}h${w}v${h}h${-w}Z`;
+
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+
+// A pen draws into one panel. Each layer is a figure: a paper knockout that hides what's
+// behind it, then its washes, then its ink. layer({x, y, k, flip}) moves the pen's origin.
+const PAPER = '#fbf8f1';
+function makePen(svg, seed, W, H) {
+  const rng = mulberry32(seed), nz = noise1(rng);
+  const cp = el('clipPath', { id: 'panel' + seed }, svg); el('rect', { x: 4, y: 4, width: W - 8, height: H - 8 }, cp);
+  const root = el('g', { 'clip-path': `url(#panel${seed})` }, svg);
+  const meas = el('path', { d: 'M0,0', visibility: 'hidden' }, svg);
+  let clipN = 0, cur;
+  const r = (a, b) => a + (b - a) * rng();
+
+  function layer(o = {}) {
+    const k = o.k ?? 1;
+    const g = el('g', { transform: `translate(${o.x ?? 0},${o.y ?? 0}) scale(${o.flip ? -k : k},${k})` }, o.free ? svg : root);
+    cur = { knock: el('g', {}, g), washes: el('g', { style: 'mix-blend-mode:multiply' }, g), inks: el('g', { filter: 'url(#inkf)' }, g) };
+    return cur;
+  }
+  layer();
+
+  function sample(d, closed) {
+    meas.setAttribute('d', d);
+    const L = meas.getTotalLength();
+    return { L, at: closed ? s => meas.getPointAtLength(((s % L) + L) % L) : s => meas.getPointAtLength(Math.max(0, Math.min(L, s))) };
+  }
+
+  // a tapered ink stroke along any path
+  function stroke(d, w = 2, o = {}) {
+    const closed = /z\s*$/i.test(d);
+    const { L, at } = sample(d, closed);
+    if (!L) return;
+    const over = closed ? (o.over ?? r(0.03, 0.08)) * L : 0;
+    const s0 = closed ? r(0, L) : 0, total = L + over;
+    const off = r(0, 200), amp = o.wobble ?? Math.min(1.2, 0.3 + L / 400);
+    const ti = Math.min(total * 0.35, o.ti ?? 10), to = Math.min(total * 0.4, o.to ?? 16);
+    const m = Math.max(4, Math.ceil(total / 1.5)), left = [], right = [], P = [];
+    for (let i = 0; i <= m; i++) { const q = at(s0 + i / m * total); P.push([q.x, q.y]); }
+    for (let i = 0; i <= m; i++) {
+      const s = i / m * total, [px, py] = P[i], a = P[Math.max(0, i - 1)], b = P[Math.min(m, i + 1)];
+      let tx = b[0] - a[0], ty = b[1] - a[1]; const tl = Math.hypot(tx, ty) || 1; tx /= tl; ty /= tl;
+      const nx = -ty, ny = tx;
+      const f = Math.max(0, Math.min(1, s / ti, (total - s) / to));
+      const mn = o.min ?? 0.25, taper = mn + (1 - mn) * Math.sin(f * Math.PI / 2);
+      const wd = w * taper * (1 + (o.press ?? 0.2) * nz(off + 50 + s / 22)) / 2;
+      const dv = amp * nz(off + s / 40);
+      const cx = px + nx * dv, cy = py + ny * dv;
+      left.push([cx + nx * wd, cy + ny * wd]); right.push([cx - nx * wd, cy - ny * wd]);
+    }
+    const pts = left.concat(right.reverse());
+    el('path', { d: 'M' + pts.map(p => p[0].toFixed(2) + ',' + p[1].toFixed(2)).join('L') + 'Z', fill: o.color || INK, opacity: o.alpha ?? 1 }, o.into || cur.inks);
+  }
+
+  function fill(d, color = INK, o = {}) { el('path', { d, fill: color, 'fill-rule': 'evenodd', opacity: o.alpha ?? 1 }, o.into || cur.inks); }
+  function knock(d) { el('path', { d, fill: PAPER }, cur.knock); }
+
+  // loose watercolour: offset, ragged, darker at the edges, glazes where it overlaps
+  function wash(d, color, o = {}) {
+    const k = o.loose ?? 3;
+    meas.setAttribute('d', d);
+    const b = meas.getBBox(), small = Math.max(b.width, b.height) < 90;
+    el('path', { d, fill: color, 'fill-rule': 'evenodd', opacity: o.alpha ?? 0.55, filter: small ? 'url(#wcs)' : 'url(#wc)',
+      transform: `translate(${r(-k, k).toFixed(1)},${r(-k, k).toFixed(1)})` }, cur.washes);
+  }
+
+  // parallel hatching clipped to a shape
+  function hatch(clipD, angle = -45, gap = 5, w = 0.9, o = {}) {
+    const id = 'c' + seed + '_' + (clipN++);
+    const cp = el('clipPath', { id }, svg); el('path', { d: clipD }, cp);
+    const g = el('g', { 'clip-path': `url(#${id})` }, cur.inks);
+    meas.setAttribute('d', clipD);
+    const b = meas.getBBox(), cx = b.x + b.width / 2, cy = b.y + b.height / 2, R = Math.hypot(b.width, b.height) / 2 + 4;
+    const a = angle * Math.PI / 180, ux = Math.cos(a), uy = Math.sin(a);
+    for (let t = -R; t <= R; t += gap * r(0.8, 1.2)) {
+      const px = cx - uy * t, py = cy + ux * t;
+      stroke(ln([px - ux * R, py - uy * R], [px + ux * R, py + uy * R]), w, { into: g, wobble: 0.6, ti: 6, to: 6, ...o });
+    }
+  }
+
+  function text(str, x, y, size, o = {}) {
+    const t = el('text', { x, y, 'font-size': size, 'font-family': o.font || '"Patrick Hand", Z003, cursive', fill: o.color || INK,
+      'text-anchor': o.anchor || 'middle', transform: `rotate(${o.rot ?? r(-2, 2)} ${x} ${y})`, 'letter-spacing': o.ls ?? 0 }, o.into || cur.inks);
+    t.textContent = str;
+    return t;
+  }
+
+  return { stroke, s: stroke, fill, knock, wash, hatch, text, layer, r, rng, svg, W, H };
+}
+
+// ---------- handwriting ----------
+// Glyphs are strokes in a box one unit high (0 = cap height, 1 = baseline). A stroke is a list of
+// segments: ['l', pts] is straight, ['s', pts] is smooth, ['d', [pt]] is a dot.
+const G = {
+  A: [.7, [['l', [[.04, 1], [.35, 0], [.66, 1]]]], [['l', [[.17, .62], [.53, .62]]]]],
+  B: [.58, [['l', [[.08, 1], [.08, 0]]], ['s', [[.08, 0], [.36, .01], [.5, .12], [.48, .3], [.34, .45], [.08, .47]]]], [['s', [[.08, .47], [.4, .48], [.55, .62], [.54, .85], [.38, .99], [.08, 1]]]]],
+  C: [.6, [['s', [[.56, .16], [.44, .03], [.27, .02], [.11, .16], [.05, .5], [.11, .84], [.28, .98], [.45, .97], [.57, .85]]]]],
+  D: [.62, [['l', [[.08, 0], [.08, 1]]]], [['s', [[.08, 0], [.34, .02], [.54, .2], [.58, .5], [.54, .8], [.34, .98], [.08, 1]]]]],
+  E: [.52, [['l', [[.48, 0], [.08, 0], [.08, 1], [.5, 1]]]], [['l', [[.08, .48], [.4, .48]]]]],
+  F: [.5, [['l', [[.48, 0], [.08, 0], [.08, 1]]]], [['l', [[.08, .48], [.38, .48]]]]],
+  G: [.64, [['s', [[.57, .16], [.44, .03], [.27, .02], [.11, .16], [.05, .5], [.11, .84], [.29, .98], [.47, .96], [.58, .84]]], ['l', [[.58, .84], [.58, .58], [.38, .58]]]]],
+  H: [.62, [['l', [[.08, 0], [.08, 1]]]], [['l', [[.54, 0], [.54, 1]]]], [['l', [[.08, .5], [.54, .5]]]]],
+  I: [.18, [['l', [[.09, 0], [.09, 1]]]]],
+  J: [.44, [['s', [[.38, 0], [.38, .72], [.3, .94], [.17, .98], [.04, .86]]]]],
+  K: [.58, [['l', [[.08, 0], [.08, 1]]]], [['l', [[.54, 0], [.09, .6]]]], [['l', [[.24, .44], [.56, 1]]]]],
+  L: [.48, [['l', [[.08, 0], [.08, 1], [.46, 1]]]]],
+  M: [.78, [['l', [[.06, 1], [.1, 0], [.39, .68], [.68, 0], [.72, 1]]]]],
+  N: [.64, [['l', [[.08, 1], [.08, 0], [.56, 1], [.56, 0]]]]],
+  O: [.68, [['s', [[.34, 0], [.58, .14], [.65, .5], [.58, .86], [.34, 1], [.1, .86], [.03, .5], [.1, .14], [.34, 0], [.48, .05]]]]],
+  P: [.54, [['l', [[.08, 1], [.08, 0]]], ['s', [[.08, 0], [.36, .01], [.5, .13], [.5, .31], [.36, .46], [.08, .48]]]]],
+  R: [.56, [['l', [[.08, 1], [.08, 0]]], ['s', [[.08, 0], [.36, .01], [.5, .13], [.5, .31], [.36, .46], [.2, .48]]], ['l', [[.2, .48], [.55, 1]]]]],
+  S: [.54, [['s', [[.5, .14], [.37, .02], [.2, .02], [.07, .15], [.11, .35], [.29, .47], [.45, .58], [.51, .78], [.41, .95], [.22, .99], [.04, .86]]]]],
+  T: [.58, [['l', [[.02, 0], [.56, 0]]]], [['l', [[.29, 0], [.29, 1]]]]],
+  U: [.62, [['s', [[.07, 0], [.07, .68], [.15, .91], [.31, 1], [.47, .91], [.55, .68], [.55, 0]]]]],
+  V: [.64, [['l', [[.03, 0], [.32, 1], [.61, 0]]]]],
+  W: [.88, [['l', [[.03, 0], [.23, 1], [.44, .32], [.65, 1], [.85, 0]]]]],
+  X: [.58, [['l', [[.05, 0], [.53, 1]]]], [['l', [[.53, 0], [.05, 1]]]]],
+  Y: [.6, [['l', [[.03, 0], [.3, .5], [.57, 0]]]], [['l', [[.3, .5], [.3, 1]]]]],
+  Z: [.56, [['l', [[.05, 0], [.52, 0], [.05, 1], [.54, 1]]]]],
+  '.': [.22, [['d', [[.09, .97]]]]],
+  '!': [.26, [['l', [[.11, 0], [.1, .7]]]], [['d', [[.1, .97]]]]],
+  '?': [.5, [['s', [[.05, .2], [.18, .03], [.36, .02], [.46, .16], [.42, .34], [.24, .5], [.24, .7]]]], [['d', [[.24, .97]]]]],
+  '-': [.42, [['l', [[.06, .55], [.36, .55]]]]],
+  ' ': [.34],
+  '0': [.52, [['s', [[.26, 0], [.45, .14], [.5, .5], [.45, .86], [.26, 1], [.07, .86], [.02, .5], [.07, .14], [.26, 0], [.4, .06]]]]],
+  '2': [.54, [['s', [[.05, .22], [.17, .04], [.33, 0], [.47, .1], [.49, .28], [.36, .5], [.04, 1]]], ['l', [[.04, 1], [.53, 1]]]]],
+  '3': [.52, [['s', [[.06, .12], [.23, 0], [.42, .05], [.47, .24], [.28, .46]]], ['s', [[.28, .46], [.47, .58], [.51, .8], [.35, .98], [.15, .98], [.03, .86]]]]],
+  '5': [.52, [['l', [[.5, 0], [.13, 0], [.09, .42]]], ['s', [[.09, .42], [.29, .36], [.47, .48], [.51, .72], [.4, .95], [.2, .99], [.03, .88]]]]],
+  '6': [.52, [['s', [[.45, .04], [.25, .2], [.09, .5], [.07, .8], [.23, .99], [.43, .93], [.49, .72], [.39, .54], [.21, .52], [.07, .64]]]]],
+  '8': [.52, [['s', [[.26, .46], [.44, .32], [.43, .1], [.26, 0], [.09, .1], [.09, .3], [.26, .46], [.47, .64], [.49, .88], [.27, 1], [.05, .88], [.07, .64], [.26, .46]]]]],
+  '9': [.52, [['s', [[.47, .22], [.34, .03], [.14, .05], [.05, .24], [.13, .42], [.33, .45], [.47, .3]]], ['l', [[.47, .3], [.44, 1]]]]],
+};
+// the two ways of writing 1, 4 and 7
+const CONTINENTAL = {
+  '1': [.42, [['l', [[.04, .36], [.32, 0], [.3, 1]]]]],
+  '4': [.58, [['l', [[.34, 0], [.04, .68], [.56, .68]]]], [['l', [[.42, .38], [.4, 1]]]]],
+  '7': [.56, [['l', [[.02, .12], [.07, .02], [.54, 0], [.2, 1]]]], [['l', [[.07, .53], [.55, .49]]]]],
+};
+const ENGLISH = {
+  '1': [.28, [['l', [[.14, 0], [.14, 1]]]]],
+  '4': [.56, [['l', [[.4, 1], [.4, 0], [.03, .68], [.55, .68]]]]],
+  '7': [.54, [['l', [[.03, 0], [.52, 0], [.18, 1]]]], [['l', [[.08, .53], [.54, .5]]]]],
+};
+const MARKS = { // accents drawn over a base letter: [base, mark centre, kind]
+  'Á': ['A', .38, 'acute'], 'Ř': ['R', .28, 'caron'], 'Ě': ['E', .28, 'caron'], 'Č': ['C', .32, 'caron'],
+};
+
+// three hands: Mr Kolář (blue, slanted, continental), Dad (small square pencil), Helen (bigger, copying Dad)
+const HANDS = {
+  kolar: { set: CONTINENTAL, color: '#2a3f88', slant: .2, wide: .92, track: .1, jit: .025, drift: .03, w: .07 },
+  dad: { set: ENGLISH, color: '#55504a', slant: 0, wide: .86, track: .16, jit: .008, drift: .008, w: .07, alpha: .85 },
+  helen: { set: ENGLISH, color: '#1f2940', slant: .04, wide: 1, track: .12, jit: .03, drift: .035, w: .075 },
+};
+
+function glyphFor(ch, hand) {
+  if (MARKS[ch]) {
+    const [base, cx, kind] = MARKS[ch], g = glyphFor(base, hand);
+    const mark = kind === 'acute' ? [['l', [[cx - .04, -.1], [cx + .09, -.27]]]] : [['l', [[cx - .12, -.27], [cx, -.11], [cx + .12, -.27]]]];
+    return [g[0], ...g.slice(1), mark];
+  }
+  return hand.set[ch] || G[ch];
+}
+
+// Catmull-Rom through points, continuing from the first point (no moveto)
+function smoothOn(P) {
+  let d = '';
+  const n = P.length, Q = i => P[Math.max(0, Math.min(n - 1, i))];
+  for (let i = 0; i < n - 1; i++) {
+    const p0 = Q(i - 1), p1 = Q(i), p2 = Q(i + 1), p3 = Q(i + 2);
+    d += `C${(p1[0] + (p2[0] - p0[0]) / 6).toFixed(2)},${(p1[1] + (p2[1] - p0[1]) / 6).toFixed(2)} ${(p2[0] - (p3[0] - p1[0]) / 6).toFixed(2)},${(p2[1] - (p3[1] - p1[1]) / 6).toFixed(2)} ${p2[0].toFixed(2)},${p2[1].toFixed(2)}`;
+  }
+  return d;
+}
+
+// write a string with a pen in a hand; x, y is the start of the baseline; returns where it ended
+function write(p, str, x, y, size, hand, o = {}) {
+  let cx = x;
+  const color = o.color || hand.color;
+  for (const ch of str) {
+    const g = glyphFor(ch, hand);
+    if (!g) { cx += .34 * size; continue; }
+    const [w, ...strokes] = g;
+    const dy = p.r(-1, 1) * hand.drift * size, jit = new Map();
+    const at = ([u, v]) => {
+      const k = u + ',' + v;
+      if (!jit.has(k)) jit.set(k, [p.r(-1, 1) * hand.jit, p.r(-1, 1) * hand.jit]);
+      const [jx, jy] = jit.get(k), uu = u * hand.wide + jx, vv = v + jy;
+      return [cx + (uu + hand.slant * (1 - vv)) * size, y + (vv - 1) * size + dy];
+    };
+    for (const st of strokes) {
+      let d = '';
+      for (const [type, pts] of st) {
+        const P = pts.map(at);
+        if (type === 'd') { p.fill(circ(P[0][0], P[0][1], hand.w * size * .62), color, { alpha: hand.alpha ?? 1 }); continue; }
+        if (!d) d = `M${P[0][0].toFixed(2)},${P[0][1].toFixed(2)}`;
+        d += type === 'l' ? P.slice(1).map(q => `L${q[0].toFixed(2)},${q[1].toFixed(2)}`).join('') : smoothOn(P);
+      }
+      if (d) p.stroke(d, hand.w * size, { color, alpha: hand.alpha ?? 1, ti: size * .05, to: size * .08, min: .55, wobble: .12, press: .22 });
+    }
+    cx += (w * hand.wide + hand.track) * size;
+  }
+  return cx;
+}
+function measure(str, size, hand) {
+  let w = 0;
+  for (const ch of str) { const g = glyphFor(ch, hand); w += g ? (g[0] * hand.wide + hand.track) * size : .34 * size; }
+  return w + hand.slant * size;
+}
+
+// ---------- figures ----------
+let SEED = 100;
+function svgIn(host, W, H) {
+  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, width: W, height: H, 'aria-hidden': 'true' });
+  host.appendChild(svg);
+  return svg;
+}
+const CARD = '#fbf8f1', PRINT = '#a3967f', RULE = '#d3c8b4';
+
+function printed(svg, str, x, y, size, o = {}) {
+  const t = el('text', { x, y, 'font-size': size, 'font-family': '"EB Garamond", P052, serif', fill: o.fill || PRINT,
+    'letter-spacing': o.ls ?? '.2em', 'text-anchor': o.anchor || 'start', 'font-style': o.italic ? 'italic' : 'normal' }, svg);
+  if (o.rot) t.setAttribute('transform', `rotate(${o.rot} ${x} ${y})`);
+  t.textContent = str;
+  return t;
+}
+
+function stamp(p, svg, x, y, cz) {
+  const w = 96, h = 116;
+  el('rect', { x: x + 2, y: y + 3, width: w, height: h, fill: 'rgba(60,40,10,.10)' }, svg);
+  el('rect', { x, y, width: w, height: h, fill: '#fffdf8' }, svg);
+  for (let i = 0; i <= w; i += 9.6) { el('circle', { cx: x + i, cy: y, r: 2.6, fill: CARD }, svg); el('circle', { cx: x + i, cy: y + h, r: 2.6, fill: CARD }, svg); }
+  for (let j = 0; j <= h; j += 9.66) { el('circle', { cx: x, cy: y + j, r: 2.6, fill: CARD }, svg); el('circle', { cx: x + w, cy: y + j, r: 2.6, fill: CARD }, svg); }
+  p.layer();
+  const ix = x + 9, iy = y + 9, iw = w - 18, ih = h - 30;
+  p.wash(rect(ix, iy, iw, ih), cz ? '#c65b45' : '#6d5a9a', { alpha: .55, loose: 1 });
+  if (cz) { // a small castle tower
+    p.wash(rect(ix + 30, iy + 26, 20, 48), '#f3e3c8', { alpha: .8, loose: .5 });
+    p.s(ln([ix + 30, iy + 74], [ix + 30, iy + 26], [ix + 50, iy + 26], [ix + 50, iy + 74]), 1.3);
+    p.s(ln([ix + 26, iy + 27], [ix + 40, iy + 8], [ix + 54, iy + 27]), 1.3);
+    p.s(ln([ix + 38, iy + 44], [ix + 38, iy + 52]), 1.2); p.s(ln([ix + 13, iy + 74], [ix + 66, iy + 74]), 1.2);
+  } else { // a lighthouse on a rock
+    p.wash(ln([ix + 34, iy + 72], [ix + 38, iy + 22], [ix + 46, iy + 22], [ix + 50, iy + 72]) + 'Z', '#f6efe2', { alpha: .85, loose: .5 });
+    p.s(ln([ix + 34, iy + 72], [ix + 38, iy + 22], [ix + 46, iy + 22], [ix + 50, iy + 72]), 1.3);
+    p.s(ln([ix + 36, iy + 22], [ix + 42, iy + 12], [ix + 48, iy + 22]), 1.2);
+    p.s(sm([[ix + 8, iy + 78], [ix + 30, iy + 70], [ix + 56, iy + 71], [ix + 74, iy + 78]]), 1.2);
+  }
+  printed(svg, cz ? 'ČESKO' : '', x + 10, y + h - 9, 11, { fill: '#7a6a58', ls: '.12em' });
+  printed(svg, cz ? '44' : '2nd', x + w - 10, y + h - 9, 11, { fill: '#7a6a58', ls: '0', anchor: 'end' });
+}
+
+function postmark(p, svg, x, y, town, date) {
+  const g = el('g', { opacity: .55, transform: `rotate(-9 ${x} ${y})` }, svg);
+  p.layer();
+  p.s(circ(x, y, 38), 2, { color: '#3b3733', over: .01 });
+  p.s(circ(x, y, 27), 1.2, { color: '#3b3733', over: .01, alpha: .7 });
+  for (let k = 0; k < 4; k++) {
+    const yy = y - 21 + k * 14, pts = [];
+    for (let t = 0; t <= 10; t++) pts.push([x + 44 + t * 11, yy + Math.sin(t * 1.25 + k) * 4]);
+    p.s(sm(pts), 1.8, { color: '#3b3733', alpha: .8 });
+  }
+  printed(g, town, x, y - 4, 11, { fill: '#3b3733', ls: '.1em', anchor: 'middle' });
+  printed(g, date, x, y + 12, 11, { fill: '#3b3733', ls: '.05em', anchor: 'middle' });
+}
+
+// the back of a postcard. o: { from: 'cz'|'uk', hand, date, nums, address, posted, redirect, half }
+function cardBack(host, o) {
+  const W = o.half ? 480 : 740, H = o.half ? 250 : 500;
+  const svg = svgIn(host, W, H);
+  el('rect', { x: 0, y: 0, width: W, height: H, fill: CARD }, svg);
+  const base = el('g', {}, svg);   // printed things, under the ink
+  const p = makePen(svg, SEED++, W, H), hand = HANDS[o.hand];
+  const cz = o.from === 'cz';
+  printed(base, cz ? 'POHLEDNICE' : 'POST CARD', 40, 58, 16);
+  if (!o.half) {
+    el('line', { x1: 392, y1: 84, x2: 392, y2: 452, stroke: '#cbbfa9', 'stroke-width': 1.3 }, base);
+    for (const yy of [262, 318, 374, 430]) el('line', { x1: 420, x2: 704, y1: yy, y2: yy, stroke: RULE, 'stroke-width': 1.1 }, base);
+    stamp(p, base, 606, 38, cz);
+    if (o.posted) postmark(p, svg, 560, 128, cz ? 'TELČ' : 'YORK', o.posted);
+    let ay = 256;
+    p.layer();
+    for (const line of o.address) { write(p, line, 428, ay, o.hand === 'kolar' ? 27 : 30, hand); ay += 56; }
+    if (o.redirect) {
+      const lg = el('g', { transform: 'rotate(-2.5 560 380)' }, svg);
+      el('rect', { x: 424, y: 330, width: 262, height: 96, fill: 'rgba(60,40,10,.12)', transform: 'translate(2,3)' }, lg);
+      el('rect', { x: 424, y: 330, width: 262, height: 96, fill: '#fffef9' }, lg);
+      [[440, 352, 150], [440, 370, 190], [440, 388, 120], [440, 406, 90]].forEach(([bx, by, bw]) => el('rect', { x: bx, y: by, width: bw, height: 7, fill: '#b9b3a8' }, lg));
+      for (let i = 0; i < 26; i++) el('rect', { x: 606 + i * 2.6, y: 352, width: (i * 7 % 3) + 1, height: 42, fill: '#7d776d' }, lg);
+    }
+  }
+  p.layer();
+  if (o.date) write(p, o.date, 44, 136, 34, hand);
+  const size = 64;
+  let x = 44, y = o.half ? 170 : o.date ? 248 : 208;
+  o.nums.forEach((n, i) => {
+    if (i && x + measure(n, size, hand) > (o.half ? W - 30 : 380)) { x = 44; y += 100; }
+    x = write(p, n, x, y, size, hand) + size * .55;
+  });
+  return svg;
+}
+
+function tally(host, after) {
+  const size = 40, y = 88, dad = HANDS.dad, m = s => measure(s, size, dad);
+  const W = Math.ceil(84 + m('KOLÁŘ ') + m('13') * 2.2 + m('D.H. ') + m('DRAWN ') + m('9') + size * 1.6), H = 128;
+  const svg = svgIn(host, W, H);
+  el('rect', { x: 0, y: 0, width: W, height: H, fill: '#ece6d8' }, svg);
+  const p = makePen(svg, 90 + (after ? 1 : 0), W, H);
+  p.layer();
+  // where he rubbed out and wrote over, again and again: a grey fuzz, and the ghosts of old numbers
+  const faint = { ...dad, alpha: .34, w: .06 };
+  const rubbed = (olds, x) => {
+    for (let k = 0; k < 4; k++) p.wash(ell(x + size * p.r(.35, .75), y - size * p.r(.35, .65), size * p.r(.3, .55), size * p.r(.2, .4)), '#9d968a', { alpha: .07, loose: 3 });
+    olds.forEach(str => write(p, str, x + p.r(-4, 4), y + p.r(-3, 3), size, faint));
+  };
+  let x = 42;
+  x = write(p, 'KOLÁŘ ', x, y, size, dad);
+  rubbed(['12', '11'], x);
+  x = write(p, '13', x, y, size, dad) + size * .8;
+  x = write(p, 'D.H. ', x, y, size, dad);
+  if (after) {
+    rubbed(['12', '11', '12'], x);
+    x = write(p, '13', x - 2, y + 3, size * 1.18, { ...HANDS.helen, color: '#3f3a35', alpha: .9, slant: .1 }) + size * .8;
+  } else {
+    rubbed(['11', '10'], x);
+    x = write(p, '12', x, y, size, dad) + size * .8;
+  }
+  x = write(p, 'DRAWN ', x, y, size, dad);
+  rubbed(['8'], x);
+  write(p, '9', x, y, size, dad);
+  return svg;
+}
+
+function slip(host, str) {
+  const size = 30, hand = HANDS.kolar;
+  const W = Math.ceil(measure(str, size, hand) + 26), H = 52;
+  const svg = svgIn(host, W, H);
+  const p = makePen(svg, SEED++, W, H);
+  p.layer();
+  write(p, str, 12, 41, size, hand);
+  svg.setAttribute('role', 'img');
+  svg.setAttribute('aria-label', str);
+  svg.removeAttribute('aria-hidden');
+  return svg;
+}
+
+function seven(svg) { // section break: a crossed seven
+  svg.setAttribute('viewBox', '0 0 26 34');
+  const p = makePen(svg, SEED++, 26, 34);
+  p.layer();
+  write(p, '7', 3, 29, 24, { ...HANDS.kolar, jit: 0, drift: 0, w: .085 }, { color: 'currentColor' });
+}
+
+// ---------- the front: the square at Telč ----------
+function telc(host) {
+  const W = 1200, H = 800, B = 30;
+  const svg = svgIn(host, W, H);
+  el('rect', { x: 0, y: 0, width: W, height: H, fill: CARD }, svg);
+  const p = makePen(svg, 7, W, H);
+  const { s, wash, knock } = p;
+  const G0 = 640;
+
+  // sky and ground
+  p.layer();
+  wash(rect(B - 10, B - 10, W - 2 * B + 20, 430), '#9dbcd6', { alpha: .42, loose: 4 });
+  wash(sm([[B, 150], [300, 118], [640, 160], [980, 120], [W - B, 150], [W - B, B], [B, B]], true), '#86a9c9', { alpha: .25, loose: 5 });
+  wash(rect(B - 10, G0 - 4, W - 2 * B + 20, H - G0), '#c8b69a', { alpha: .45, loose: 4 });
+  for (let row = 0; row < 7; row++) {
+    const yy = G0 + 16 + row * row * 3.2 + row * 12;
+    for (let x = B + p.r(0, 30); x < W - B; x += 26 + row * 6) s(sm([[x, yy + 3], [x + 7 + row, yy], [x + 14 + row * 2, yy + 3]]), .9, { alpha: .35, wobble: .3 });
+  }
+
+  const COLORS = ['#e9a39a', '#efd276', '#b5d09a', '#a6c3dc', '#eab08a', '#eadfbd', '#c9b1d0', '#a3cdb9'];
+  const TYPES = ['volute', 'step', 'attic', 'round', 'volute', 'triangle', 'attic', 'volute'];
+  const WIDTHS = [150, 138, 146, 132, 152, 140, 144, 138];
+  const EAVES = [330, 352, 318, 344, 326, 356, 336, 322];
+  const GABLES = [168, 128, 96, 150, 176, 120, 92, 160];
+  let x0 = B;
+  WIDTHS.forEach((w, i) => {
+    const e = EAVES[i], g = GABLES[i], cx = x0 + w / 2, x1 = x0 + w;
+    let top;
+    const L = f => x0 + w * f, Rr = f => x1 - w * f;
+    switch (TYPES[i]) {
+      case 'volute': {
+        const left = [[L(.02), e], [L(.12), e - 16], [L(.24), e - 34], [L(.25), e - g * .52], [L(.34), e - g * .6], [L(.37), e - g * .88], [cx, e - g]];
+        const right = left.slice(0, -1).reverse().map(([px, py]) => [2 * cx - px, py]);
+        top = sm([...left, ...right]).replace(/^M/, 'L'); break;
+      }
+      case 'step': {
+        const st = [[0, e], [0, e - g * .3], [.14, e - g * .3], [.14, e - g * .62], [.28, e - g * .62], [.28, e - g * .9], [.4, e - g * .9], [.4, e - g]];
+        const pts = [...st.map(([f, py]) => [L(f), py]), ...st.slice().reverse().map(([f, py]) => [Rr(f), py])];
+        top = 'L' + pts.map(q => q.join(',')).join('L'); break;
+      }
+      case 'attic': {
+        const pts = [[x0, e], [x0, e - g * .55]];
+        const n = 5;
+        for (let k = 0; k < n; k++) {
+          const a = x0 + w * k / n, b = x0 + w * (k + 1) / n;
+          pts.push([a + 2, e - g * .55], [a + 2, e - g], [(a + b) / 2, e - g * .8], [b - 2, e - g], [b - 2, e - g * .55]);
+        }
+        pts.push([x1, e - g * .55], [x1, e]);
+        top = 'L' + pts.map(q => q.join(',')).join('L'); break;
+      }
+      case 'round': {
+        top = sm([[x0, e], [L(.05), e - g * .45], [L(.2), e - g * .82], [cx, e - g], [Rr(.2), e - g * .82], [Rr(.05), e - g * .45], [x1, e]]).replace(/^M/, 'L'); break;
+      }
+      default: { // triangle with a little finial
+        top = `L${x0},${e}L${cx},${e - g * .82}L${x1},${e}`;
+      }
+    }
+    const house = `M${x0},${G0}` + top + `L${x1},${G0}Z`;
+    p.layer();
+    knock(house);
+    wash(house, COLORS[i], { alpha: .62, loose: 2.5 });
+    // arcade
+    const pier = 13, n = w > 142 ? 3 : 2, ow = (w - (n + 1) * pier) / n, spring = G0 - 72;
+    for (let k = 0; k < n; k++) {
+      const ax = x0 + pier + k * (ow + pier), r = ow / 2;
+      const arch = `M${ax},${G0}L${ax},${spring}A${r},${r} 0 0 1 ${ax + ow},${spring}L${ax + ow},${G0}`;
+      wash(arch + 'Z', '#5d5047', { alpha: .5, loose: 1.5 });
+      s(arch, 1.6);
+    }
+    s(ln([x0, G0 - 118], [x1, G0 - 118]), 1.4);
+    s(ln([x0 - 3, e], [x1 + 3, e]), 2);
+    s(ln([x0, e + 7], [x1, e + 7]), 1);
+    // windows
+    const rows = Math.floor((G0 - 118 - e - 24) / 74), cols = w > 142 ? 3 : 2;
+    for (let rr = 0; rr < rows; rr++) {
+      const wy = e + 26 + rr * 74, gap = (w - cols * 22) / (cols + 1);
+      for (let c = 0; c < cols; c++) {
+        const wx = x0 + gap + c * (22 + gap);
+        wash(rect(wx, wy, 22, 40), '#6c8196', { alpha: .5, loose: 1 });
+        s(rect(wx, wy, 22, 40), 1.3);
+        s(ln([wx - 4, wy + 43], [wx + 26, wy + 43]), 1.4);
+        s(ln([wx + 11, wy + 2], [wx + 11, wy + 38]), .7, { alpha: .7 });
+      }
+    }
+    // the gable's own window and ornaments
+    if (TYPES[i] === 'volute' || TYPES[i] === 'round') { wash(circ(cx, e - g * .42, 10), '#6c8196', { alpha: .5, loose: .5 }); s(circ(cx, e - g * .42, 10), 1.3); }
+    if (TYPES[i] === 'step') for (const f of [.07, .21, .34]) { s(circ(L(f), e - g * [.3, .62, .9][[.07, .21, .34].indexOf(f)] - 5, 3.5), 1.1); s(circ(Rr(f), e - g * [.3, .62, .9][[.07, .21, .34].indexOf(f)] - 5, 3.5), 1.1); }
+    if (TYPES[i] === 'triangle') { s(ln([cx, e - g * .82], [cx, e - g - 10]), 1.4); s(circ(cx, e - g - 14, 4), 1.2); s(rect(cx - 12, e - g * .5, 24, 26), 1.2); wash(rect(cx - 12, e - g * .5, 24, 26), '#6c8196', { alpha: .45, loose: .5 }); }
+    if (TYPES[i] === 'attic') s(ln([x0, e - g * .55], [x1, e - g * .55]), 1.2);
+    s(house, 2.1);
+    x0 = x1;
+  });
+
+  // the column in the square, nearer than the houses
+  const cxm = 930, base = 752;
+  p.layer();
+  const plinth = `M${cxm - 64},${base}L${cxm - 64},${base - 26}L${cxm - 44},${base - 26}L${cxm - 44},${base - 52}L${cxm - 26},${base - 52}L${cxm - 26},${base - 96}L${cxm + 26},${base - 96}L${cxm + 26},${base - 52}L${cxm + 44},${base - 52}L${cxm + 44},${base - 26}L${cxm + 64},${base - 26}L${cxm + 64},${base}Z`;
+  const shaft = `M${cxm - 15},${base - 96}L${cxm - 12},${base - 360}L${cxm + 12},${base - 360}L${cxm + 15},${base - 96}Z`;
+  const cap = rect(cxm - 22, base - 378, 44, 18);
+  const statue = sm([[cxm - 15, base - 378], [cxm - 18, base - 410], [cxm - 11, base - 440], [cxm - 6, base - 452], [cxm, base - 454], [cxm + 6, base - 452], [cxm + 11, base - 440], [cxm + 18, base - 410], [cxm + 15, base - 378]]) + 'Z';
+  const head = circ(cxm, base - 464, 8);
+  [plinth, shaft, cap, statue, head].forEach(d => knock(d));
+  [plinth, shaft, cap, statue, head].forEach(d => wash(d, '#dccfb4', { alpha: .75, loose: 1.5 }));
+  wash(`M${cxm + 4},${base - 96}L${cxm + 12},${base - 358}L${cxm + 15},${base - 96}Z`, '#8d7f6a', { alpha: .35, loose: 1 });
+  [plinth, shaft, cap, statue].forEach(d => s(d, 2));
+  s(head, 1.6);
+  s(circ(cxm, base - 466, 14), 1, { alpha: .6 });
+  s(ln([cxm - 9, base - 430], [cxm + 9, base - 424]), 1.2);
+  wash(sm([[cxm - 110, base + 6], [cxm, base + 16], [cxm + 120, base + 4]]) + `L${cxm + 120},${base - 2}L${cxm - 110},${base - 2}Z`, '#6f604f', { alpha: .3, loose: 2 });
+
+  // a few people under the arcades, for scale
+  p.layer();
+  [[180, 1], [575, -1], [1060, 1]].forEach(([px, dir]) => {
+    const h = 44, top = G0 - h;
+    const body = sm([[px - 6, G0 - 2], [px - 7, top + 14], [px, top + 10], [px + 7, top + 14], [px + 6, G0 - 2]]);
+    knock(body + 'Z'); knock(circ(px, top + 5, 5.5));
+    wash(body + 'Z', ['#7b4a52', '#3e5a74', '#5b6b3e'][Math.abs(px) % 3], { alpha: .6, loose: 1 });
+    s(body, 1.3); s(circ(px, top + 5, 5.5), 1.2);
+  });
+
+  // the white border and the printed caption
+  el('path', { d: rect(0, 0, W, H) + rect(B, B, W - 2 * B, H - 2 * B), fill: CARD, 'fill-rule': 'evenodd' }, svg);
+  el('rect', { x: B, y: B, width: W - 2 * B, height: H - 2 * B, fill: 'none', stroke: 'rgba(60,40,10,.12)', 'stroke-width': 1 }, svg);
+  el('rect', { x: 0, y: 0, width: W, height: H, filter: 'url(#grain)', opacity: .35 }, svg);
+  printed(svg, 'Telč, náměstí Zachariáše z Hradce', B, H - 9, 17, { fill: '#8c806c', ls: '.04em', italic: true });
+}
+
+// ---------- draw everything ----------
+function draw() {
+  telc(document.getElementById('front'));
+  const CARDS = {
+    first: { from: 'cz', hand: 'kolar', date: '24. II.', nums: ['3827', '6141'], address: ['MR D. HARTLEY', 'SCARBOROUGH', 'N. YORKSHIRE', 'ENGLAND'], posted: '24.02', redirect: true },
+    mine: { from: 'uk', hand: 'helen', nums: ['6141', '8786'], address: ['MR Z. KOLÁŘ', '588 56 TELČ', 'CZECH REPUBLIC'] },
+    queen: { from: 'uk', hand: 'helen', nums: ['3234', '2534'], half: true },
+    new: { from: 'cz', hand: 'kolar', date: '27. X.', nums: ['5254'], address: ['HELEN HARTLEY', 'SCARBOROUGH', 'N. YORKSHIRE', 'ENGLAND'], posted: '27.10' },
+    reply: { from: 'uk', hand: 'helen', nums: ['5254', '5755'], address: ['MR Z. KOLÁŘ', '588 56 TELČ', 'CZECH REPUBLIC'] },
+  };
+  document.querySelectorAll('[data-card]').forEach(f => cardBack(f, CARDS[f.dataset.card]));
+  document.querySelectorAll('[data-tally]').forEach(f => tally(f, f.dataset.tally === 'after'));
+  document.querySelectorAll('.said').forEach((p, i) => {
+    const sp = document.createElement('span');
+    sp.className = 'slip paper';
+    sp.style.setProperty('--rot', (i % 2 ? .5 : -.7) + 'deg');
+    p.prepend(sp);
+    slip(sp, p.dataset.k);
+  });
+  document.querySelectorAll('svg.brk').forEach(seven);
+  window.__ready = true;
+}
+// don't wait forever for fonts: background tabs may never resolve fonts.ready
+Promise.race([document.fonts ? document.fonts.ready : null, new Promise(r => setTimeout(r, 1500))]).then(draw);
+</script>
+</body>
+</html>

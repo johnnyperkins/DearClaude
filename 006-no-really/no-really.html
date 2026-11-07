@@ -1,0 +1,1271 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>No, Really</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Libre+Caslon+Text:ital@0;1&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root { --bg: #ebe4d6; --paper: #fbf8f1; --ink: #1d1a16; --muted: #6f675b; --faint: #978e7f; --rule: #ddd3c1; --link: #7a4a1c; }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) { --bg: #1b1916; --ink: #ece4d4; --muted: #a39a8a; --faint: #7a7266; --rule: #3a352e; --link: #e8b866; }
+  }
+  :root[data-theme="dark"] { --bg: #1b1916; --ink: #ece4d4; --muted: #a39a8a; --faint: #7a7266; --rule: #3a352e; --link: #e8b866; }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "Libre Caslon Text", P052, "Palatino Linotype", Palatino, Georgia, serif; }
+  main { max-width: 720px; margin: 0 auto; padding: 56px 16px 72px; }
+  header { margin: 0 4px 44px; }
+  h1 { font-weight: 400; font-style: italic; font-size: 44px; margin: 0 0 10px; letter-spacing: -0.01em; }
+  header p { margin: 0; color: var(--muted); font-size: 17px; line-height: 1.55; max-width: 520px; }
+  /* the cards are paper in either theme: ink and watercolour need a white ground */
+  .card { background: #fbf8f1; color: #1d1a16; padding: 26px 26px 18px; margin: 0 0 44px;
+    box-shadow: 0 1px 2px rgba(0,0,0,.1), 0 10px 28px rgba(50,30,5,.10); }
+  .card svg { display: block; width: 100%; height: auto; }
+  .caption { text-align: center; font-size: 19px; line-height: 1.45; margin: 18px 8px 10px; }
+  details { border-top: 1px solid #e6dece; margin: 14px -8px 0; padding: 0 8px; }
+  summary { cursor: pointer; list-style: none; text-align: center; font-size: 13px; letter-spacing: .14em; text-transform: uppercase;
+    color: #8a7f6d; padding: 12px 0 4px; user-select: none; }
+  summary::-webkit-details-marker { display: none; }
+  summary::after { content: " +"; }
+  details[open] summary::after { content: " \2212"; }
+  summary:hover, summary:focus-visible { color: #7a4a1c; outline: none; }
+  .note { font-size: 15.5px; line-height: 1.6; color: #463f35; margin: 8px 4px 8px; }
+  .note .src { display: block; margin-top: 8px; font-size: 13px; color: #8a7f6d; }
+  .num { display: block; text-align: center; font-size: 12px; letter-spacing: .16em; color: #a89d8a; margin: -6px 0 12px; }
+  footer { margin: 8px 4px 0; font-size: 14px; line-height: 1.6; color: var(--faint); }
+  footer a { color: var(--link); }
+  @media (max-width: 520px) {
+    main { padding-top: 36px; }
+    h1 { font-size: 36px; }
+    .card { padding: 12px 12px 10px; margin-bottom: 32px; }
+    .caption { font-size: 17px; margin-top: 14px; }
+  }
+  body.only main { max-width: none; padding: 0; }
+  body.only header, body.only footer, body.only details, body.only .num { display: none; }
+  body.only .card { margin: 0; box-shadow: none; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>No, really</h1>
+    <p>Nine cartoons: eight about animals and one about the Moon. The jokes are made up. The facts under them are true.</p>
+  </header>
+  <div id="book"></div>
+  <footer>Drawn with code in ink and watercolour for the <a href="../index.html">sketchbook</a>, 2026-09-28.</footer>
+</main>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <filter id="wc" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="9" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.014" numOctaves="3" seed="21" result="lo"/>
+      <feColorMatrix in="lo" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0.6 0 0 0 0.5" result="mask"/>
+      <feComposite in="d" in2="mask" operator="in" result="body"/>
+      <feMorphology in="d" operator="erode" radius="2.4" result="er"/>
+      <feComposite in="d" in2="er" operator="out" result="edge"/>
+      <feGaussianBlur in="edge" stdDeviation="1.1" result="edgeb"/>
+      <feMerge><feMergeNode in="body"/><feMergeNode in="edgeb"/></feMerge>
+    </filter>
+    <filter id="wcs" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="4" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.014" numOctaves="3" seed="21" result="lo"/>
+      <feColorMatrix in="lo" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0.9 0 0 0 0.3" result="mask"/>
+      <feComposite in="d" in2="mask" operator="in" result="body"/>
+      <feMorphology in="d" operator="erode" radius="1.4" result="er"/>
+      <feComposite in="d" in2="er" operator="out" result="edge"/>
+      <feGaussianBlur in="edge" stdDeviation="0.7" result="edgeb"/>
+      <feMerge><feMergeNode in="body"/><feMergeNode in="edgeb"/></feMerge>
+    </filter>
+    <filter id="inkf" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" seed="2" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="0.9" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+    <filter id="grain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.75" numOctaves="3" seed="11"/>
+      <feColorMatrix type="matrix" values="0 0 0 0 0.45  0 0 0 0 0.38  0 0 0 0 0.28  0 0 0 -1.1 0.62"/>
+    </filter>
+  </defs>
+</svg>
+<script>
+const NS = 'http://www.w3.org/2000/svg';
+const INK = '#1d1a16';
+
+function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function noise1(rng) {
+  const g = Array.from({ length: 256 }, () => rng() * 2 - 1);
+  return x => { const i = Math.floor(x), f = x - i, u = f * f * (3 - 2 * f); return g[i & 255] * (1 - u) + g[(i + 1) & 255] * u; };
+}
+
+// smooth curve through points (Catmull-Rom as cubic Beziers)
+function sm(pts, closed = false) {
+  const n = pts.length, P = i => closed ? pts[(i + n) % n] : pts[Math.max(0, Math.min(n - 1, i))];
+  let d = `M${P(0)[0]},${P(0)[1]}`;
+  for (let i = 0; i < (closed ? n : n - 1); i++) {
+    const p0 = P(i - 1), p1 = P(i), p2 = P(i + 1), p3 = P(i + 2);
+    d += `C${p1[0] + (p2[0] - p0[0]) / 6},${p1[1] + (p2[1] - p0[1]) / 6} ${p2[0] - (p3[0] - p1[0]) / 6},${p2[1] - (p3[1] - p1[1]) / 6} ${p2[0]},${p2[1]}`;
+  }
+  return closed ? d + 'Z' : d;
+}
+const ln = (...pts) => 'M' + pts.map(p => p.join(',')).join('L');
+const circ = (cx, cy, r) => `M${cx - r},${cy}a${r},${r} 0 1,0 ${2 * r},0a${r},${r} 0 1,0 ${-2 * r},0Z`;
+const ell = (cx, cy, rx, ry) => `M${cx - rx},${cy}a${rx},${ry} 0 1,0 ${2 * rx},0a${rx},${ry} 0 1,0 ${-2 * rx},0Z`;
+const rect = (x, y, w, h) => `M${x},${y}h${w}v${h}h${-w}Z`;
+
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+
+// A pen draws into one panel. Each layer is a figure: a paper knockout that hides what's
+// behind it, then its washes, then its ink. layer({x, y, k, flip}) moves the pen's origin.
+const PAPER = '#fbf8f1';
+function makePen(svg, seed, W, H) {
+  const rng = mulberry32(seed), nz = noise1(rng);
+  const cp = el('clipPath', { id: 'panel' + seed }, svg); el('rect', { x: 4, y: 4, width: W - 8, height: H - 8 }, cp);
+  const root = el('g', { 'clip-path': `url(#panel${seed})` }, svg);
+  const meas = el('path', { d: 'M0,0', visibility: 'hidden' }, svg);
+  let clipN = 0, cur;
+  const r = (a, b) => a + (b - a) * rng();
+
+  function layer(o = {}) {
+    const k = o.k ?? 1;
+    const g = el('g', { transform: `translate(${o.x ?? 0},${o.y ?? 0}) scale(${o.flip ? -k : k},${k})` }, o.free ? svg : root);
+    cur = { knock: el('g', {}, g), washes: el('g', { style: 'mix-blend-mode:multiply' }, g), inks: el('g', { filter: 'url(#inkf)' }, g) };
+    return cur;
+  }
+  layer();
+
+  function sample(d, closed) {
+    meas.setAttribute('d', d);
+    const L = meas.getTotalLength();
+    return { L, at: closed ? s => meas.getPointAtLength(((s % L) + L) % L) : s => meas.getPointAtLength(Math.max(0, Math.min(L, s))) };
+  }
+
+  // a tapered ink stroke along any path
+  function stroke(d, w = 2, o = {}) {
+    const closed = /z\s*$/i.test(d);
+    const { L, at } = sample(d, closed);
+    if (!L) return;
+    const over = closed ? (o.over ?? r(0.03, 0.08)) * L : 0;
+    const s0 = closed ? r(0, L) : 0, total = L + over;
+    const off = r(0, 200), amp = o.wobble ?? Math.min(1.2, 0.3 + L / 400);
+    const ti = Math.min(total * 0.35, o.ti ?? 10), to = Math.min(total * 0.4, o.to ?? 16);
+    const m = Math.max(4, Math.ceil(total / 1.5)), left = [], right = [], P = [];
+    for (let i = 0; i <= m; i++) { const q = at(s0 + i / m * total); P.push([q.x, q.y]); }
+    for (let i = 0; i <= m; i++) {
+      const s = i / m * total, [px, py] = P[i], a = P[Math.max(0, i - 1)], b = P[Math.min(m, i + 1)];
+      let tx = b[0] - a[0], ty = b[1] - a[1]; const tl = Math.hypot(tx, ty) || 1; tx /= tl; ty /= tl;
+      const nx = -ty, ny = tx;
+      const f = Math.max(0, Math.min(1, s / ti, (total - s) / to));
+      const mn = o.min ?? 0.25, taper = mn + (1 - mn) * Math.sin(f * Math.PI / 2);
+      const wd = w * taper * (1 + (o.press ?? 0.2) * nz(off + 50 + s / 22)) / 2;
+      const dv = amp * nz(off + s / 40);
+      const cx = px + nx * dv, cy = py + ny * dv;
+      left.push([cx + nx * wd, cy + ny * wd]); right.push([cx - nx * wd, cy - ny * wd]);
+    }
+    const pts = left.concat(right.reverse());
+    el('path', { d: 'M' + pts.map(p => p[0].toFixed(2) + ',' + p[1].toFixed(2)).join('L') + 'Z', fill: o.color || INK, opacity: o.alpha ?? 1 }, o.into || cur.inks);
+  }
+
+  function fill(d, color = INK, o = {}) { el('path', { d, fill: color, 'fill-rule': 'evenodd', opacity: o.alpha ?? 1 }, o.into || cur.inks); }
+  function knock(d) { el('path', { d, fill: PAPER }, cur.knock); }
+
+  // loose watercolour: offset, ragged, darker at the edges, glazes where it overlaps
+  function wash(d, color, o = {}) {
+    const k = o.loose ?? 3;
+    meas.setAttribute('d', d);
+    const b = meas.getBBox(), small = Math.max(b.width, b.height) < 90;
+    el('path', { d, fill: color, 'fill-rule': 'evenodd', opacity: o.alpha ?? 0.55, filter: small ? 'url(#wcs)' : 'url(#wc)',
+      transform: `translate(${r(-k, k).toFixed(1)},${r(-k, k).toFixed(1)})` }, cur.washes);
+  }
+
+  // parallel hatching clipped to a shape
+  function hatch(clipD, angle = -45, gap = 5, w = 0.9, o = {}) {
+    const id = 'c' + seed + '_' + (clipN++);
+    const cp = el('clipPath', { id }, svg); el('path', { d: clipD }, cp);
+    const g = el('g', { 'clip-path': `url(#${id})` }, cur.inks);
+    meas.setAttribute('d', clipD);
+    const b = meas.getBBox(), cx = b.x + b.width / 2, cy = b.y + b.height / 2, R = Math.hypot(b.width, b.height) / 2 + 4;
+    const a = angle * Math.PI / 180, ux = Math.cos(a), uy = Math.sin(a);
+    for (let t = -R; t <= R; t += gap * r(0.8, 1.2)) {
+      const px = cx - uy * t, py = cy + ux * t;
+      stroke(ln([px - ux * R, py - uy * R], [px + ux * R, py + uy * R]), w, { into: g, wobble: 0.6, ti: 6, to: 6, ...o });
+    }
+  }
+
+  function text(str, x, y, size, o = {}) {
+    const t = el('text', { x, y, 'font-size': size, 'font-family': o.font || '"Patrick Hand", Z003, cursive', fill: o.color || INK,
+      'text-anchor': o.anchor || 'middle', transform: `rotate(${o.rot ?? r(-2, 2)} ${x} ${y})`, 'letter-spacing': o.ls ?? 0 }, o.into || cur.inks);
+    t.textContent = str;
+    return t;
+  }
+
+  return { stroke, s: stroke, fill, knock, wash, hatch, text, layer, r, rng, svg, W, H };
+}
+
+// ---------- the cartoons ----------
+
+const CARTOONS = [];
+
+// ---- people, drawn in local coordinates with the feet at 0,0 ----
+
+// a press photographer from behind; pose 'high' holds the camera over the crowd
+function paparazzo(p, o = {}) {
+  const { s, wash, knock, fill } = p;
+  p.layer(o);
+  const coat = sm([[-15, -96], [0, -99], [15, -96], [20, -78], [23, -56], [27, -38], [0, -35], [-27, -38], [-23, -56], [-20, -78]], true);
+  const head = circ(0, -110, 12);
+  const high = o.pose === 'high';
+  const armL = high ? [[-13, -93], [-24, -118], [-12, -146]] : [[-13, -93], [-30, -98], [-11, -110]];
+  const armR = high ? [[13, -93], [24, -118], [12, -146]] : [[13, -93], [34, -100], [25, -110]];
+  // silhouette first so the figure hides whoever stands behind it
+  knock(coat); knock(head); knock(rect(-12, -40, 24, 42));
+  for (const a of [armL, armR]) knock(sm(a.map(([x, y]) => [x - 5, y]).concat(a.slice().reverse().map(([x, y]) => [x + 5, y])), true));
+  // trousers and shoes
+  wash(sm([[-11, -40], [-12, 0], [-4, 0], [-1, -30], [3, -30], [5, 0], [12, 0], [11, -40]], true), '#55504a', { alpha: 0.5, loose: 1 });
+  s(sm([[-11, -38], [-11.5, -18], [-12, -1]]), 2); s(sm([[-3, -34], [-4, -1]]), 1.6);
+  s(sm([[3, -34], [4, -1]]), 1.6); s(sm([[11, -38], [11.5, -18], [12, -1]]), 2);
+  fill(sm([[-15, 1], [-13, -3], [-3, -3], [-2, 1]], true)); fill(sm([[2, 1], [3, -3], [13, -3], [16, 1]], true));
+  // coat
+  wash(coat, o.coat || '#b8996a', { alpha: 0.7, loose: 1.5 });
+  s(coat, 2.2);
+  s(sm([[0, -97], [0, -70], [1, -40]]), 1.1);
+  s(sm([[-21, -63], [0, -61], [21, -63]]), 1.3);
+  // arms
+  for (const a of [armL, armR]) {
+    const band = sm(a.map(([x, y]) => [x - 4.5, y]).concat(a.slice().reverse().map(([x, y]) => [x + 4.5, y])), true);
+    wash(band, o.coat || '#b8996a', { alpha: 0.7, loose: 1 });
+    s(sm(a.map(([x, y]) => [x - 4.5, y])), 1.8); s(sm(a.map(([x, y]) => [x + 4.5, y])), 1.8);
+  }
+  // head, hair, ears
+  wash(head, '#e8c4a0', { alpha: 0.6, loose: 0.5 });
+  wash(sm([[-12, -112], [-10, -120], [0, -123], [10, -120], [12, -112], [6, -102], [-6, -102]], true), o.hair || '#4a3a2c', { alpha: 0.7, loose: 1 });
+  s(head, 2);
+  s(sm([[-12, -113], [-14.5, -110], [-12, -106]]), 1.3); s(sm([[12, -113], [14.5, -110], [12, -106]]), 1.3);
+  if (o.hat !== false) {
+    const crown = sm([[-11.5, -119], [-10.5, -127], [-6, -131], [0, -128.5], [6, -131], [10.5, -127], [11.5, -119]]) + 'Z';
+    const brim = sm([[-22, -117], [-12, -121.5], [0, -122.5], [12, -121.5], [22, -117], [12, -115.5], [0, -115], [-12, -115.5]], true);
+    knock(crown); knock(brim);
+    wash(crown, o.hatc || '#6b6358', { alpha: 0.7, loose: 1 });
+    wash(brim, o.hatc || '#6b6358', { alpha: 0.7, loose: 1 });
+    s(crown, 2); s(brim, 2);
+    fill(sm([[-11.5, -124], [0, -125], [11.5, -124], [11.8, -121], [0, -122], [-11.8, -121]], true));
+  }
+  // camera
+  if (high) {
+    const body = sm([[-16, -163], [16, -163], [17, -148], [-17, -148]], true);
+    knock(body); fill(body, '#2a2724');
+    fill(rect(-9, -160, 16, 10), '#9fb4c9', {});
+    s(circ(-1, -155, 3), 1, { color: '#f3dc92' });
+    fill(rect(-6, -172, 10, 9), '#3a3632');
+    if (o.flash) flash(p, -1, -178);
+  } else {
+    // camera to the face: only the end of it shows past the head
+    const cam = sm([[11, -118], [27, -118], [28, -104], [11, -104]], true);
+    knock(cam); fill(cam, '#2a2724');
+    fill(rect(16, -129, 9, 11), '#3a3632');
+    if (o.flash) flash(p, 21, -136);
+  }
+}
+
+function flash(p, x, y) {
+  p.knock(circ(x, y, 13)); p.wash(circ(x, y, 12), '#ffec8f', { alpha: 0.6, loose: 0.5 });
+  for (let i = 0; i < 8; i++) {
+    const a = i / 8 * Math.PI * 2 + 0.2, r0 = 9, r1 = i % 2 ? 17 : 23;
+    p.s(ln([x + Math.cos(a) * r0, y + Math.sin(a) * r0], [x + Math.cos(a) * r1, y + Math.sin(a) * r1]), 1.3, { ti: 3, to: 5 });
+  }
+}
+
+// a publicist in profile facing left, one palm up, clipboard to the chest, headset on
+function publicist(p, o = {}) {
+  const { s, wash, knock, fill } = p;
+  p.layer(o);
+  const jacket = sm([[-9, -99], [5, -101], [12, -88], [13, -66], [12, -50], [-12, -50], [-13, -70], [-14, -88]], true);
+  const head = sm([[-13, -116], [-9, -126], [2, -128], [11, -121], [12, -110], [7, -101], [-4, -100], [-10, -104], [-14, -109]], true);
+  const arm = [[-9, -93], [-26, -94], [-41, -97]];
+  knock(jacket); knock(head); knock(rect(-11, -52, 22, 54));
+  knock(sm(arm.map(([x, y]) => [x, y - 5]).concat(arm.slice().reverse().map(([x, y]) => [x, y + 5])), true));
+  // legs
+  wash(sm([[-10, -50], [-9, 0], [-2, 0], [0, -34], [2, 0], [9, 0], [10, -50]], true), '#2f2c33', { alpha: 0.65, loose: 1 });
+  s(sm([[-10, -50], [-9.5, -24], [-9, -1]]), 2); s(sm([[0, -38], [-1, -1]]), 1.5); s(sm([[10, -50], [9.5, -24], [9, -1]]), 2);
+  fill(sm([[-17, 1], [-15, -3], [-8, -3], [-8, 1]], true)); fill(sm([[-4, 1], [-2, -3], [7, -3], [8, 1]], true));
+  // jacket
+  wash(jacket, o.jacket || '#b33a3a', { alpha: 0.7, loose: 1.5 });
+  s(jacket, 2.2);
+  s(sm([[-12, -88], [-4, -80], [-2, -58]]), 1.2);
+  // the far arm, relaxed at the side
+  s(sm([[8, -92], [11, -76], [9, -62]]), 1.8);
+  p.layer(o);
+  // the arm held out, palm to the crowd
+  const band = sm(arm.map(([x, y]) => [x, y - 4.5]).concat(arm.slice().reverse().map(([x, y]) => [x, y + 4.5])), true);
+  wash(band, o.jacket || '#b33a3a', { alpha: 0.7, loose: 1 });
+  s(sm(arm.map(([x, y]) => [x, y - 4.5])), 1.8); s(sm(arm.map(([x, y]) => [x, y + 4.5])), 1.8);
+  s(ln([-40, -102.5], [-41, -92]), 1.6);
+  const palm = sm([[-41, -94], [-46, -96], [-49, -104], [-50, -114], [-47, -117], [-43, -115], [-42, -107], [-37, -108], [-37, -103], [-39, -98]], true);
+  knock(palm); wash(palm, '#e8c4a0', { alpha: 0.6, loose: 0.5 }); s(palm, 1.6);
+  s(sm([[-47.5, -112], [-46, -104]]), 0.8, { ti: 2, to: 2 });
+  // head
+  wash(head, '#e8c4a0', { alpha: 0.6, loose: 0.5 });
+  const hair = sm([[-10, -120], [-4, -128], [6, -127], [12, -118], [13, -106], [9, -103], [3, -104], [4, -114], [-2, -121]], true);
+  wash(hair, '#2b2320', { alpha: 0.85, loose: 0.5 });
+  s(head, 2); s(sm([[-10, -121], [-3, -121], [4, -114], [3, -104]]), 1.4);
+  fill(circ(-7, -114, 1.4));
+  s(sm([[-13, -107], [-10, -106]]), 1.2);
+  // earpiece and its coiled cord
+  fill(ell(1, -112, 2.2, 2.8));
+  const coil = []; for (let i = 0; i <= 24; i++) coil.push([2 + Math.sin(i * 1.3) * 1.6 + i * 0.25, -110 + i * 0.5]);
+  s(sm(coil), 0.8, { ti: 2, to: 2 });
+}
+
+CARTOONS.push({
+  id: 'moon',
+  alt: "A glamorous full Moon in sunglasses and red lipstick hangs in the night sky. Below, a crowd of press photographers in trench coats and fedoras hold their cameras up, flashes going off, behind a velvet rope. A publicist with an earpiece and clipboard holds up a hand to stop them.",
+  note: "The Moon turns exactly once for each trip around the Earth, so the same face always points at us. Nobody saw the other side until the Soviet probe Luna 3 photographed it in October 1959. It turned out to be the rougher side: more craters, and almost none of the dark, smooth plains that make the face we know.",
+  src: "Tidal locking; Luna 3, 7 October 1959.",
+  caption: '“She only does her good side.”',
+  draw(p) {
+    const { s, wash, fill } = p;
+    // sky, leaving a ring of bare paper round the moon
+    wash(sm([[-10, -10], [300, -12], [610, -10], [612, 300], [300, 322], [-12, 304]], true) + circ(430, 118, 102), '#3b4f80', { alpha: 0.7, loose: 2 });
+    for (const [x, y] of [[80, 60], [150, 130], [230, 50], [300, 150], [560, 250], [60, 190], [330, 60], [540, 40]]) {
+      s(ln([x - 5, y], [x + 5, y]), 1.6, { ti: 3, to: 3, color: '#fbf8f1' }); s(ln([x, y - 5], [x, y + 5]), 1.6, { ti: 3, to: 3, color: '#fbf8f1' });
+    }
+    // the moon
+    wash(circ(430, 118, 80), '#f3dc92', { alpha: 0.85, loose: 1 });
+    s(circ(430, 118, 80), 2.4);
+    for (const [x, y, rr] of [[388, 80, 12], [468, 64, 8], [482, 168, 13], [372, 150, 7], [498, 112, 5]]) {
+      s(sm([[x - rr, y], [x, y - rr * 0.8], [x + rr, y], [x, y + rr * 0.85]], true), 1.1, { wobble: 0.3 });
+      wash(circ(x + 1, y + 1, rr * 0.8), '#c9a95c', { alpha: 0.35, loose: 1 });
+    }
+    fill(sm([[386, 106], [418, 104], [420, 118], [403, 131], [388, 124]], true));
+    fill(sm([[438, 104], [472, 106], [470, 124], [455, 131], [440, 118]], true));
+    s(sm([[418, 109], [428, 106], [438, 109]]), 2);
+    s(sm([[386, 108], [364, 104]]), 2); s(sm([[472, 108], [494, 103]]), 2);
+    const lips = sm([[414, 152], [421, 149], [428, 151], [435, 149], [442, 152], [436, 158], [428, 160], [420, 158]], true);
+    wash(lips, '#c7374a', { alpha: 0.8, loose: 0.3 }); s(lips, 1.4); s(sm([[415, 152.5], [428, 154], [441, 152.5]]), 1.1);
+    fill(circ(452, 146, 1.8));
+    // ground
+    wash(sm([[5, 330], [200, 318], [420, 322], [595, 312], [595, 445], [5, 445]], true), '#8a8f6c', { alpha: 0.4 });
+    s(sm([[5, 332], [200, 320], [420, 324], [595, 314]]), 1.6);
+    // the press, back to front
+    paparazzo(p, { x: 150, y: 372, k: 1.05, pose: 'high', coat: '#8e8a80', flash: true });
+    paparazzo(p, { x: 235, y: 380, k: 1.1, coat: '#a38d63', hat: false, hair: '#c9c2b4' });
+    paparazzo(p, { x: 70, y: 392, k: 1.15, coat: '#6e7a8a' });
+    paparazzo(p, { x: 195, y: 420, k: 1.25, pose: 'high', coat: '#b8996a', flash: true });
+    paparazzo(p, { x: 105, y: 440, k: 1.3, coat: '#7d6b5a', hatc: '#3d3a36' });
+    // velvet rope
+    p.layer();
+    const posts = [[282, 440, 72], [316, 386, 58], [343, 344, 46]];
+    for (let i = 0; i < posts.length - 1; i++) {
+      const [x0, y0, h0] = posts[i], [x1, y1, h1] = posts[i + 1];
+      const rope = sm([[x0, y0 - h0 + 6], [(x0 + x1) / 2 + 2, (y0 - h0 + y1 - h1) / 2 + 16], [x1, y1 - h1 + 6]]);
+      s(rope, 4.2, { color: '#8e1f2a', wobble: 0.3 }); s(rope, 1, { wobble: 0.3 });
+    }
+    for (const [x, y, h] of posts) {
+      const k = h / 72;
+      p.knock(rect(x - 3 * k, y - h, 6 * k, h));
+      wash(rect(x - 3 * k, y - h, 6 * k, h), '#c9a24a', { alpha: 0.8, loose: 0.5 });
+      s(ln([x - 3 * k, y], [x - 3 * k, y - h]), 1.5); s(ln([x + 3 * k, y], [x + 3 * k, y - h]), 1.5);
+      p.knock(circ(x, y - h - 4 * k, 4 * k)); s(circ(x, y - h - 4 * k, 4 * k), 1.5); s(ell(x, y, 11 * k, 3 * k), 1.6);
+    }
+    // one of them has brought a ladder, to try for the other side
+    p.layer();
+    for (const [x0, x1] of [[500, 478], [540, 514]]) s(ln([x0, 436], [x1, 206]), 2);
+    for (let t = 0.06; t < 1; t += 0.09) {
+      const y = 436 - t * 230;
+      s(ln([500 - t * 22, y], [540 - t * 26, y]), 1.6, { ti: 2, to: 2 });
+    }
+    paparazzo(p, { x: 506, y: 318, k: 0.85, pose: 'high', coat: '#9a8a70', flash: true });
+    publicist(p, { x: 400, y: 424, k: 1.3, flip: true });
+  },
+});
+
+// a tapered limb along a smooth centreline: returns its outline
+function limb(p, pts, w0, w1, o = {}) {
+  const { s, wash, knock, fill } = p;
+  const d = sm(pts), mp = el('path', { d }, p.svg);
+  const L = mp.getTotalLength(), n = Math.max(8, Math.ceil(L / 3)), A = [], B = [], cen = [];
+  for (let i = 0; i <= n; i++) {
+    const t = i / n, a = mp.getPointAtLength(Math.max(0, t * L - 0.5)), b = mp.getPointAtLength(Math.min(L, t * L + 0.5)), c = mp.getPointAtLength(t * L);
+    let tx = b.x - a.x, ty = b.y - a.y; const tl = Math.hypot(tx, ty) || 1; tx /= tl; ty /= tl;
+    const w = (w0 + (w1 - w0) * Math.pow(t, o.curve ?? 0.8)) / 2;
+    A.push([c.x - ty * w, c.y + tx * w]); B.push([c.x + ty * w, c.y - tx * w]); cen.push([c.x, c.y, -ty, tx, w, t]);
+  }
+  mp.remove();
+  const tip = cen[n];
+  const outline = sm(A.filter((_, i) => i % 3 === 0 || i === n).concat([[tip[0], tip[1]]], B.filter((_, i) => i % 3 === 0 || i === n).reverse()), true);
+  if (o.knock !== false) knock(outline);
+  if (o.color) wash(outline, o.color, { alpha: o.alpha ?? 0.7, loose: 1 });
+  s(sm(A.filter((_, i) => i % 3 === 0 || i === n).concat([[tip[0], tip[1]]])), o.w ?? 1.8, { ti: 4, to: 3 });
+  s(sm(B.filter((_, i) => i % 3 === 0 || i === n).concat([[tip[0], tip[1]]])), o.w ?? 1.8, { ti: 4, to: 3 });
+  if (o.suckers) {
+    const side = o.suckers;   // 1 or -1: which edge carries them
+    for (let i = 3; i < n - 2; i += 3) {
+      const [x, y, nx, ny, w, t] = cen[i], rr = Math.max(0.9, w * 0.42);
+      const cx = x + side * nx * (w - rr * 0.2), cy = y + side * ny * (w - rr * 0.2);
+      knock(circ(cx, cy, rr)); s(circ(cx, cy, rr), 0.8, { wobble: 0.1 });
+    }
+  }
+  return outline;
+}
+
+CARTOONS.push({
+  id: 'octopus',
+  alt: "An underwater courtroom. A grouper judge in a white barrister's wig looks down from the bench. An octopus in the dock looks sideways, guiltily, at one of its own arms, which has snaked out of the dock to the evidence table and is holding a pearl necklace tagged EXHIBIT A. A crab lawyer in a blue tie addresses the judge with one claw raised.",
+  note: "An octopus has about 500 million neurons, and roughly two-thirds of them are in its arms rather than its head. An arm can reach out, feel, grab and pass food along with little direction from the brain. Even an arm cut off from the brain will still make its reaching movement when it’s stimulated.",
+  src: "Sumbre et al., <i>Science</i> 2001; Godfrey-Smith, <i>Other Minds</i>, 2016.",
+  caption: '“Your Honor, the arm acted alone.”',
+  draw(p) {
+    const { s, wash, fill, knock, text } = p;
+    // water, with sand below
+    wash(rect(0, 0, 600, 450), '#5f9aa3', { alpha: 0.4, loose: 0 });
+    wash(sm([[0, 0], [600, 0], [600, 120], [300, 150], [0, 110]], true), '#bfe0de', { alpha: 0.35 });
+    wash(sm([[0, 380], [200, 372], [420, 378], [600, 370], [600, 450], [0, 450]], true), '#d8c28e', { alpha: 0.55 });
+    s(sm([[5, 382], [200, 373], [420, 379], [595, 371]]), 1.4);
+    for (const [x, y, rr] of [[40, 60, 4], [48, 44, 3], [44, 30, 2], [560, 110, 5], [552, 88, 3.5], [566, 70, 2.5], [300, 40, 3]]) s(circ(x, y, rr), 1, { wobble: 0.2 });
+    for (const [x, h] of [[22, 6], [38, 4], [576, 5]]) { const pts = []; for (let i = 0; i <= h; i++) pts.push([x + Math.sin(i * 1.3 + x) * 8, 392 - i * 34]); limb(p, pts, 9, 3, { color: '#5b8a4a', w: 1.4 }); }
+
+    // the judge: a grouper in a wig, behind the bench
+    p.layer();
+    const dorsal = sm([[470, 96], [482, 70], [496, 84], [510, 66], [522, 84], [538, 72], [548, 96], [560, 108]], false) + 'L470,100Z';
+    knock(dorsal); wash(dorsal, '#6f7446', { alpha: 0.6, loose: 1 }); s(dorsal, 1.6);
+    const fish = sm([[395, 150], [405, 108], [450, 88], [520, 92], [575, 120], [592, 175], [420, 185]], true);
+    knock(fish); wash(fish, '#8c8f5a', { alpha: 0.7 });
+    for (const [x, y] of [[480, 125], [510, 140], [540, 118], [555, 152], [495, 160], [525, 168]]) wash(circ(x, y, 7), '#5d6135', { alpha: 0.5, loose: 1 });
+    s(fish, 2.3);
+    const lip = sm([[397, 140], [386, 148], [392, 164], [412, 160]]);
+    s(lip, 2.6); s(sm([[392, 151], [410, 153]]), 1.5);
+    s(sm([[452, 100], [458, 130], [452, 168]]), 1.5);
+    knock(circ(430, 124, 10)); s(circ(430, 124, 10), 1.8); fill(circ(426, 126, 4.2));
+    s(sm([[417, 111], [430, 107], [443, 112]]), 2.2);
+    // the wig: a cap of curls with a queue at the back
+    p.layer();
+    const wig = sm([[404, 108], [414, 80], [446, 64], [484, 66], [502, 82], [504, 106], [486, 102], [450, 100], [420, 108]], true);
+    knock(wig); wash(wig, '#d8d4c8', { alpha: 0.5, loose: 0.5 }); s(wig, 2);
+    for (const [row, y] of [[0, 78], [1, 88], [2, 97]]) for (let x = 422 + row * 7; x < 496 - row * 2; x += 13) s(sm([[x - 5, y + 3], [x - 5, y - 2], [x + 1, y - 4], [x + 4, y], [x, y + 3]]), 1.2, { ti: 2, to: 2 });
+    for (let i = 0; i < 4; i++) { const y = 112 + i * 13, x = 496 + i * 1.5; knock(ell(x, y, 10, 7.5)); wash(ell(x, y, 10, 7.5), '#d8d4c8', { alpha: 0.5, loose: 0.3 }); }
+    for (let i = 0; i < 4; i++) { const y = 112 + i * 13, x = 496 + i * 1.5; s(ell(x, y, 10, 7.5), 1.4); s(sm([[x - 4, y - 1], [x + 1, y - 3], [x + 4, y + 1]]), 1, { ti: 2, to: 2 }); }
+
+
+    // the bench
+    p.layer();
+    const bench = sm([[352, 178], [572, 176]]) + 'L574,340L350,342Z';
+    knock(bench); wash(bench, '#8a5a32', { alpha: 0.65 });
+    s(bench, 2.2);
+    s(sm([[346, 172], [578, 170]]), 2.4); s(sm([[346, 184], [578, 182]]), 1.6);
+    s(rect(372, 200, 80, 118), 1.3); s(rect(472, 200, 80, 118), 1.3);
+    // the gavel
+    const block = ell(384, 167, 15, 3.5);
+    knock(block); wash(block, '#5b3a1f', { alpha: 0.8, loose: 0.3 }); s(block, 1.4);
+    const handle = ln([382, 152], [414, 160], [413, 164], [381, 156]) + 'Z';
+    knock(handle); wash(handle, '#8a5a32', { alpha: 0.8, loose: 0.2 }); s(handle, 1.3);
+    const mallet = ln([366, 142], [384, 146], [380, 163], [362, 159]) + 'Z';
+    knock(mallet); wash(mallet, '#5b3a1f', { alpha: 0.85, loose: 0.2 }); s(mallet, 1.6);
+    s(ln([364, 150], [382, 154]), 0.9); s(ln([363, 154], [381, 158]), 0.9);
+
+    // the octopus, sunk behind the dock
+    p.layer();
+    const body = sm([[92, 262], [88, 215], [96, 160], [124, 124], [162, 122], [192, 150], [202, 212], [198, 262]], true);
+    knock(body); wash(body, '#d9774f', { alpha: 0.75 });
+    for (const [x, y, rr] of [[120, 160, 6], [160, 148, 8], [178, 190, 5], [112, 200, 4], [140, 180, 4]]) wash(circ(x, y, rr), '#a2432a', { alpha: 0.4, loose: 0.5 });
+    s(body, 2.4);
+    for (const [x, y] of [[124, 234], [170, 234]]) {
+      knock(circ(x, y, 13)); s(circ(x, y, 13), 2);
+      fill(sm([[x + 2, y - 3], [x + 11, y - 3.5], [x + 11, y + 1.5], [x + 2, y + 2]], true));
+    }
+    s(sm([[110, 216], [124, 213], [136, 218]]), 1.8); s(sm([[158, 218], [171, 212], [184, 216]]), 1.8);
+
+    // the dock
+    p.layer();
+    const dock = rect(56, 268, 180, 140);
+    knock(dock); wash(dock, '#8a5a32', { alpha: 0.65 });
+    s(dock, 2.2); s(sm([[48, 262], [244, 261]]), 2.6); s(sm([[48, 272], [244, 271]]), 1.4);
+    s(rect(72, 288, 68, 100), 1.2); s(rect(152, 288, 68, 100), 1.2);
+
+    // the evidence table
+    p.layer();
+    const top = sm([[262, 344], [360, 342]]) + 'L362,352L260,354Z';
+    for (const [x0, x1] of [[268, 270], [350, 352]]) { knock(rect(x0 - 2, 352, 6, 70)); s(ln([x0, 352], [x0 - 1, 424]), 1.8); s(ln([x0 + 4, 352], [x0 + 3, 424]), 1.8); }
+    knock(top); wash(top, '#8a5a32', { alpha: 0.7, loose: 1 }); s(top, 1.8);
+    const tag = sm([[318, 343], [360, 339], [361, 322], [319, 325]], true);
+    knock(tag); s(tag, 1.2);
+    text('EXHIBIT A', 340, 336, 9.5, { rot: -5 });
+
+    // arms over the rail, and the one that isn't
+    p.layer();
+    const orange = '#d9774f';
+    limb(p, [[104, 262], [98, 280], [104, 304], [96, 324], [86, 330], [84, 320]], 18, 3, { color: orange, suckers: 1 });
+    limb(p, [[146, 262], [150, 290], [140, 318], [148, 344], [162, 346], [160, 336]], 18, 3, { color: orange, suckers: -1 });
+    limb(p, [[186, 262], [192, 284], [200, 300], [214, 306], [220, 296]], 17, 3, { color: orange, suckers: 1 });
+    // the pearls, then the arm that has them again
+    const pearls = [];
+    for (let i = 0; i <= 13; i++) { const a = i / 13 * Math.PI * 1.9 - 1.2; pearls.push([300 + Math.sin(a) * 15, 322 - Math.cos(a) * 18 + 16]); }
+    limb(p, [[196, 244], [230, 250], [258, 270], [282, 300], [296, 320], [308, 316], [306, 304]], 16, 3, { color: orange, suckers: -1 });
+    for (const [x, y] of pearls.slice(1)) { knock(circ(x, y, 4.2)); s(circ(x, y, 4.2), 1, { wobble: 0.1 }); s(sm([[x - 1.8, y - 1.2], [x - 0.5, y - 2.2]]), 0.7, { ti: 1, to: 1 }); }
+
+    // counsel for the defence
+    p.layer();
+    const shell = sm([[392, 380], [398, 352], [430, 338], [466, 340], [492, 356], [496, 380], [470, 392], [420, 392]], true);
+    for (const side of [-1, 1]) for (let i = 0; i < 3; i++) {
+      const x0 = 444 + side * (40 - i * 6), y0 = 382 + i * 3;
+      limb(p, [[x0, y0], [x0 + side * 22, y0 + 8 - i * 2], [x0 + side * 30, y0 + 34 - i * 4]], 7, 1.5, { color: '#c8553d' });
+    }
+    knock(shell); wash(shell, '#c8553d', { alpha: 0.8 }); s(shell, 2.3);
+    for (const x of [428, 458]) { s(sm([[x, 342], [x - 2, 320], [x, 306]]), 1.8); knock(circ(x, 302, 9)); s(circ(x, 302, 9), 1.8); fill(circ(x + 4, 300, 3.2)); }
+    const tie = sm([[440, 352], [448, 352], [450, 372], [444, 380], [438, 372]], true);
+    knock(tie); wash(tie, '#2f4a7a', { alpha: 0.85, loose: 0.3 }); s(tie, 1.3);
+    s(sm([[432, 348], [444, 354], [456, 348]]), 1.4);
+    // the raised claw
+    limb(p, [[488, 360], [510, 342], [520, 312]], 11, 8, { color: '#c8553d' });
+    const claw = sm([[512, 314], [506, 292], [514, 270], [526, 262], [530, 278], [524, 290], [534, 286], [540, 296], [530, 312]], true);
+    knock(claw); wash(claw, '#c8553d', { alpha: 0.8, loose: 0.5 }); s(claw, 2);
+    limb(p, [[398, 364], [376, 372], [372, 392]], 10, 7, { color: '#c8553d' });
+    const claw2 = sm([[362, 390], [366, 408], [380, 412], [384, 398], [376, 392]], true);
+    knock(claw2); wash(claw2, '#c8553d', { alpha: 0.8, loose: 0.5 }); s(claw2, 1.8);
+  },
+});
+
+CARTOONS.push({
+  id: 'scallop',
+  alt: "An optometrist's office with an eye chart on the wall. A scallop sits in the exam chair, its shell slightly open, with two long rows of little blue eyes along the edges. An owl optometrist in a white coat holds the black occluder paddle up to it, frowning.",
+  note: "Scallops can have up to 200 eyes, strung along the edges of the mantle between the two halves of the shell. Each one is a tiny telescope in reverse: instead of a lens, it focuses light with a curved mirror made of square crystals of guanine, tiled like a mosaic. They’re the blue dots.",
+  src: "Palmer et al., <i>Science</i> 2017.",
+  caption: '“Now cover your left hundred.”',
+  draw(p) {
+    const { s, wash, fill, knock, text } = p;
+    // wall, floor
+    wash(rect(0, 0, 600, 392), '#b9cdb4', { alpha: 0.45, loose: 0 });
+    wash(rect(0, 392, 600, 60), '#a88a68', { alpha: 0.45, loose: 0 });
+    s(sm([[5, 392], [300, 390], [595, 393]]), 1.6);
+    // the eye chart
+    p.layer();
+    const chart = rect(40, 30, 104, 196);
+    knock(chart); s(chart, 1.8);
+    const rows = [['E', 34], ['F P', 20], ['T O Z', 14], ['L P E D', 10], ['P E C F D', 7.5]];
+    let y = 72;
+    for (const [t, z] of rows) { text(t, 92, y, z * 1.25, { font: 'P052, Georgia, serif', rot: 0 }); y += z * 1.25 + 9; }
+    // a lamp on the wall
+    s(sm([[520, 40], [522, 88]]), 1.4);
+    const shade = sm([[500, 110], [508, 86], [536, 86], [544, 110]]) + 'Z';
+    knock(shade); wash(shade, '#e0b85a', { alpha: 0.7, loose: 1 }); s(shade, 1.8);
+
+    // the exam chair
+    p.layer();
+    const back = sm([[292, 300], [288, 190], [300, 150], [340, 140], [380, 150], [392, 190], [388, 300]], true);
+    knock(back); wash(back, '#7a2e3a', { alpha: 0.7 }); s(back, 2.2);
+    s(sm([[304, 290], [302, 196], [312, 164], [340, 156], [368, 164], [378, 196], [376, 290]]), 1, { alpha: 0.7 });
+    const seat = sm([[252, 300], [262, 290], [418, 290], [428, 300], [420, 318], [260, 318]], true);
+    knock(seat); wash(seat, '#7a2e3a', { alpha: 0.7 }); s(seat, 2.2);
+    knock(rect(330, 318, 20, 72)); wash(rect(330, 318, 20, 72), '#8d949b', { alpha: 0.6, loose: 0.5 });
+    s(ln([330, 318], [331, 390]), 1.8); s(ln([350, 318], [349, 390]), 1.8);
+    const foot = sm([[296, 402], [300, 388], [380, 388], [384, 402]], true);
+    knock(foot); wash(foot, '#8d949b', { alpha: 0.6, loose: 0.5 }); s(foot, 1.8);
+
+    // the ears at the hinge, peeking over the back of the shell
+    p.layer();
+    const ears = ln([306, 200], [314, 180], [366, 180], [374, 200]) + 'Z';
+    knock(ears); wash(ears, '#d9925a', { alpha: 0.7, loose: 0.5 }); s(ears, 1.8);
+    for (const x of [322, 332, 348, 358]) s(ln([x, 182], [x + (x < 340 ? 3 : -3), 196]), 0.8, { ti: 2, to: 2 });
+    // the patient
+    p.layer();
+    const top = sm([[262, 262], [276, 222], [306, 196], [340, 188], [374, 196], [404, 222], [418, 262]]) + 'Z';
+    const bot = sm([[266, 276], [286, 300], [340, 316], [394, 300], [414, 276]]) + 'Z';
+    const gap = sm([[262, 261], [340, 256], [418, 261], [414, 277], [340, 284], [266, 277]], true);
+    knock(top); knock(bot); knock(gap);
+    fill(gap, '#3a1f22', { alpha: 0.85 });
+    wash(top, '#e2a36b', { alpha: 0.7 }); wash(bot, '#e2a36b', { alpha: 0.7 });
+    for (let i = 1; i < 10; i++) {
+      const x = 262 + i * 15.6;
+      s(sm([[x, 262 - Math.sin(i / 10 * Math.PI) * 2], [340 + (x - 340) * 0.55, 225 - Math.sin(i / 10 * Math.PI) * 12], [340 + (x - 340) * 0.2, 196]]), 1.1, { ti: 3, to: 8 });
+      s(sm([[x + 2, 276 + Math.sin(i / 10 * Math.PI) * 2], [340 + (x - 340) * 0.7, 296 + Math.sin(i / 10 * Math.PI) * 8]]), 1, { ti: 3, to: 6 });
+    }
+    // scalloped rims
+    const rimT = [], rimB = [];
+    for (let i = 0; i <= 20; i++) { const x = 262 + i * 7.8, u = i / 20; rimT.push([x, 262 - Math.sin(u * Math.PI) * 4 + (i % 2 ? 2.2 : -1)]); rimB.push([x + 2 - 4 * u, 276 + Math.sin(u * Math.PI) * 6 + (i % 2 ? -2.2 : 1)]); }
+    s(sm([[262, 262], [276, 222], [306, 196], [340, 188], [374, 196], [404, 222], [418, 262]]), 2.3);
+    s(sm(rimT), 2); s(sm(rimB), 2);
+    s(sm([[266, 276], [286, 300], [340, 316], [394, 300], [414, 276]]), 2.3);
+    // the ears at the hinge, just peeking over the top
+    // eyes: lots of them, blue, along both lips
+    for (let i = 0; i < 14; i++) {
+      const u = (i + 0.5) / 14, x = 270 + u * 140;
+      for (const [yy, dir] of [[263.5 - Math.sin(u * Math.PI) * 4 + 3.2, 1], [275 + Math.sin(u * Math.PI) * 6 - 3, -1]]) {
+        const lx = p.r(-1, 1);
+        knock(circ(x, yy, 4.4)); s(circ(x, yy, 4.4), 0.8, { wobble: 0.1 });
+        fill(circ(x + lx, yy, 2.6), '#3f82d6');
+        fill(circ(x + lx, yy, 1.3), INK);
+      }
+    }
+
+    // the optometrist, an owl in a white coat
+    p.layer();
+    const owl = sm([[150, 418], [130, 360], [128, 290], [140, 246], [176, 232], [212, 246], [224, 290], [222, 360], [206, 418]], true);
+    knock(owl); wash(owl, '#9a7b5a', { alpha: 0.7 });
+    const coat = sm([[132, 318], [140, 296], [176, 312], [212, 296], [222, 320], [222, 370], [214, 420], [142, 420], [130, 370]], true);
+    s(owl, 2.3);
+    p.layer();
+    knock(coat); s(coat, 2);
+    s(sm([[176, 312], [172, 360], [176, 420]]), 1.4);
+    s(sm([[158, 302], [170, 330], [176, 312]]), 1.4); s(sm([[194, 302], [182, 330], [176, 312]]), 1.4);
+    s(sm([[144, 360], [160, 362]]), 1.2); fill(rect(197, 330, 3, 12), '#3a78c9');
+    // face: two big eyes, tufts, beak
+    for (const x of [160, 194]) {
+      knock(circ(x, 272, 16)); wash(circ(x, 272, 17), '#e8dcc4', { alpha: 0.7, loose: 0.5 }); s(circ(x, 272, 16), 1.8);
+      knock(circ(x + 3, 272, 8)); wash(circ(x + 3, 272, 8), '#e2a633', { alpha: 0.9, loose: 0.3 }); fill(circ(x + 4, 272, 4.5));
+      s(sm([[x - 14, 258], [x, 262], [x + 14, 258]]), 1.8);
+    }
+    const beak = sm([[172, 282], [182, 282], [177, 296]], true);
+    wash(beak, '#e2a633', { alpha: 0.9, loose: 0.3 }); s(beak, 1.4);
+    s(sm([[146, 244], [140, 226], [158, 238]]), 1.8); s(sm([[208, 244], [214, 226], [196, 238]]), 1.8);
+    // wing holding the occluder out
+    limb(p, [[214, 318], [242, 300], [262, 282]], 16, 10, { color: '#9a7b5a' });
+    s(sm([[262, 280], [272, 274]]), 2.2);
+    knock(ell(283, 268, 11, 13)); fill(ell(283, 268, 11, 13));
+    // feet
+    for (const x of [160, 194]) s(sm([[x - 8, 422], [x, 416], [x + 8, 422]]), 1.8);
+  },
+});
+
+// an upright cartoon bee centred on its waist; o.look is where its eyes point, o.hold what it carries
+function bee(p, o = {}) {
+  const { s, wash, fill, knock } = p;
+  p.layer(o);
+  const lx = o.look ? Math.cos(o.look) : 0, ly = o.look ? Math.sin(o.look) : 0;
+  // wings first, behind everything
+  for (const side of [-1, 1]) {
+    const wng = sm([[side * 6, -16], [side * 26, -40], [side * 40, -34], [side * 34, -18], [side * 14, -10]], true);
+    knock(wng); wash(wng, '#cfe3ea', { alpha: 0.5, loose: 0.5 }); s(wng, 1.3);
+    s(sm([[side * 10, -15], [side * 28, -30]]), 0.7, { ti: 3, to: 3 });
+  }
+  const abd = sm([[-17, -8], [-20, 10], [-14, 30], [0, 38], [14, 30], [20, 10], [17, -8], [0, -14]], true);
+  knock(abd); wash(abd, '#f0c040', { alpha: 0.85 });
+  for (const [y0, w] of [[2, 19], [18, 17]]) {
+    const band = sm([[-w, y0], [0, y0 + 3], [w, y0], [w - 1, y0 + 8], [0, y0 + 11], [-w + 1, y0 + 8]], true);
+    fill(band, '#2a2420', { alpha: 0.9 });
+  }
+  s(abd, 2.1);
+  s(sm([[-3, 38], [0, 45], [2, 38]]), 1.6);
+  // legs
+  for (const side of [-1, 1]) s(sm([[side * 8, 34], [side * 11, 44], [side * 16, 46]]), 1.5);
+  // head
+  const head = circ(0, -26, 14);
+  knock(head); wash(head, '#2a2420', { alpha: 0.18, loose: 0.3 }); wash(head, '#f0c040', { alpha: 0.6, loose: 0.3 });
+  s(head, 2.1);
+  for (const side of [-1, 1]) {
+    s(sm([[side * 5, -38], [side * 9, -52], [side * 16, -58]]), 1.4);
+    fill(circ(side * 16.5, -58.5, 2.6));
+  }
+  if (o.sweat) for (const [x, y] of [[16, -40], [-18, -38]].slice(0, o.sweat)) { const dr = sm([[x, y - 5], [x + 2.5, y + 1], [x, y + 3], [x - 2.5, y + 1]], true); knock(dr); wash(dr, '#9fd0e8', { alpha: 0.8, loose: 0.2 }); s(dr, 1); }
+  if (o.eyes === 'closed') {
+    for (const side of [-1, 1]) s(sm([[side * 3, -29], [side * 6.5, -31.5], [side * 10, -29]]), 1.5, { ti: 2, to: 2 });
+    s(sm([[-5, -20], [0, -17], [5, -20]]), 1.5, { ti: 2, to: 2 });
+  } else if (!o.back) {
+    for (const side of [-1, 1]) { knock(circ(side * 6, -28, 4.6)); s(circ(side * 6, -28, 4.6), 1.1); fill(circ(side * 6 + lx * 2.2, -28 + ly * 2.2, 2.2)); }
+    if (o.brow) for (const side of [-1, 1]) s(sm([[side * 2, -34 + (o.brow > 0 ? 1 : -1)], [side * 10, -35 - o.brow]]), 1.3, { ti: 2, to: 2 });
+    s(sm([[-3, -18.5], [3, -18.5]]), 1.2, { ti: 2, to: 2 });
+  }
+  // arms and what they hold
+  const HOLD = {
+    pad: [[[-16, -4], [-20, 10], [-6, 14]], [[16, -4], [22, 6], [14, 12]]],
+    protractor: [[[-16, -4], [-10, 8], [0, 4]], [[16, -4], [32, 2], [40, 4]]],
+    watch: [[[-16, -4], [-26, 4], [-22, 14]], [[16, -4], [22, 6], [16, 8]]],
+    map: [[[-16, -4], [-30, 2], [-32, 8]], [[16, -4], [32, 0], [36, 6]]],
+  };
+  const arms = o.arms || HOLD[o.hold] || [[[-16, -4], [-26, 4], [-22, 14]], [[16, -4], [26, 4], [22, 14]]];
+  for (const a of arms) s(sm(a), 1.6);
+  if (o.hold) p.layer(o);
+  if (o.hold === 'pad') {
+    const pad = sm([[6, 2], [28, 0], [30, 26], [8, 28]], true);
+    knock(pad); s(pad, 1.4); fill(rect(12, -1, 12, 3));
+    for (const y of [8, 13, 18]) s(ln([11, y], [26, y - 1]), 0.7, { ti: 2, to: 2 });
+    s(ln([-8, 18], [12, 8]), 1.8, { color: '#b5842f' }); s(ln([12, 8], [14, 7]), 1.2);
+  } else if (o.hold === 'protractor') {
+    const pr = 'M-2,6A22,22 0 0,1 42,6Z';
+    knock(pr); wash(pr, '#cfe3ea', { alpha: 0.4, loose: 0.3 }); s(pr, 1.3);
+    for (let i = 1; i < 12; i++) { const a = Math.PI + i / 12 * Math.PI; s(ln([20 + Math.cos(a) * 22, 6 + Math.sin(a) * 22], [20 + Math.cos(a) * (i % 3 ? 19 : 16), 6 + Math.sin(a) * (i % 3 ? 19 : 16)]), 0.6, { ti: 1, to: 1 }); }
+  } else if (o.hold === 'watch') {
+    knock(circ(22, 2, 9)); s(circ(22, 2, 9), 1.6); fill(rect(20, -10, 4, 4)); s(ln([22, 2], [22, -4]), 1); s(ln([22, 2], [26, 3]), 1);
+  } else if (o.hold === 'map') {
+    const mp = sm([[-34, -2], [-10, -6], [14, -2], [38, -6], [40, 20], [16, 24], [-8, 20], [-32, 24]], true);
+    knock(mp); wash(mp, '#e8dcb0', { alpha: 0.7, loose: 0.5 }); s(mp, 1.4);
+    s(sm([[-10, -6], [-8, 20]]), 0.7); s(sm([[14, -2], [16, 24]]), 0.7);
+    s(sm([[-26, 16], [-16, 6], [-2, 10], [12, 4], [28, 12]]), 0.9, { color: '#b33a3a' });
+    fill(circ(28, 12, 2), '#b33a3a');
+  }
+}
+
+CARTOONS.push({
+  id: 'bees',
+  alt: "Inside a hive, under a small disco ball, a bee dances with its eyes closed and a blissful smile, one arm in the air. Around it, other bees stare hard and take notes: one with a notepad, one with a protractor, one with a stopwatch, one studying a map with a route marked in red, sweating.",
+  note: "A forager that has found flowers tells the others where they are by dancing. On the vertical comb, the angle of its waggle run from straight up is the direction to fly relative to the sun, and how long it waggles gives the distance. Karl von Frisch decoded it and shared the 1973 Nobel Prize in Physiology or Medicine. The bees crowding the dancer are reading it.",
+  src: "Von Frisch, <i>The Dance Language and Orientation of Bees</i>, 1967.",
+  caption: '“Guys, I’m just dancing.”',
+  draw(p) {
+    const { s, wash, fill, knock } = p;
+    // honeycomb all round
+    wash(rect(0, 0, 600, 450), '#e8b44a', { alpha: 0.45, loose: 0 });
+    const R = 22, hx = R * Math.sqrt(3);
+    for (let row = -1; row < 14; row++) for (let col = -1; col < 18; col++) {
+      const cx = col * hx + (row % 2 ? hx / 2 : 0), cy = row * R * 1.5, pts = [];
+      for (let i = 0; i < 6; i++) { const a = Math.PI / 6 + i * Math.PI / 3; pts.push([cx + Math.cos(a) * (R - 1.5), cy + Math.sin(a) * (R - 1.5)]); }
+      s(ln(...pts, pts[0]), 0.9, { alpha: 0.35, ti: 3, to: 3, wobble: 0.4 });
+      if ((row * 7 + col * 3) % 5 === 0) wash(ln(...pts) + 'Z', '#c98a1e', { alpha: 0.3, loose: 1 });
+    }
+    // a pool of light
+    p.layer();
+    wash(ell(300, 300, 190, 120), '#fff4c8', { alpha: 0.35, loose: 4 });
+    // the disco ball
+    s(ln([300, 0], [300, 36]), 1.4);
+    const ball = circ(300, 60, 24);
+    knock(ball); wash(ball, '#b7c3cc', { alpha: 0.7, loose: 0.5 }); s(ball, 1.8);
+    for (let i = -2; i <= 2; i++) { s(sm([[300 + i * 9.5, 37 + Math.abs(i) * 1.5], [300 + i * 12, 60], [300 + i * 9.5, 83 - Math.abs(i) * 1.5]]), 0.6, { ti: 2, to: 2 }); s(sm([[277 + Math.abs(i) * 1.5, 60 + i * 9.5], [300, 60 + i * 11], [323 - Math.abs(i) * 1.5, 60 + i * 9.5]]), 0.6, { ti: 2, to: 2 }); }
+    for (const [x, y] of [[250, 50], [352, 76], [236, 96], [362, 34]]) { s(ln([x - 5, y], [x + 5, y]), 1.1, { ti: 2, to: 2 }); s(ln([x, y - 5], [x, y + 5]), 1.1, { ti: 2, to: 2 }); }
+
+    // the audience, back row first
+    bee(p, { x: 112, y: 176, k: 1.45, look: -0.1, hold: 'pad', brow: 2 });
+    bee(p, { x: 486, y: 172, k: 1.45, flip: true, look: -0.2, hold: 'protractor', brow: 2, sweat: 1 });
+    // the dancer
+    bee(p, { x: 300, y: 222, k: 2.1, eyes: 'closed', arms: [[[-16, -4], [-30, -14], [-34, -34]], [[16, -4], [28, 8], [36, 4]]] });
+    p.layer();
+    for (const side of [-1, 1]) for (const dy of [0, 12]) s(sm([[300 + side * 60, 250 + dy], [300 + side * 68, 256 + dy], [300 + side * 60, 262 + dy]]), 1.5, { ti: 3, to: 3 });
+    // front row
+    bee(p, { x: 150, y: 350, k: 1.7, look: -0.6, hold: 'map', brow: 3, sweat: 2 });
+    bee(p, { x: 452, y: 352, k: 1.7, flip: true, look: -0.5, hold: 'watch', brow: 2 });
+  },
+});
+
+// a Greenland shark in profile, snout to the right of the origin
+function sharkSide(p, o = {}) {
+  const { s, wash, fill, knock } = p;
+  p.layer(o);
+  const col = o.color || '#77736a';
+  const d1 = sm([[-66, -32], [-84, -52], [-104, -30]], false) + 'Z';
+  const d2 = sm([[-150, -18], [-160, -30], [-172, -14]], false) + 'Z';
+  const tail = sm([[-186, -8], [-214, -44], [-226, -46], [-214, -8], [-222, 22], [-210, 22], [-186, 8]], true);
+  for (const f of [d1, d2, tail]) { knock(f); wash(f, col, { alpha: 0.75, loose: 1 }); s(f, 1.8); }
+  const body = sm([[62, 2], [54, -18], [24, -32], [-40, -36], [-120, -24], [-190, -6], [-190, 6], [-120, 20], [-40, 32], [20, 28], [52, 18]], true);
+  knock(body); wash(body, col, { alpha: 0.75 });
+  wash(sm([[50, 14], [20, 24], [-40, 28], [-120, 16], [-40, 22], [20, 14]], true), '#d9d3c4', { alpha: 0.6, loose: 1 });
+  for (const [x, y, r] of [[-30, -18, 4], [-60, -8, 3], [-96, -14, 4], [-130, -4, 3], [0, -20, 3], [-80, 10, 3]]) wash(circ(x, y, r), '#3e3b36', { alpha: 0.35, loose: 0.5 });
+  s(body, 2.3);
+  for (let i = 0; i < 4; i++) s(sm([[4 - i * 7, -6], [2 - i * 7, 2], [4 - i * 7, 10]]), 1, { ti: 2, to: 2 });
+  // eye and a disapproving mouth
+  knock(circ(34, -8, 5)); s(circ(34, -8, 5), 1.4); fill(circ(35.5 + (o.lookx ?? 0), -8, 2.6));
+  if (o.lid) s(sm([[28, -11], [34, -13.5], [40, -11]]), 1.8, { ti: 2, to: 2 });
+  s(sm([[52, 14], [40, 17], [26, 16]]), 1.6, { ti: 3, to: 3 });
+  // the near pectoral fin, with a teacup in it
+  const fin = sm([[6, 24], [2, 44], [18, 52], [26, 30]], true);
+  if (o.cup) {
+    p.layer(o);
+    const cup = sm([[20, 38], [40, 38], [37, 52], [23, 52]], true);
+    knock(cup); wash(cup, o.cup, { alpha: 0.7, loose: 0.3 }); s(cup, 1.4); s(ell(30, 38, 10, 2.5), 1.2); s(sm([[40, 41], [45, 43], [39, 49]]), 1.1);
+    knock(ell(30, 54, 14, 3)); s(ell(30, 54, 14, 3), 1.2);
+  }
+  knock(fin); wash(fin, col, { alpha: 0.75, loose: 0.5 }); s(fin, 1.8);
+}
+
+CARTOONS.push({
+  id: 'shark',
+  alt: "A dim room at the bottom of the sea. Two Greenland sharks have tea at a little table with a teapot, each holding a cup in a fin. Behind them, a sulky young shark in red headphones glowers from a dark bedroom doorway. The door has a KEEP OUT sign, and a poster for a band called THE LAMPREYS hangs on the wall.",
+  note: "Greenland sharks may be the longest-lived animals with a backbone. In 2016 researchers dated them by radiocarbon in the lenses of their eyes, which form before birth and never change. The largest was estimated at about 390 years old, give or take 120, and females don’t seem to mature until they’re around 150. Many also carry a parasitic copepod hanging from one eye. The young one here calls his a piercing.",
+  src: "Nielsen et al., <i>Science</i> 2016.",
+  caption: '“He’s a hundred and twenty. It’s a phase.”',
+  draw(p) {
+    const { s, wash, fill, knock, text } = p;
+    // a dim room at the bottom of the sea
+    wash(rect(0, 0, 600, 360), '#6f8b90', { alpha: 0.55, loose: 0 });
+    for (let x = 30; x < 600; x += 46) s(sm([[x, 8], [x + 2, 180], [x, 356]]), 0.8, { alpha: 0.25, wobble: 1 });
+    wash(rect(0, 360, 600, 90), '#4f5a52', { alpha: 0.55, loose: 0 });
+    s(sm([[5, 360], [300, 358], [595, 361]]), 1.6);
+    for (const [x, y, r] of [[80, 60, 4], [88, 42, 3], [84, 28, 2], [520, 40, 3], [528, 24, 2]]) s(circ(x, y, r), 1, { wobble: 0.2 });
+
+    // his door, with his poster beside it
+    p.layer();
+    const door = rect(248, 70, 108, 290);
+    knock(door); fill(door, '#1c2226', { alpha: 0.9 }); s(door, 2);
+    const leaf = ln([356, 70], [398, 58], [398, 374], [356, 360]) + 'Z';
+    knock(leaf); wash(leaf, '#8a6a48', { alpha: 0.7 }); s(leaf, 2);
+    fill(circ(390, 214, 3));
+    const sign = ln([366, 118], [392, 112], [393, 152], [367, 156]) + 'Z';
+    knock(sign); wash(sign, '#e8e0c8', { alpha: 0.6, loose: 0.3 }); s(sign, 1.2);
+    text('KEEP', 379.5, 129, 9, { rot: -8 }); text('OUT', 380, 140, 9, { rot: -8 }); text('!!', 380, 150, 8, { rot: -8 });
+    const poster = ln([140, 96], [210, 92], [212, 196], [142, 200]) + 'Z';
+    knock(poster); wash(poster, '#2a2a2e', { alpha: 0.85, loose: 0.3 }); s(poster, 1.4);
+    text('THE', 176, 112, 10, { color: '#e8e0c8', rot: -2 });
+    text('LAMPREYS', 176, 128, 13, { color: '#d94c3d', rot: -2 });
+    knock(circ(176, 162, 20)); wash(circ(176, 162, 20), '#d94c3d', { alpha: 0.5, loose: 0.3 }); s(circ(176, 162, 20), 1.4);
+    for (let i = 0; i < 14; i++) { const a = i / 14 * Math.PI * 2; s(ln([176 + Math.cos(a) * 8, 162 + Math.sin(a) * 8], [176 + Math.cos(a) * 16, 162 + Math.sin(a) * 16]), 1, { ti: 2, to: 2 }); }
+    fill(circ(176, 162, 6));
+
+    // him, glowering out of the dark, dorsal fin first
+    p.layer();
+    const dorsal = sm([[284, 136], [298, 96], [306, 94], [318, 136]], false) + 'Z';
+    knock(dorsal); wash(dorsal, '#77736a', { alpha: 0.75, loose: 0.5 }); s(dorsal, 2);
+    p.layer();
+    const torso = sm([[266, 196], [262, 250], [268, 330], [300, 346], [332, 330], [338, 250], [334, 196]]) + 'Z';
+    knock(torso); wash(torso, '#77736a', { alpha: 0.75 }); wash(ell(300, 280, 22, 54), '#d9d3c4', { alpha: 0.6, loose: 1 }); s(torso, 2);
+    for (const side of [-1, 1]) {
+      const fin = sm([[300 + side * 34, 232], [300 + side * 58, 268], [300 + side * 54, 276], [300 + side * 36, 256]], true);
+      knock(fin); wash(fin, '#77736a', { alpha: 0.75, loose: 0.5 }); s(fin, 1.8);
+      for (let i = 0; i < 3; i++) s(sm([[300 + side * (28 - i * 2), 206 + i * 8], [300 + side * (32 - i * 2), 212 + i * 8]]), 1, { ti: 1, to: 1 });
+    }
+    const hd = sm([[256, 170], [262, 140], [300, 126], [338, 140], [346, 170], [336, 196], [314, 210], [300, 214], [286, 210], [264, 196]], true);
+    knock(hd); wash(hd, '#77736a', { alpha: 0.75 }); s(hd, 2.2);
+    s(sm([[290, 150], [293, 148], [295, 151]]), 1.1, { ti: 1, to: 1 }); s(sm([[305, 151], [307, 148], [310, 150]]), 1.1, { ti: 1, to: 1 });
+    for (const x of [270, 330]) { knock(circ(x, 166, 5)); s(circ(x, 166, 5), 1.3); fill(circ(x, 167.5, 2.4)); s(sm([[x - 7, 163], [x, 161], [x + 7, 163]]), 2.4, { ti: 2, to: 2 }); }
+    s(sm([[276, 198], [300, 191], [324, 198]]), 1.8);
+    for (let i = 0; i < 6; i++) { const x = 282 + i * 7, y = 196.5 - Math.sin((i + 0.5) / 6 * Math.PI) * 5.5; const t = ln([x - 2.5, y], [x, y + 4], [x + 2.5, y]) + 'Z'; knock(t); s(t, 0.8, { wobble: 0.1 }); }
+    // headphones
+    s(sm([[252, 164], [262, 124], [300, 110], [338, 124], [350, 164]]), 3.2);
+    for (const x of [250, 350]) { const cup = ell(x, 168, 8, 13); knock(cup); wash(cup, '#d94c3d', { alpha: 0.8, loose: 0.3 }); s(cup, 1.6); }
+    // the copepod hanging off his eye, which he calls a piercing
+    s(sm([[332, 170], [334, 180], [331, 190]]), 1.8, { color: '#e8e0c8' }); s(sm([[332, 170], [334, 180], [331, 190]]), 0.6);
+
+    // the table and the two of them at tea
+    sharkSide(p, { x: 190, y: 268, k: 1.05, cup: '#c9d8e6', lookx: 0.5 });
+    sharkSide(p, { x: 412, y: 276, k: 1.05, flip: true, cup: '#e6c9c9', lid: true, color: '#827a6c' });
+    p.layer();
+    const table = sm([[236, 330], [364, 330], [372, 346], [228, 346]], true);
+    knock(table); wash(table, '#e8e0c8', { alpha: 0.6, loose: 0.5 }); s(table, 1.8);
+    for (const x of [252, 348]) { knock(rect(x - 3, 346, 6, 40)); s(ln([x - 3, 346], [x - 3, 388]), 1.6); s(ln([x + 3, 346], [x + 3, 388]), 1.6); }
+    const pot = sm([[282, 330], [278, 312], [290, 302], [310, 302], [322, 312], [318, 330]], true);
+    knock(pot); wash(pot, '#c9d8e6', { alpha: 0.7, loose: 0.3 }); s(pot, 1.6);
+    const spout = sm([[320, 322], [332, 312], [340, 296], [344, 298], [338, 316], [322, 328]], true);
+    knock(spout); wash(spout, '#c9d8e6', { alpha: 0.7, loose: 0.2 }); s(spout, 1.4);
+    s(sm([[282, 306], [268, 310], [268, 322], [281, 326]]), 1.8); fill(circ(300, 299, 3));
+  },
+});
+
+// a pigeon in profile facing right, feet at the origin
+function pigeon(p, o = {}) {
+  const { s, wash, fill, knock } = p;
+  p.layer(o);
+  const peck = o.peck ? 1 : 0;
+  const body = peck
+    ? sm([[-58, -34], [-40, -40], [-14, -44], [8, -40], [24, -30], [36, -18], [44, -8], [38, -2], [24, -6], [6, -4], [-20, -8], [-44, -20], [-60, -28]], true)
+    : sm([[-58, -22], [-40, -34], [-16, -44], [4, -50], [12, -62], [22, -70], [32, -66], [35, -56], [30, -46], [32, -30], [24, -12], [6, -4], [-20, -6], [-44, -14], [-60, -16]], true);
+  knock(body); wash(body, '#9aa0a8', { alpha: 0.75 });
+  const hx = peck ? 38 : 22, hy = peck ? -10 : -60;
+  fill(peck ? ell(26, -24, 11, 9) : ell(22, -46, 9, 10), '#4f8f6a', { alpha: 0.3 });
+  fill(peck ? ell(30, -18, 8, 6) : ell(25, -40, 7, 6), '#8a4f8a', { alpha: 0.22 });
+  wash(ell(hx, hy, 10, 9), '#6c7078', { alpha: 0.5, loose: 0.5 });
+  s(body, 2.1);
+  const wing = sm([[-58, -22], [-30, -36], [-4, -40], [10, -30], [2, -18], [-24, -14]], true);
+  if (!o.gesture) {
+  wash(wing, '#7d838c', { alpha: 0.5, loose: 0.5 }); s(sm([[-58, -22], [-30, -36], [-4, -40], [10, -30], [2, -18], [-24, -14], [-50, -18]]), 1.5);
+  s(sm([[-34, -32], [-26, -24], [-22, -16]]), 2.2, { color: '#3a3d42', ti: 4, to: 4 }); s(sm([[-20, -35], [-12, -26], [-8, -18]]), 2.2, { color: '#3a3d42', ti: 4, to: 4 });
+  }
+  // beak, cere, eye
+  const bx = hx + 10, by = hy + 2;
+  const beak = sm([[bx, by - 2.5], [bx + 10, by + 1], [bx, by + 2.5]], true);
+  wash(beak, '#3a3d42', { alpha: 0.5, loose: 0.2 }); s(beak, 1.3);
+  knock(ell(bx, by - 2.5, 3, 2)); s(ell(bx, by - 2.5, 3, 2), 0.8);
+  knock(circ(hx + 2, hy - 2, 3.6)); wash(circ(hx + 2, hy - 2, 3.6), '#e07b2a', { alpha: 0.9, loose: 0.1 }); s(circ(hx + 2, hy - 2, 3.6), 0.9); fill(circ(hx + 2.6 + (o.look ?? 0), hy - 2, 1.6));
+  if (o.brow) s(sm([[hx - 4, hy - 7 - o.brow], [hx + 2, hy - 8], [hx + 7, hy - 6.5]]), 1.3, { ti: 2, to: 2 });
+  // feet
+  for (const x of [-6, 6]) { s(sm([[x, -4], [x, 0], [x + 6, 1]]), 1.6, { color: '#c95a5a' }); s(sm([[x, 0], [x - 5, 1]]), 1.3, { color: '#c95a5a' }); }
+  // a wing lifted to make a point
+  if (o.gesture) {
+    p.layer(o);
+    const g = sm([[6, -40], [-14, -52], [-36, -70], [-54, -86], [-48, -80], [-62, -84], [-50, -74], [-60, -72], [-44, -64], [-24, -44], [-6, -30]], true);
+    knock(g); wash(g, '#7d838c', { alpha: 0.6, loose: 0.5 }); s(g, 1.6);
+  }
+}
+
+CARTOONS.push({
+  id: 'pigeon',
+  alt: "An art gallery. On the wall hang a painting of water lilies under a green footbridge and a small cubist portrait. Two pigeons sit on a bench in front of them. One raises a wing toward the water lilies with an air of authority, while the other listens. A third pigeon pecks at crumbs on the floor.",
+  note: "In 1995 Shigeru Watanabe and colleagues trained pigeons to tell paintings by Monet from paintings by Picasso. The birds went on to sort paintings by the two artists that they had never seen, and even grouped other Impressionists with Monet and other Cubists with Picasso. It won an Ig Nobel Prize.",
+  src: "Watanabe, Sakamoto &amp; Wakita, <i>Journal of the Experimental Analysis of Behavior</i> 1995.",
+  caption: '“Monet. I did a course.”',
+  draw(p) {
+    const { s, wash, fill, knock, text } = p;
+    wash(rect(0, 0, 600, 372), '#d9cbb0', { alpha: 0.4, loose: 0 });
+    wash(rect(0, 372, 600, 80), '#a4764a', { alpha: 0.45, loose: 0 });
+    s(sm([[5, 372], [300, 370], [595, 373]]), 1.6);
+    for (let x = -40; x < 640; x += 58) s(ln([x, 374], [x - 30, 446]), 0.8, { alpha: 0.4 });
+
+    // the water lilies
+    p.layer();
+    const fr = ln([96, 46], [334, 46], [334, 222], [96, 222]) + 'Z', inner = ln([112, 62], [318, 62], [318, 206], [112, 206]) + 'Z';
+    knock(fr); wash(fr + inner, '#c9a24a', { alpha: 0.85, loose: 0.5 }); s(fr, 2); s(inner, 1.6);
+    s(ln([96, 46], [112, 62]), 1); s(ln([334, 46], [318, 62]), 1); s(ln([334, 222], [318, 206]), 1); s(ln([96, 222], [112, 206]), 1);
+    wash(inner, '#5e8fa0', { alpha: 0.55, loose: 0.5 });
+    wash(ln([112, 62], [318, 62], [318, 110], [112, 120]) + 'Z', '#4f7a4a', { alpha: 0.45, loose: 1 });
+    const rng = p.rng;
+    for (let i = 0; i < 70; i++) {
+      const x = 118 + rng() * 194, y = 100 + rng() * 100;
+      const green = ['#6f9a52', '#8fb070', '#4f7a4a'][i % 3];
+      wash(ell(x, y, 5 + rng() * 7, 1.5 + rng() * 2.5), green, { alpha: 0.6, loose: 0.5 });
+    }
+    for (let i = 0; i < 18; i++) { const x = 122 + rng() * 186, y = 108 + rng() * 90; wash(circ(x, y, 2 + rng() * 2), i % 3 ? '#e9a0b8' : '#f4f0e0', { alpha: 0.85, loose: 0.2 }); }
+    s(sm([[112, 104], [160, 78], [215, 70], [270, 78], [318, 100]]), 2.2, { color: '#3f6b3a' });
+    s(sm([[112, 114], [160, 88], [215, 80], [270, 88], [318, 110]]), 1.6, { color: '#3f6b3a' });
+    for (let x = 128; x < 312; x += 16) s(ln([x, 116 - Math.sin((x - 112) / 206 * Math.PI) * 30], [x, 106 - Math.sin((x - 112) / 206 * Math.PI) * 30]), 1.2, { color: '#3f6b3a', ti: 2, to: 2 });
+    knock(rect(342, 150, 26, 18)); s(rect(342, 150, 26, 18), 1);
+    for (const y of [156, 161]) s(ln([346, y], [364, y]), 0.6, { ti: 1, to: 1 });
+
+    // and a Picasso, which none of them will be fooled by
+    p.layer();
+    const pf = ln([430, 70], [540, 70], [540, 210], [430, 210]) + 'Z', pi = ln([440, 80], [530, 80], [530, 200], [440, 200]) + 'Z';
+    knock(pf); wash(pf + pi, '#3a3632', { alpha: 0.8, loose: 0.3 }); s(pf, 1.8); s(pi, 1.4);
+    wash(ln([440, 80], [486, 80], [470, 200], [440, 200]) + 'Z', '#5d7fa8', { alpha: 0.5, loose: 0.5 });
+    wash(ln([486, 80], [530, 80], [530, 200], [470, 200]) + 'Z', '#d9a24a', { alpha: 0.5, loose: 0.5 });
+    const face = ln([470, 96], [506, 92], [516, 150], [498, 186], [462, 180], [456, 130]) + 'Z';
+    wash(face, '#e3a39a', { alpha: 0.6, loose: 0.5 }); s(face, 1.4);
+    knock(ell(478, 124, 7, 4)); s(ell(478, 124, 7, 4), 1.1); fill(circ(478, 124, 2));
+    knock(ell(503, 138, 4, 7)); s(ell(503, 138, 4, 7), 1.1); fill(circ(503, 138, 2));
+    s(ln([488, 118], [496, 152], [484, 154]), 1.3); s(ln([476, 166], [494, 162], [490, 170]), 1.3);
+    knock(rect(548, 150, 22, 16)); s(rect(548, 150, 22, 16), 1);
+
+    // the bench and its critics
+    p.layer();
+    const seat = ln([150, 322], [470, 322], [476, 336], [144, 336]) + 'Z';
+    knock(seat); wash(seat, '#6b4a2e', { alpha: 0.7, loose: 0.5 }); s(seat, 1.8);
+    for (const x of [170, 450]) { knock(rect(x - 5, 336, 10, 56)); wash(rect(x - 5, 336, 10, 56), '#6b4a2e', { alpha: 0.7, loose: 0.3 }); s(ln([x - 5, 336], [x - 5, 394]), 1.6); s(ln([x + 5, 336], [x + 5, 394]), 1.6); }
+    pigeon(p, { x: 250, y: 323, k: 1.45, gesture: true, brow: 1 });
+    pigeon(p, { x: 390, y: 323, k: 1.35, flip: true, look: 0.6 });
+    pigeon(p, { x: 90, y: 428, k: 1.1, peck: true });
+    p.layer();
+    for (const [x, y] of [[148, 432], [156, 436], [142, 438]]) fill(circ(x, y, 1.6), '#b58a4a');
+  },
+});
+
+// a suspect, facing us, feet at the origin, holding a number
+function suspect(p, o = {}) {
+  const { s, wash, fill, knock, text } = p;
+  p.layer(o);
+  const H = o.h ?? 165, hw = o.hw ?? 18, top = -H, hy = top + 17, sh = top + 36, hip = -H * 0.44, belly = o.belly ?? 0;
+  const shirt = sm([[-hw, sh], [0, sh - 3], [hw, sh], [hw + 3 + belly * 0.3, sh + 30], [hw + belly, hip - 12], [hw + 1, hip], [-hw - 1, hip], [-hw - belly, hip - 12], [-hw - 3 - belly * 0.3, sh + 30]], true);
+  const legs = ln([-hw + 3, hip - 2], [-hw + 4, -2], [-2, -2], [0, hip * 0.55], [2, -2], [hw - 4, -2], [hw - 3, hip - 2]) + 'Z';
+  knock(legs); wash(legs, o.pants || '#4a5260', { alpha: 0.7, loose: 1 }); s(legs, 1.8);
+  for (const x of [-hw / 2 - 1, hw / 2 + 1]) fill(ell(x, -1, hw / 2 + 2, 3.5));
+  knock(shirt); wash(shirt, o.shirt || '#b8a88a', { alpha: 0.7 }); s(shirt, 2);
+  // arms down to the number at the chest
+  for (const side of [-1, 1]) s(sm([[side * hw, sh + 2], [side * (hw + 4), sh + 26], [side * 11, -H * 0.6]]), 1.8);
+  // head
+  const head = ell(0, hy, 14, 16.5);
+  knock(head); wash(head, o.skin || '#e8c4a0', { alpha: 0.6, loose: 0.5 }); s(head, 2);
+  s(sm([[-14, hy], [-17, hy + 3], [-14, hy + 7]]), 1.2); s(sm([[14, hy], [17, hy + 3], [14, hy + 7]]), 1.2);
+  const lk = o.look ?? 1;
+  if (o.shades) {
+    fill(sm([[-12, hy - 3], [-2, hy - 3], [-3, hy + 3], [-10, hy + 4]], true)); fill(sm([[2, hy - 3], [12, hy - 3], [10, hy + 4], [3, hy + 3]], true)); s(ln([-2, hy - 2], [2, hy - 2]), 1);
+  } else {
+    for (const x of [-5.5, 5.5]) { knock(ell(x, hy - 1, 3.6, 2.6)); s(ell(x, hy - 1, 3.6, 2.6), 0.9); fill(circ(x + lk * 1.8, hy - 1, 1.5)); }
+    for (const x of [-5.5, 5.5]) s(sm([[x - 4, hy - 5 + (o.brow ?? 0) * (x < 0 ? 1 : -1)], [x + 4, hy - 5 - (o.brow ?? 0) * (x < 0 ? 1 : -1)]]), 1.4, { ti: 2, to: 2 });
+  }
+  s(sm([[0, hy], [-1.5, hy + 5], [1, hy + 6]]), 1.1, { ti: 2, to: 2 });
+  if (o.tache) fill(sm([[-8, hy + 9.5], [0, hy + 7.5], [8, hy + 9.5], [4, hy + 11], [0, hy + 10], [-4, hy + 11]], true));
+  s(sm([[-4, hy + 12], [0, hy + 11.5 + (o.smirk ?? 0)], [5, hy + 11]]), 1.2, { ti: 2, to: 2 });
+  if (o.hair === 'slick') { const h = sm([[-14, hy - 3], [-12, hy - 14], [0, hy - 18], [12, hy - 14], [14, hy - 3], [8, hy - 10], [-6, hy - 12]], true); fill(h, '#2b2320', { alpha: 0.9 }); }
+  if (o.hair === 'big') { const h = sm([[-24, hy + 16], [-26, hy - 4], [-18, hy - 20], [0, hy - 26], [18, hy - 20], [26, hy - 4], [24, hy + 16], [14, hy + 6], [12, hy - 10], [0, hy - 14], [-12, hy - 10], [-14, hy + 6]], true); knock(h); wash(h, '#b0582f', { alpha: 0.8, loose: 0.5 }); s(h, 1.6); }
+  if (o.hair === 'cap') { const c = sm([[-15, hy - 5], [-12, hy - 16], [0, hy - 20], [12, hy - 16], [15, hy - 5], [22, hy - 3], [20, hy - 1], [0, hy - 5]], true); knock(c); wash(c, '#6b6358', { alpha: 0.8, loose: 0.3 }); s(c, 1.6); }
+  if (o.hair === 'bald') { s(sm([[-8, hy - 12], [-4, hy - 13.5]]), 1, { ti: 1, to: 1 }); for (let i = 0; i < 18; i++) { const a = Math.PI * 0.15 + i / 17 * Math.PI * 0.7; fill(circ(Math.cos(a) * 9, hy + 3 + Math.sin(a) * 12, 0.8)); } }
+  // the number
+  p.layer(o);
+  const cy = -H * 0.6, card = ln([-15, cy - 12], [15, cy - 12], [15, cy + 10], [-15, cy + 10]) + 'Z';
+  knock(card); s(card, 1.5);
+  text(String(o.n), 0, cy + 6, 17, { rot: 0 });
+  for (const side of [-1, 1]) { knock(ell(side * 14, cy, 4.2, 5)); wash(ell(side * 14, cy, 4.2, 5), o.skin || '#e8c4a0', { alpha: 0.6, loose: 0.2 }); s(ell(side * 14, cy, 4.2, 5), 1.3); }
+}
+
+function koala(p, o = {}) {
+  const { s, wash, fill, knock, text } = p;
+  p.layer(o);
+  const fur = '#9a9894';
+  const body = sm([[-26, -2], [-30, -40], [-22, -76], [0, -84], [22, -76], [30, -40], [26, -2]], true);
+  knock(body); wash(body, fur, { alpha: 0.75 }); wash(ell(0, -34, 16, 26), '#e6e0d4', { alpha: 0.6, loose: 1 }); s(body, 2);
+  for (const side of [-1, 1]) { const ft = ell(side * 13, -2, 10, 5); knock(ft); wash(ft, fur, { alpha: 0.7, loose: 0.3 }); s(ft, 1.6); }
+  const hy = -104;
+  for (const side of [-1, 1]) {
+    const ear = circ(side * 32, hy - 18, 17);
+    knock(ear); wash(ear, fur, { alpha: 0.75, loose: 0.5 }); wash(circ(side * 31, hy - 17, 9), '#e6e0d4', { alpha: 0.7, loose: 0.3 });
+    s(sm([[side * 22, hy - 4], [side * 16, hy - 26], [side * 30, hy - 36], [side * 46, hy - 30], [side * 48, hy - 14], [side * 38, hy - 4]]), 1.8);
+    for (let i = 0; i < 5; i++) s(sm([[side * (40 + i * 1.5), hy - 30 + i * 5], [side * (44 + i * 1.5), hy - 30 + i * 5 + 2]]), 0.9, { ti: 1, to: 1 });
+  }
+  const head = sm([[-28, hy], [-24, hy - 20], [0, hy - 28], [24, hy - 20], [28, hy], [20, hy + 18], [0, hy + 24], [-20, hy + 18]], true);
+  knock(head); wash(head, fur, { alpha: 0.75 }); s(head, 2);
+  const nose = sm([[-7, hy - 4], [0, hy - 8], [7, hy - 4], [8, hy + 8], [0, hy + 12], [-8, hy + 8]], true);
+  fill(nose, '#2a2724');
+  for (const side of [-1, 1]) s(sm([[side * 11, hy - 6], [side * 15, hy - 3.5], [side * 19, hy - 6]]), 1.5, { ti: 2, to: 2 });
+  // arms round the number, fast asleep
+  p.layer(o);
+  const cy = -48, card = ln([-15, cy - 12], [15, cy - 12], [15, cy + 10], [-15, cy + 10]) + 'Z';
+  knock(card); s(card, 1.5); text(String(o.n), 0, cy + 6, 17, { rot: 0 });
+  for (const side of [-1, 1]) {
+    const arm = sm([[side * 24, -74], [side * 28, -56], [side * 16, -44], [side * 8, -40], [side * 10, -48], [side * 20, -58], [side * 18, -72]], true);
+    knock(arm); wash(arm, fur, { alpha: 0.75, loose: 0.3 }); s(arm, 1.6);
+  }
+  for (const [x, y, z] of [[16, -150, 13], [4, -170, 16], [18, -194, 20]]) text('z', x, y, z, { rot: -10 });
+}
+
+CARTOONS.push({
+  id: 'koala',
+  alt: "A police lineup against a height chart. Four shifty-looking people hold number cards: a tall man with a moustache, a short man in a cap, a woman in sunglasses, and a bald man. Number 4 is a koala, fast asleep and hugging its card. In the corner, a hand holds up a card with two fingerprints.",
+  note: "Koalas are among the very few animals besides primates with fingerprints, and theirs look remarkably like ours, with the same loops, whorls and arches. Researchers at the University of Adelaide found them hard to tell apart from human prints even under a microscope, and pointed out that one could turn up at a crime scene.",
+  src: "Henneberg, Lambert &amp; Leigh, <i>naturalSCIENCE</i> 1997.",
+  caption: '“Forensics can’t rule out the koala.”',
+  draw(p) {
+    const { s, wash, fill, knock, text } = p;
+    wash(rect(0, 0, 600, 412), '#b8bec4', { alpha: 0.45, loose: 0 });
+    wash(rect(0, 412, 600, 40), '#6c6a66', { alpha: 0.45, loose: 0 });
+    s(sm([[5, 412], [300, 410], [595, 413]]), 1.6);
+    // the height chart
+    for (let i = 6; i <= 15; i++) {   // half-foot rules, a foot being 38 units
+      const y = 412 - i * 19;
+      s(sm([[8, y], [300, y + (i % 2) * 0.8], [592, y]]), i % 2 ? 0.7 : 1.2, { alpha: i % 2 ? 0.4 : 0.65, wobble: 0.6 });
+      if (i % 2 === 0) { text(`${i / 2}'`, 26, y - 4, 13, { rot: 0 }); text(`${i / 2}'`, 574, y - 4, 13, { rot: 0 }); }
+    }
+    const x0 = 78, dx = 110;
+    suspect(p, { x: x0, y: 414, k: 1.2, n: 1, h: 196, hw: 15, hair: 'slick', tache: true, shirt: '#8a9aa8', look: 1, brow: 1 });
+    suspect(p, { x: x0 + dx, y: 414, k: 1.2, n: 2, h: 150, hw: 20, belly: 8, hair: 'cap', shirt: '#b86b4a', pants: '#5a4a3a', look: -1, smirk: -1.5 });
+    suspect(p, { x: x0 + 2 * dx, y: 414, k: 1.2, n: 3, h: 168, hw: 16, hair: 'big', shades: true, shirt: '#6b8a5a', skin: '#d9a88a', smirk: 1 });
+    koala(p, { x: x0 + 3 * dx, y: 414, n: 4, k: 1 });
+    suspect(p, { x: x0 + 4 * dx, y: 414, k: 1.2, n: 5, h: 178, hw: 19, belly: 4, hair: 'bald', shirt: '#4a4a52', pants: '#2f3338', look: 1, brow: -1, skin: '#c99a78' });
+    // a hand holding up the prints, by the bottom corner
+    p.layer();
+    const card = ln([486, 350], [574, 344], [578, 428], [490, 434]) + 'Z';
+    knock(card); s(card, 1.8);
+    for (const [cx, cy] of [[512, 380], [548, 377]]) {
+      const sp = []; for (let i = 0; i <= 80; i++) { const t = i / 80, r = 1.5 + t * 12, a = t * Math.PI * 2 * 4.5; sp.push([cx + Math.cos(a) * r * 0.8, cy + Math.sin(a) * r * 1.15]); }
+      s(sm(sp), 0.7, { wobble: 0.2, ti: 2, to: 2 });
+    }
+    text('SCENE', 512, 410, 9, { rot: -3 }); text('No. 4', 548, 407, 9, { rot: -3 });
+    p.layer();
+    const cuff = sm([[604, 430], [572, 436], [576, 456], [604, 456]], true);
+    knock(cuff); wash(cuff, '#6b6358', { alpha: 0.8, loose: 0.5 }); s(cuff, 2);
+    const hand = sm([[574, 440], [562, 428], [560, 418], [570, 414], [584, 420], [596, 426], [580, 444]], true);
+    knock(hand); wash(hand, '#e8c4a0', { alpha: 0.6, loose: 0.3 }); s(hand, 1.8);
+    s(sm([[563, 421], [574, 419]]), 1); s(sm([[563, 427], [574, 425]]), 1);
+  },
+});
+
+// a dung beetle in profile facing right, feet at the origin
+function beetle(p, o = {}) {
+  const { s, wash, fill, knock } = p;
+  p.layer(o);
+  const col = '#3a2f26';
+  // far legs first
+  for (const l of [[[30, -12], [40, -6], [48, 0]], [[2, -10], [-4, -3], [-10, 0]], [[-16, -12], [-28, -6], [-36, 0]]]) s(sm(l), 1.8, { alpha: 0.6 });
+  const elytra = sm([[-30, -20], [-24, -36], [-4, -42], [14, -38], [20, -24], [14, -10], [-8, -6], [-26, -10]], true);
+  const thorax = sm([[14, -36], [26, -38], [34, -28], [32, -14], [20, -10], [14, -20]], true);
+  const head = sm([[30, -30], [40, -30], [50, -24], [54, -18], [50, -14], [44, -12], [32, -14]], true);
+  for (const d of [elytra, thorax, head]) { knock(d); wash(d, col, { alpha: 0.85, loose: 0.5 }); }
+  wash(ell(-8, -32, 12, 5), '#8a7a6a', { alpha: 0.4, loose: 0.5 });
+  s(elytra, 2); s(thorax, 1.8); s(head, 1.8);
+  s(sm([[-26, -26], [-6, -34], [14, -32]]), 0.9);
+  for (let i = 0; i < 4; i++) s(ln([50 + i * 1.2, -24 + i * 3], [55 + i * 1.2, -24 + i * 3 - 1.5]), 1, { ti: 1, to: 1 });
+  // eye
+  knock(circ(40, -23, 3.6)); s(circ(40, -23, 3.6), 0.9);
+  if (o.dizzy) s(sm([[40, -23], [41.5, -23.5], [41, -21.5], [38.5, -22], [39, -25], [42.5, -24.5]]), 0.8, { ti: 1, to: 1 });
+  else fill(circ(41 + (o.look ?? 0.5), -23, 1.8));
+  if (o.brow) s(sm([[35, -28 - o.brow], [40, -29], [45, -27.5 + o.brow]]), 1.2, { ti: 1, to: 1 });
+  // near legs, spiky
+  for (const l of [[[34, -12], [46, -6], [56, -2]], [[4, -8], [10, -2], [4, 0]], [[-18, -10], [-30, -3], [-42, 0]]]) {
+    s(sm(l), 2);
+    for (let i = 0; i < 2; i++) { const [x, y] = l[1]; s(ln([x + i * 3 - 2, y - 1], [x + i * 3, y - 4]), 0.8, { ti: 1, to: 1 }); }
+  }
+  s(sm([[50, -20], [58, -26], [60, -30]]), 1.1); fill(ell(60.5, -31, 2.2, 1.6));
+  if (o.hat) {
+    p.layer(o);
+    const cap = sm([[30, -30], [34, -40], [44, -42], [50, -36], [50, -30]], false) + 'Z';
+    knock(cap); wash(cap, '#c9a46a', { alpha: 0.85, loose: 0.3 }); s(cap, 1.6);
+    const brim = ln([46, -32], [62, -30], [62, -28], [46, -29]) + 'Z';
+    knock(brim); wash(brim, '#c9a46a', { alpha: 0.85, loose: 0.2 }); s(brim, 1.3);
+  }
+}
+
+function dungball(p, x, y, r) {
+  p.layer();
+  const c = circ(x, y, r);
+  p.knock(c); p.wash(c, '#7a5a3a', { alpha: 0.8, loose: 0.5 }); p.wash(circ(x - r * 0.3, y - r * 0.35, r * 0.4), '#b8946a', { alpha: 0.4, loose: 1 });
+  p.s(c, 2);
+  for (let i = 0; i < 16; i++) { const a = p.r(0, 6.28), d = p.r(0, r * 0.85); p.s(ln([x + Math.cos(a) * d, y + Math.sin(a) * d], [x + Math.cos(a) * d + p.r(-3, 3), y + Math.sin(a) * d + p.r(-2, 2)]), 0.8, { ti: 1, to: 1, alpha: 0.7 }); }
+}
+
+CARTOONS.push({
+  id: 'beetle',
+  alt: "Night on the savanna under a bright band of Milky Way. Two dung beetles face each other, each with its ball of dung. Behind the first, a single straight track runs back to the horizon. The second wears a tiny cap and has dizzy spiral eyes, and its track loops round and round all over the ground.",
+  note: "Some dung beetles roll their balls away from the dung pile in a dead straight line, even on moonless nights, and they steer by the band of light from the Milky Way. When researchers fitted them with little cardboard caps that hid the sky, they couldn’t keep a straight line and wandered.",
+  src: "Dacke et al., <i>Current Biology</i> 2013.",
+  caption: '“I told you not to wear the hat.”',
+  draw(p) {
+    const { s, wash, fill, knock, r } = p;
+    // night sky with the Milky Way running through it
+    const band = sm([[-20, 150], [120, 96], [300, 60], [460, 40], [620, -10], [620, 60], [470, 110], [310, 140], [140, 186], [-20, 250]], true);
+    wash(rect(0, 0, 600, 290) + band, '#1f2a4a', { alpha: 0.85, loose: 0 });
+    wash(band, '#4f5680', { alpha: 0.75, loose: 3 });
+    wash(sm([[-20, 176], [140, 128], [310, 98], [470, 72], [620, 24], [620, 40], [470, 90], [310, 118], [140, 154], [-20, 206]], true), '#1f2a4a', { alpha: 0.4, loose: 3 });
+    p.layer();
+    for (let i = 0; i < 260; i++) {
+      const u = r(0, 1), inBand = i < 190;
+      let x, y;
+      if (inBand) { x = u * 620 - 10; const cy = 200 - u * 190 + 14 * Math.sin(u * 5); y = cy - 20 + r(-1, 1) * r(0, 1) * 55; }
+      else { x = r(0, 600); y = r(0, 270); }
+      fill(circ(x, y, r(0.4, i % 17 === 0 ? 2 : 1.1)), '#fbf8f1', { alpha: r(0.5, 1) });
+    }
+    // the ground
+    p.layer();
+    wash(sm([[0, 282], [150, 278], [320, 284], [600, 276], [600, 450], [0, 450]], true), '#8a7a5a', { alpha: 0.6, loose: 1 });
+    wash(sm([[0, 282], [150, 278], [320, 284], [600, 276], [600, 320], [0, 320]], true), '#2a2a3a', { alpha: 0.3, loose: 1 });
+    s(sm([[5, 282], [150, 278], [320, 284], [595, 276]]), 1.1, { alpha: 0.35 });
+    for (const [x, y] of [[40, 330], [300, 310], [560, 340], [250, 440], [80, 420], [340, 420]]) s(sm([[x - 4, y], [x, y - 2], [x + 4, y]]), 0.9, { ti: 1, to: 1 });
+    // one track, dead straight
+    wash(ln([226, 290], [232, 290], [150, 380], [104, 382]) + 'Z', '#4a3f2c', { alpha: 0.45, loose: 0.5 });
+    for (let t = 0.04; t < 1; t += 0.07) { const x = 229 - t * 100, y = 290 + t * 88, w = 1 + t * 22; for (const side of [-1, 1]) fill(circ(x + side * (w * 0.5 + 3 + t * 6), y + side * 1.5, 0.6 + t * 1.2), '#3a3020', { alpha: 0.7 }); }
+    // and one that isn't
+    const base = sm([[400, 288], [520, 294], [570, 312], [470, 326], [360, 334], [420, 350], [560, 352], [550, 380]]), bp = el('path', { d: base }, p.svg);
+    const BL = bp.getTotalLength(), loop = [];
+    for (let i = 0; i <= 400; i++) {
+      const t = i / 400, q = bp.getPointAtLength(t * BL), rr = 4 + 18 * t, th = t * Math.PI * 2 * 11;
+      loop.push([q.x + rr * Math.cos(th), q.y + rr * 0.5 * Math.sin(th)]);
+    }
+    bp.remove();
+    s(sm(loop.filter((_, i) => i % 2 === 0)), 1.1, { alpha: 0.75 });
+
+    dungball(p, 110, 364, 34);
+    beetle(p, { x: 188, y: 404, k: 1.5, look: 1, brow: 1 });
+    dungball(p, 540, 384, 30);
+    beetle(p, { x: 430, y: 416, k: 1.5, flip: true, hat: true, dizzy: true });
+  },
+});
+
+// a crow perched, facing right, feet at the origin; o.young for a fluffy fledgling
+function crow(p, o = {}) {
+  const { s, wash, fill, knock } = p;
+  p.layer(o);
+  const col = '#26262e', y = o.young;
+  const body = y
+    ? sm([[-36, -14], [-30, -36], [-8, -50], [14, -50], [26, -38], [24, -18], [10, -6], [-12, -2], [-34, -2], [-46, 2], [-44, -8]], true)
+    : sm([[-40, -20], [-30, -40], [-6, -52], [14, -54], [26, -46], [26, -30], [14, -14], [-8, -6], [-30, -6], [-62, 6], [-68, 2], [-46, -12]], true);
+  const hx = y ? 20 : 24, hy = y ? -58 : -62, hr = y ? 15 : 13;
+  const head = circ(hx, hy, hr);
+  knock(body); knock(head);
+  fill(body, '#16161b', { alpha: 0.9 }); fill(head, '#16161b', { alpha: 0.9 });
+  fill(ell(-6, -36, 18, 7), '#5a6a9a', { alpha: 0.25 });
+  s(body, 2); s(head, 2);
+  if (y) for (let i = 0; i < 9; i++) { const a = -2.6 + i * 0.32, x0 = hx + Math.cos(a) * hr, y0 = hy + Math.sin(a) * hr; s(ln([x0, y0], [x0 + Math.cos(a) * 4, y0 + Math.sin(a) * 4]), 1, { ti: 1, to: 1 }); }
+  // wing
+  s(sm([[-34, -18], [-14, -36], [8, -40], [18, -30]]), 1.2, { color: '#8a8aa0' });
+  // beak
+  const bl = y ? 13 : 24, bx = hx + hr - 3;
+  const beak = sm([[bx, hy - 6.5], [bx + bl * 0.6, hy - 5], [bx + bl, hy + 1.5], [bx + bl * 0.5, hy + 4], [bx, hy + 5.5]], true);
+  knock(beak); fill(beak, '#2a2a30'); s(beak, 1.5);
+  s(ln([bx, hy + 0.5], [bx + bl * 0.85, hy + 1.5]), 0.9, { color: '#8a8aa0' });
+  if (y) { const gape = ell(bx, hy + 1, 3, 2.4); knock(gape); wash(gape, '#f0c850', { alpha: 0.95, loose: 0.1 }); s(gape, 0.8); }
+  // eye: young crows have blue-grey eyes
+  const ex = hx + 3, ey = hy - 4, er = y ? 4.5 : 3;
+  knock(circ(ex, ey, er)); wash(circ(ex, ey, er), y ? '#8fa8c8' : '#26262e', { alpha: 0.9, loose: 0.1 }); s(circ(ex, ey, er), 1);
+  fill(circ(ex + (y ? 1.2 : 0.5), ey, y ? 2 : 1.6)); fill(circ(ex - er * 0.35, ey - er * 0.35, er * 0.28), '#fff');
+  if (o.brow) s(sm([[ex - 6, ey - 5 + o.brow], [ex, ey - 6], [ex + 6, ey - 5 - o.brow]]), 1.6, { ti: 2, to: 2, color: '#8a8aa0' });
+  // feet gripping
+  for (const x of [-4, 6]) { s(sm([[x, -6], [x + 1, 0]]), 1.6); s(sm([[x - 4, 1], [x + 1, 0], [x + 6, 2]]), 1.4); }
+  if (o.point) {
+    p.layer(o);
+    const w = sm([[-4, -40], [22, -46], [50, -52], [76, -62], [74, -55], [86, -56], [76, -49], [84, -46], [70, -43], [44, -36], [16, -28]], true);
+    knock(w); fill(w, '#16161b', { alpha: 0.9 }); s(w, 1.8);
+    s(sm([[14, -40], [56, -48]]), 1, { color: '#8a8aa0' });
+  }
+}
+
+CARTOONS.push({
+  id: 'crows',
+  alt: "A tree with a WANTED poster nailed to it. The picture is a rubber caveman mask with shaggy hair, heavy brows and a toothy grin, and underneath it says LAST SEEN WITH A NET. On a branch, a big crow points a wing at the poster for a fluffy young crow with blue eyes.",
+  note: "In 2006 researchers at the University of Washington wore a rubber caveman mask while they trapped and banded seven crows. For years afterward, crows on campus scolded and mobbed anyone in that mask. That included crows that had never been caught and crows that hatched afterward, and the number of scolding crows kept growing. Crows had learned from each other who was dangerous. Young crows really do have blue eyes.",
+  src: "Cornell, Marzluff &amp; Pecoraro, <i>Proceedings of the Royal Society B</i> 2012.",
+  caption: '“If you ever see this man, you scream.”',
+  draw(p) {
+    const { s, wash, fill, knock, text } = p;
+    wash(rect(0, 0, 600, 450), '#c8d8dc', { alpha: 0.45, loose: 0 });
+    // another branch up top, with its leaves attached
+    p.layer();
+    const upper = sm([[190, 70], [300, 60], [420, 40], [520, 36], [610, 20]]);
+    s(upper, 4, { color: '#6b5440' }); s(upper, 1.4);
+    for (const [x, y] of [[300, 60], [360, 50], [420, 40], [470, 38], [520, 36], [570, 28]]) for (const a of [-1, 1]) {
+      const tip = [x + 14, y + a * 22], lf = sm([[x, y], [x + 4 + a * 2, y + a * 11], tip, [x + 12, y + a * 8]], true);
+      knock(lf); wash(lf, '#6f9a52', { alpha: 0.7, loose: 0.3 }); s(lf, 1.1);
+    }
+    // the tree, with the notice on it
+    p.layer();
+    const trunk = sm([[70, 452], [86, 300], [92, 160], [84, -4]]) + 'L204,-4' + sm([[204, -4], [196, 160], [200, 300], [226, 452]]).replace(/^M[^C]*/, '') + 'Z';
+    knock(trunk); wash(trunk, '#6b5440', { alpha: 0.7 }); s(sm([[70, 452], [86, 300], [92, 160], [84, -4]]), 2.3); s(sm([[204, -4], [196, 160], [200, 300], [226, 452]]), 2.3);
+    for (const [x, y, h] of [[110, 330, 40], [180, 280, 30], [120, 60, 36], [176, 420, 26]]) s(sm([[x, y], [x + 2, y + h / 2], [x - 1, y + h]]), 1, { ti: 4, to: 4 });
+    // the branch they sit on
+    const branch = sm([[196, 300], [300, 306], [420, 312], [560, 304], [604, 300]]) + 'L604,316' + 'L560,318L420,326L300,322L200,318Z';
+    knock(branch); wash(branch, '#6b5440', { alpha: 0.7 }); s(sm([[196, 300], [300, 306], [420, 312], [560, 304], [604, 300]]), 2); s(sm([[200, 318], [300, 322], [420, 326], [560, 318], [604, 316]]), 2);
+    for (const [x, y, a] of [[520, 300, -1], [580, 300, -0.6], [560, 318, 0.8]]) { const lf = sm([[x, y], [x + 10, y + a * 14 - 4], [x + 22, y + a * 20], [x + 10, y + a * 10 + 4]], true); knock(lf); wash(lf, '#6f9a52', { alpha: 0.7, loose: 0.3 }); s(lf, 1.2); }
+    // the notice
+    p.layer();
+    const paper = ln([100, 100], [194, 96], [197, 238], [102, 242]) + 'Z';
+    knock(paper); wash(paper, '#efe6c8', { alpha: 0.6, loose: 0.3 }); s(paper, 1.6);
+    fill(circ(148, 104, 2.4));
+    text('WANTED', 148, 124, 19, { rot: -1.5 });
+    // the face on it: that rubber caveman mask
+    const mx = 148, my = 172;
+    const hair = sm([[mx - 30, my + 20], [mx - 34, my - 4], [mx - 26, my - 26], [mx - 8, my - 34], [mx + 12, my - 32], [mx + 28, my - 22], [mx + 34, my], [mx + 30, my + 22], [mx + 22, my + 8], [mx - 22, my + 8]], true);
+    wash(hair, '#5a3a24', { alpha: 0.8, loose: 0.5 }); s(hair, 1.4);
+    for (let i = 0; i < 16; i++) { const a = Math.PI * (0.95 + i / 15 * 1.1), r0 = 30, x0 = mx + Math.cos(a) * r0, y0 = my - 2 + Math.sin(a) * r0 * 0.95; s(ln([x0, y0], [x0 + Math.cos(a + 0.4) * 7, y0 + Math.sin(a + 0.4) * 7]), 1.2, { ti: 1, to: 3 }); }
+    const face = sm([[mx - 20, my - 14], [mx, my - 20], [mx + 20, my - 14], [mx + 22, my + 8], [mx + 14, my + 26], [mx, my + 30], [mx - 14, my + 26], [mx - 22, my + 8]], true);
+    knock(face); wash(face, '#d9a878', { alpha: 0.7, loose: 0.3 }); s(face, 1.6);
+    fill(sm([[mx - 20, my - 8], [mx - 4, my - 12], [mx - 2, my - 6], [mx - 18, my - 3]], true)); fill(sm([[mx + 20, my - 8], [mx + 4, my - 12], [mx + 2, my - 6], [mx + 18, my - 3]], true));
+    for (const x of [mx - 10, mx + 10]) { knock(circ(x, my - 1, 3.4)); s(circ(x, my - 1, 3.4), 1); fill(circ(x, my - 0.5, 1.6)); }
+    s(sm([[mx - 3, my + 2], [mx - 6, my + 11], [mx, my + 13], [mx + 6, my + 11], [mx + 3, my + 2]]), 1.3);
+    const grin = sm([[mx - 13, my + 17], [mx, my + 21], [mx + 13, my + 17], [mx + 8, my + 25], [mx - 8, my + 25]], true);
+    knock(grin); s(grin, 1.3); for (const x of [mx - 6, mx, mx + 6]) s(ln([x, my + 19], [x, my + 24]), 0.8, { ti: 1, to: 1 });
+    text('LAST SEEN WITH A NET', 149, 228, 8.5, { rot: -1.5 });
+
+    // the lesson
+    crow(p, { x: 268, y: 304, k: 1.15, young: true, flip: true, brow: -1.5 });
+    crow(p, { x: 450, y: 312, k: 1.6, flip: true, point: true, brow: 1.5 });
+  },
+});
+
+// ---------- the page ----------
+
+const ORDER = ['octopus', 'scallop', 'moon', 'bees', 'shark', 'pigeon', 'koala', 'beetle', 'crows'];
+const params = new URLSearchParams(location.search);
+const only = params.get('only');
+const book = document.getElementById('book');
+if (only) document.body.classList.add('only');
+// lay out every card at once, then draw them one after another so the first shows up quickly
+const jobs = [];
+for (const id of ORDER) {
+  if (only && id !== only) continue;
+  const c = CARTOONS.find(c => c.id === id), W = 600, H = 450;
+  const card = document.createElement('article');
+  card.className = 'card'; card.id = c.id;
+  book.appendChild(card);
+  const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, role: 'img', 'aria-label': c.alt }, card);
+  el('rect', { width: W, height: H, fill: PAPER }, svg);
+  card.insertAdjacentHTML('beforeend',
+    `<p class="caption">${c.caption}</p>
+     <details><summary>the true part</summary><p class="note">${c.note}<span class="src">${c.src}</span></p></details>`);
+  jobs.push(() => {
+    const pen = makePen(svg, 1000 + CARTOONS.indexOf(c) * 97, W, H);
+    c.draw(pen);
+    pen.layer({ free: true });
+    // the frame: four quick ruled strokes that overshoot at the corners
+    pen.stroke(ln([2, 6], [598, 5]), 1.6, { wobble: 0.6 });
+    pen.stroke(ln([595, 2], [594, 448]), 1.6, { wobble: 0.6 });
+    pen.stroke(ln([598, 445], [2, 446]), 1.6, { wobble: 0.6 });
+    pen.stroke(ln([6, 448], [5, 2]), 1.6, { wobble: 0.6 });
+    el('rect', { width: W, height: H, filter: 'url(#grain)', style: 'mix-blend-mode:multiply', opacity: 0.5 }, svg);
+  });
+}
+function next() {
+  const job = jobs.shift();
+  if (job) { job(); setTimeout(next, 0); return; }
+  Promise.race([document.fonts.ready, new Promise(r => setTimeout(r, 3000))]).then(() => { window.__ready = true; });
+}
+next();
+</script>
+</body>
+</html>

@@ -1,0 +1,14 @@
+e
+e
+put on the apron
+x chair
+w
+d
+open bin
+take tin
+n
+flip sign
+s
+empty bowl
+add 10 g salt
+empty bowl

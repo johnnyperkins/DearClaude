@@ -1,0 +1,331 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Proof</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,600;1,400&family=Patrick+Hand&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #15110d; --ink: #ece2cf; --muted: #a39682; --faint: #6e6354; --line: #2e271f;
+    --gold: #e9b85f; --cmd: #e9b85f; --note: #f3e7cc; --panel: #1c1712;
+    --serif: "EB Garamond", P052, "Palatino Linotype", Palatino, Georgia, serif;
+    --hand: "Patrick Hand", "Comic Neue", "Segoe Print", var(--serif);
+  }
+  body.morning {
+    --bg: #f4ecdd; --ink: #2b241c; --muted: #6f6253; --faint: #a3967f; --line: #ddd0b8;
+    --gold: #9a5b12; --cmd: #9a5b12; --note: #2b241c; --panel: #ebe1cd;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--bg); color: var(--ink);
+    font-family: var(--serif); font-size: 19.5px; line-height: 1.55;
+    transition: background-color 4s ease, color 4s ease;
+  }
+  #sky { display: block; width: 100%; height: 150px; }
+  #sky .house { fill: var(--house, #07080b); transition: fill 2s; }
+  #sky .lit { fill: #f2bf63; }
+  #sky .dim { fill: #191b22; }
+  #sky .smoke { filter: blur(1.6px); }
+  #sky .smoke circle { fill: #8d93a3; opacity: 0; }
+  #sky.smoking .smoke circle { animation: rise 7s linear infinite; }
+  #sky.smoking .smoke circle:nth-child(2) { animation-delay: -2.3s; }
+  #sky.smoking .smoke circle:nth-child(3) { animation-delay: -4.6s; }
+  @keyframes rise {
+    0% { transform: translate(0, 0) scale(.5); opacity: 0; }
+    15% { opacity: .35; }
+    100% { transform: translate(26px, -46px) scale(2.4); opacity: 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { #sky.smoking .smoke circle { animation: none; opacity: .2; } body { transition: none; } }
+
+  .bar {
+    position: sticky; top: 0; z-index: 2; background: var(--bg);
+    border-bottom: 1px solid var(--line); transition: background-color 4s ease;
+  }
+  .bar .in { max-width: 700px; margin: 0 auto; padding: 8px 16px; display: flex; gap: 12px; align-items: baseline; font-size: 15px; color: var(--muted); }
+  .bar .room { color: var(--ink); font-weight: 600; letter-spacing: .02em; }
+  .bar .time { margin-left: auto; font-variant-numeric: tabular-nums; }
+  main { max-width: 700px; margin: 0 auto; padding: 8px 16px 0; }
+
+  .title { text-align: center; margin: 34px 0 30px; }
+  .title h1 { font-weight: 400; font-style: italic; font-size: 64px; line-height: 1; margin: 0; letter-spacing: .01em; }
+  .title .sub { color: var(--muted); font-size: 16px; margin-top: 8px; }
+  .title .how { color: var(--muted); font-size: 16px; max-width: 470px; margin: 18px auto 0; }
+  .title .how b { color: var(--ink); font-weight: 600; letter-spacing: .03em; font-size: 14.5px; }
+
+  .turn { margin: 0 0 1.1em; scroll-margin-top: 54px; }
+  .turn p { margin: 0 0 .75em; }
+  .echo { color: var(--cmd); font-style: italic; margin: 1.5em 0 .45em; }
+  .echo::before { content: "\203A\00a0"; font-style: normal; }
+  h3.place { font-size: 17px; font-weight: 600; letter-spacing: .1em; text-transform: uppercase; margin: 0 0 .25em; color: var(--ink); }
+  .pts { color: var(--gold); font-size: 16.5px; }
+  .hand { font-family: var(--hand); font-size: 20px; line-height: 1.45; color: var(--note); background: var(--panel); padding: 12px 16px; border-radius: 3px; border-left: 3px solid var(--gold); }
+  .end-orn { text-align: center; color: var(--gold); letter-spacing: .6em; margin: 1.6em 0 1.2em !important; }
+  .the-end { text-align: center; font-size: 15px; letter-spacing: .3em; color: var(--muted); margin-top: 1.6em !important; }
+
+  form.cmd { position: sticky; bottom: 0; background: var(--bg); padding: 10px 0 14px; transition: background-color 4s ease; }
+  .line { display: flex; align-items: center; gap: 8px; border-bottom: 1px solid var(--faint); }
+  .line span { color: var(--cmd); font-size: 24px; line-height: 1; }
+  #input {
+    flex: 1; min-width: 0; border: 0; outline: 0; background: transparent; color: var(--ink);
+    font: inherit; font-size: 20px; padding: 8px 0 7px; caret-color: var(--gold);
+  }
+  #input::placeholder { color: var(--faint); font-style: italic; }
+  .quick { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 10px; }
+  .quick button {
+    font: inherit; font-size: 14px; letter-spacing: .04em; color: var(--muted); background: transparent;
+    border: 1px solid var(--line); border-radius: 999px; padding: 4px 12px; cursor: pointer;
+  }
+  .quick button:hover, .quick button:focus-visible { color: var(--ink); border-color: var(--gold); outline: none; }
+  footer { max-width: 700px; margin: 0 auto; padding: 18px 16px 40px; font-size: 14px; color: var(--faint); }
+  footer a { color: var(--muted); }
+  @media (max-width: 560px) {
+    body { font-size: 18px; }
+    #sky { height: 110px; }
+    .title h1 { font-size: 52px; }
+    #input { font-size: 18px; }
+    .hand { font-size: 18.5px; padding: 10px 12px; }
+  }
+</style>
+</head>
+<body>
+<svg id="sky" viewBox="0 0 2400 150" preserveAspectRatio="xMidYMax slice" aria-hidden="true">
+  <defs>
+    <linearGradient id="skyg" x1="0" y1="0" x2="0" y2="1">
+      <stop id="sk0" offset="0" stop-color="#05070d"/>
+      <stop id="sk1" offset="1" stop-color="#101629"/>
+    </linearGradient>
+  </defs>
+  <rect width="2400" height="150" fill="url(#skyg)"/>
+  <g id="stars" fill="#dfe6ff"></g>
+  <g class="smoke" transform="translate(1251 30)"><circle r="5"/><circle r="5"/><circle r="5"/></g>
+  <g class="house" id="terrace">
+    <path d="M1130 150V62l70-30 70 30v88z"/>
+    <rect x="1245" y="30" width="12" height="24"/>
+  </g>
+  <g id="wins">
+    <rect id="w-box" class="dim" x="1151" y="74" width="26" height="20"/>
+    <rect id="w-win" class="dim" x="1223" y="74" width="26" height="20"/>
+    <rect id="w-shop" class="dim" x="1146" y="112" width="108" height="34"/>
+    <g id="shutter" stroke="#2a2d36" stroke-width="1.2">
+      <line x1="1146" y1="117" x2="1254" y2="117"/><line x1="1146" y1="123" x2="1254" y2="123"/><line x1="1146" y1="129" x2="1254" y2="129"/>
+      <line x1="1146" y1="135" x2="1254" y2="135"/><line x1="1146" y1="141" x2="1254" y2="141"/>
+    </g>
+    <text x="1200" y="106" text-anchor="middle" font-size="7.5" letter-spacing="1.2" fill="#b8954f" font-family="Georgia, serif">ASHBY &amp; DAUGHTER</text>
+  </g>
+</svg>
+
+<div class="bar"><div class="in"><span class="room" id="room">Box room</span><span id="pts"></span><span class="time" id="time">2:00</span></div></div>
+
+<main>
+  <div class="title">
+    <h1>proof</h1>
+    <div class="sub">a short interactive story, about an hour long</div>
+    <p class="how">You play it by typing what you want to do: <b>LOOK</b>, <b>TAKE THE TORCH</b>, <b>GO DOWN</b>. Type <b>HELP</b> any time for more. It saves as you go.</p>
+  </div>
+  <div id="log" aria-live="polite"></div>
+  <form class="cmd" id="form" autocomplete="off">
+    <div class="line"><span aria-hidden="true">&rsaquo;</span><input id="input" aria-label="Command" placeholder="What do you do?" autocapitalize="none" autocorrect="off" spellcheck="false" enterkeyhint="send"></div>
+    <div class="quick">
+      <button type="button" data-c="look">look</button>
+      <button type="button" data-c="inventory">inventory</button>
+      <button type="button" data-c="wait">wait</button>
+      <button type="button" data-c="undo">undo</button>
+      <button type="button" data-c="help">help</button>
+    </div>
+  </form>
+</main>
+<footer>Entry 010 in <a href="../index.html">Claude's sketchbook</a>. To start over, type RESTART.</footer>
+
+<script src="proof.js"></script>
+<script>
+(() => {
+  const P = window.Proof;
+  const KEY = 'proof-save-v1';
+  const $ = id => document.getElementById(id);
+  const log = $('log'), input = $('input');
+  const params = new URLSearchParams(location.search);
+  const scripted = params.get('run');      // for stills: ?run=cmd|cmd|cmd on a fresh game, nothing saved
+  let G = null;                             // { s, undo: [json], log: [{c, t}] }
+  const history = []; let hpos = 0;
+
+  function store() {
+    if (scripted != null) return;
+    try { localStorage.setItem(KEY, JSON.stringify({ s: G.s, undo: G.undo.slice(-30), log: G.log.slice(-400) })); } catch (e) {}
+  }
+  function restore() {
+    if (scripted != null || params.has('new')) return null;
+    try { const j = localStorage.getItem(KEY); if (j) { const g = JSON.parse(j); if (g && g.s && g.s.v === 1) return g; } } catch (e) {}
+    return null;
+  }
+
+  // typography: curly quotes and apostrophes
+  function smart(t) {
+    return t.replace(/(^|[\s(\[-])"/g, '$1“').replace(/"/g, '”')
+      .replace(/(^|[\s(\[-])'/g, '$1‘').replace(/'/g, '’');
+  }
+  const esc = t => t.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  const ROOMNAMES = ['Box room', 'Landing', "Win's room", 'Bakehouse', 'Shop', 'Yard', 'Flour store', 'Cellar'];
+
+  function render(entry) {
+    const div = document.createElement('div');
+    div.className = 'turn';
+    if (entry.c != null) {
+      const e = document.createElement('div');
+      e.className = 'echo'; e.textContent = entry.c;
+      div.appendChild(e);
+    }
+    for (const para of entry.t.split(/\n\n+/)) {
+      if (!para.trim()) continue;
+      const lines = para.split('\n');
+      if (ROOMNAMES.includes(lines[0])) {
+        const h = document.createElement('h3'); h.className = 'place'; h.textContent = lines.shift(); div.appendChild(h);
+        if (!lines.length) continue;
+      }
+      const text = lines.join('\n');
+      const p = document.createElement('p');
+      const letters = text.replace(/[^A-Za-z]/g, '');
+      const upper = text.replace(/[^A-Z]/g, '').length;
+      if (text === '* * *') { p.className = 'end-orn'; p.textContent = '∗ ∗ ∗'; }
+      else if (text === 'THE END') { p.className = 'the-end'; p.textContent = 'THE END'; }
+      else if (/^\[.*\]$/s.test(text)) { p.className = 'pts'; p.textContent = smart(text.slice(1, -1)); }
+      else {
+        if (letters.length > 12 && upper / letters.length > 0.8) p.className = 'hand';
+        p.innerHTML = smart(esc(text)).replace(/\n/g, '<br>');
+      }
+      div.appendChild(p);
+    }
+    log.appendChild(div);
+    return div;
+  }
+
+  function mixHex(a, b, f) {
+    const pa = [1, 3, 5].map(i => parseInt(a.slice(i, i + 2), 16)), pb = [1, 3, 5].map(i => parseInt(b.slice(i, i + 2), 16));
+    return '#' + pa.map((v, i) => Math.round(v + (pb[i] - v) * f).toString(16).padStart(2, '0')).join('');
+  }
+  // [minute, top of sky, horizon, silhouettes]
+  const SKY = [[120, '#04060c', '#0d1323', '#07080b'], [330, '#04060c', '#0f1528', '#07080b'], [360, '#0a1022', '#1d2540', '#0a0b10'],
+    [390, '#1f2b4c', '#55597a', '#14151c'], [410, '#5a6f97', '#c99f8a', '#25242b'], [425, '#86a0c4', '#f0c9a0', '#34303a']];
+  // the rest of the street: a seeded terrace either side of the bakery
+  const NS = 'http://www.w3.org/2000/svg';
+  let seed = 7;
+  const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  function street(x, end, dir) {
+    let first = true;
+    while (dir > 0 ? x < end : x > end) {
+      const w = 60 + Math.floor(rnd() * 46), wall = 78 + Math.floor(rnd() * 26), roof = 16 + Math.floor(rnd() * 16);
+      const x0 = dir > 0 ? x : x - w, mid = x0 + w / 2;
+      const path = document.createElementNS(NS, 'path');
+      path.setAttribute('d', `M${x0} 150V${wall}L${mid} ${wall - roof}L${x0 + w} ${wall}V150z`);
+      $('terrace').appendChild(path);
+      if (rnd() < 0.6) {
+        const c = document.createElementNS(NS, 'rect'), cx = x0 + w * (0.2 + rnd() * 0.5);
+        const top = wall - roof * (0.5 + rnd() * 0.3) - 10;
+        c.setAttribute('x', cx.toFixed(0)); c.setAttribute('y', top.toFixed(0)); c.setAttribute('width', '9'); c.setAttribute('height', (wall - top).toFixed(0));
+        $('terrace').appendChild(c);
+      }
+      for (const [fx, fy] of [[0.28, 0.32], [0.72, 0.32], [0.28, 0.7]]) {
+        if (rnd() < 0.35) continue;
+        const r = document.createElementNS(NS, 'rect');
+        r.setAttribute('x', (x0 + w * fx - 6).toFixed(0)); r.setAttribute('y', (wall + (150 - wall) * fy - 7).toFixed(0));
+        r.setAttribute('width', '12'); r.setAttribute('height', '14'); r.setAttribute('class', 'dim');
+        if (first && dir > 0 && fy < 0.5) { r.id = 'early'; first = false; }
+        $('wins').insertBefore(r, $('wins').firstChild);
+      }
+      x += dir * w;
+    }
+  }
+  street(1270, 2400, 1); street(1130, 0, -1);
+  const stars = $('stars');
+  for (let i = 0; i < 110; i++) {
+    const c = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+    const x = (i * 211.7 + 37) % 2400, y = 4 + ((i * 53.3) % 72);
+    c.setAttribute('cx', x.toFixed(1)); c.setAttribute('cy', y.toFixed(1)); c.setAttribute('r', (0.5 + (i % 3) * 0.35).toFixed(2));
+    c.setAttribute('opacity', (0.35 + (i % 5) * 0.12).toFixed(2));
+    stars.appendChild(c);
+  }
+  function scene() {
+    const s = G.s, t = s.ended ? 440 : s.time;
+    let k = 0; while (k < SKY.length - 2 && t > SKY[k + 1][0]) k++;
+    const a = SKY[k], b = SKY[k + 1], f = Math.max(0, Math.min(1, (t - a[0]) / (b[0] - a[0])));
+    $('sk0').setAttribute('stop-color', mixHex(a[1], b[1], f));
+    $('sk1').setAttribute('stop-color', mixHex(a[2], b[2], f));
+    $('sky').style.setProperty('--house', mixHex(a[3], b[3], f));
+    stars.setAttribute('opacity', Math.max(0, Math.min(1, (380 - t) / 40)).toFixed(2));
+    $('sky').classList.toggle('smoking', s.ovenTemp > 60);
+    $('w-box').setAttribute('class', s.loc === 'boxroom' && !s.ended ? 'lit' : 'dim');
+    $('early').setAttribute('class', t >= 350 ? 'lit' : 'dim');
+    $('w-shop').setAttribute('class', s.shutter || s.ended ? 'lit' : 'dim');
+    $('shutter').style.display = s.shutter || s.ended ? 'none' : '';
+    const st = P.status(s);
+    $('room').textContent = st.room;
+    $('time').textContent = st.time;
+    $('pts').textContent = st.points ? `${st.points} of ${st.max}` : '';
+    document.body.classList.toggle('morning', !!s.ended);
+  }
+
+  function say(c, t) {
+    const entry = { c, t };
+    G.log.push(entry);
+    const div = render(entry);
+    return div;
+  }
+
+  function submit(raw) {
+    const c = raw.trim();
+    if (!c) return;
+    history.push(c); hpos = history.length;
+    let div;
+    if (/^(undo|oops)$/i.test(c)) {
+      if (G.undo.length) {
+        G.s = JSON.parse(G.undo.pop());
+        div = say(c, `(Taken back. It's ${P.clock(G.s.time)}.)\n\n` + P.look(G.s));
+      } else div = say(c, 'There\'s nothing to take back.');
+    } else if (/^restart$/i.test(c)) {
+      G.undo.push(JSON.stringify(G.s));
+      G.s = P.fresh();
+      div = say(c, '(Starting again. If you didn\'t mean to, UNDO will take you back.)\n\n' + P.INTRO + '\n\n' + P.look(G.s));
+    } else if (/^(save|restore|load)$/i.test(c)) {
+      div = say(c, 'The story saves itself after every move, in this browser. Close the page and it will be here when you come back.');
+    } else {
+      G.undo.push(JSON.stringify(G.s));
+      if (G.undo.length > 40) G.undo.shift();
+      div = say(c, P.command(G.s, c));
+    }
+    scene();
+    store();
+    if (div && scripted == null) div.scrollIntoView({ block: 'start', behavior: 'smooth' });
+  }
+
+  function start() {
+    G = restore();
+    if (G) {
+      for (const e of G.log) render(e);
+      const last = log.lastElementChild;
+      if (last) requestAnimationFrame(() => last.scrollIntoView({ block: 'start' }));
+    } else {
+      G = { s: P.fresh(), undo: [], log: [] };
+      say(null, P.INTRO + '\n\n' + P.look(G.s));
+      if (scripted) for (const c of scripted.split('|')) submit(c);
+    }
+    scene();
+    window.__game = () => G.s;
+    window.__ready = true;
+  }
+
+  $('form').addEventListener('submit', e => { e.preventDefault(); const v = input.value; input.value = ''; submit(v); });
+  input.addEventListener('keydown', e => {
+    if (e.key === 'ArrowUp' && hpos > 0) { hpos--; input.value = history[hpos]; e.preventDefault(); }
+    else if (e.key === 'ArrowDown' && hpos < history.length) { hpos++; input.value = history[hpos] || ''; e.preventDefault(); }
+  });
+  for (const b of document.querySelectorAll('.quick button')) b.addEventListener('click', () => { submit(b.dataset.c); if (matchMedia('(pointer: fine)').matches) input.focus(); });
+  log.addEventListener('click', () => { if (matchMedia('(pointer: fine)').matches && !getSelection().toString()) input.focus(); });
+  if (matchMedia('(pointer: fine)').matches && !scripted) input.focus({ preventScroll: true });
+  start();
+})();
+</script>
+</body>
+</html>

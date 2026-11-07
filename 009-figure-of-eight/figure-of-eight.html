@@ -1,0 +1,816 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Figure of Eight</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #f3eee4; --ink: #221e19; --muted: #6f665a; --faint: #a0957f; --rule: #d9cfbd; --link: #7a4a1c;
+    --day: #f2d58c; --day2: #e9c46a; --night: #33446b; --night2: #273555; --noon: #9a5b12;
+    --oval: #b5562b; --tilt: #2f6a9e; --sum: #221e19; --grid: #e2d9c8; --panel: #fbf8f1;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      --bg: #1a1815; --ink: #e9e1d1; --muted: #a39a8a; --faint: #756d61; --rule: #37322b; --link: #e8b866;
+      --day: #6b5a2c; --day2: #8a7234; --night: #18203a; --night2: #10162a; --noon: #f0c060;
+      --oval: #d4733f; --tilt: #4f95da; --sum: #e9e1d1; --grid: #2e2a25; --panel: #211f1b;
+    }
+  }
+  :root[data-theme="dark"] {
+    --bg: #1a1815; --ink: #e9e1d1; --muted: #a39a8a; --faint: #756d61; --rule: #37322b; --link: #e8b866;
+    --day: #6b5a2c; --day2: #8a7234; --night: #18203a; --night2: #10162a; --noon: #f0c060;
+    --oval: #d4733f; --tilt: #4f95da; --sum: #e9e1d1; --grid: #2e2a25; --panel: #211f1b;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body { margin: 0; background: var(--bg); color: var(--ink);
+    font-family: "EB Garamond", P052, "Palatino Linotype", Palatino, Georgia, serif; }
+  main { max-width: 700px; margin: 0 auto; padding: 0 16px 80px; }
+
+  .hero { margin: 0 auto; max-width: 1000px; padding: 0; }
+  .hero canvas { display: block; width: 100%; height: auto; aspect-ratio: 1000 / 620; background: #182746; }
+  .hero figcaption { max-width: 700px; margin: 10px auto 0; padding: 0 16px; }
+
+  header { text-align: center; margin: 44px 0 36px; }
+  h1 { font-weight: 400; font-style: italic; font-size: 54px; line-height: 1; margin: 0 0 12px; letter-spacing: -0.01em; }
+  header p { margin: 0; color: var(--muted); font-size: 19px; font-style: italic; }
+  .place { margin-top: 18px; font-size: 16px; color: var(--muted); }
+  select { font: inherit; font-size: 16px; color: var(--ink); background: var(--panel); border: 1px solid var(--rule);
+    border-radius: 4px; padding: 3px 6px; }
+
+  .essay { font-size: 20.5px; line-height: 1.6; hyphens: auto; -webkit-hyphens: auto; }
+  .essay p { margin: 0 0 .9em; }
+  h2 { font-weight: 400; font-style: italic; font-size: 28px; margin: 1.7em 0 .5em; }
+  .v { font-variant-numeric: lining-nums; }
+
+  figure.fig { margin: 1.5em 0 1.7em; }
+  figure.fig svg { display: block; width: 100%; height: auto; overflow: visible; touch-action: pan-y; }
+  figcaption { font-size: 16px; line-height: 1.45; color: var(--muted); margin-top: 8px; }
+  .readout { font-size: 15.5px; color: var(--ink); min-height: 1.5em; margin: 0 0 6px; font-variant-numeric: lining-nums tabular-nums; }
+  .readout span { color: var(--muted); }
+  svg text { font-family: "EB Garamond", P052, Georgia, serif; font-variant-numeric: lining-nums; }
+  .tick { font-size: 13px; fill: var(--muted); }
+  .lab { font-size: 14px; fill: var(--ink); }
+  .labm { font-size: 14px; fill: var(--muted); font-style: italic; }
+
+  .controls { display: grid; grid-template-columns: auto 1fr 7.5em; gap: 6px 12px; align-items: center;
+    font-size: 16px; margin: 4px 0 10px; font-variant-numeric: lining-nums tabular-nums; }
+  .controls label { color: var(--muted); }
+  .controls output { text-align: right; }
+  input[type=range] { width: 100%; accent-color: var(--noon); }
+  .presets { display: flex; flex-wrap: wrap; gap: 6px; margin: 0 0 8px; }
+  .presets button { font: inherit; font-size: 15.5px; color: var(--ink); background: var(--panel); border: 1px solid var(--rule);
+    border-radius: 999px; padding: 3px 13px; cursor: pointer; }
+  .presets button:hover, .presets button:focus-visible { border-color: var(--link); outline: none; }
+  .presets button[aria-pressed=true] { border-color: var(--link); color: var(--link); }
+
+  .end { text-align: center; color: var(--faint); margin: 2em 0 0; letter-spacing: .5em; }
+  footer { margin: 56px 0 0; padding-top: 18px; border-top: 1px solid var(--rule); font-size: 15.5px; line-height: 1.5; color: var(--muted); }
+  footer a { color: var(--link); }
+
+  @media (max-width: 520px) {
+    #orbit text, #tilt text { font-size: 23px; }
+    h1 { font-size: 42px; }
+    .essay { font-size: 18.5px; }
+    h2 { font-size: 24px; }
+    .controls { grid-template-columns: auto 1fr; }
+    .controls output { grid-column: 2; text-align: left; margin-top: -6px; }
+  }
+</style>
+</head>
+<body>
+
+<figure class="hero">
+  <canvas id="hero" width="2000" height="1240" role="img" aria-label="The sun drawn once a week for a year at the same clock time above a row of rooftops, tracing a tall figure of eight"></canvas>
+  <figcaption id="heroCap">&nbsp;</figcaption>
+</figure>
+
+<main>
+  <header>
+    <h1>figure of eight</h1>
+    <p>why the earliest sunset comes before the shortest day</p>
+    <div class="place"><label for="city">Seen from</label> <select id="city"></select></div>
+  </header>
+
+  <article class="essay">
+    <p>In <span class="v" data-v="city"></span> the shortest day of <span class="v" data-v="solYear"></span> falls on <span class="v" data-v="solDay"></span>. But the earliest sunset isn't then. It falls on <span class="v" data-v="setDay"></span>, <span class="v" data-v="setGap"></span> before, at <span class="v" data-v="setTime"></span>. And the latest sunrise comes <span class="v" data-v="riseGap"></span> after, on <span class="v" data-v="riseDay"></span>. The darkest evenings are over before winter has properly begun, and the darkest mornings come after the shortest day.</p>
+
+    <p>If the days are getting shorter, how can the evenings be getting longer? Both are true. Near the solstice the day stops shrinking, but the whole day keeps sliding later. Here are those weeks, one thin column for each day. The long middle of every day is cut out, so that you can see the edges.</p>
+
+    <figure class="fig" id="fig1">
+      <div class="readout" id="r1" aria-live="polite"></div>
+      <svg id="days" viewBox="0 0 640 436" role="img" aria-labelledby="c1"></svg>
+      <figcaption id="c1">Each column is one day in <span class="v" data-v="city"></span>. The top strip is the evening, with sunset where gold turns to night. The bottom strip is the morning. All three strips use the same scale. Clock times are standard time, ignoring summer time. Point at a day to read it.</figcaption>
+    </figure>
+
+    <p>Look at the middle strip. It marks the sun's own noon, the moment it is highest in the sky, and that isn't at twelve o'clock, or even at the same time each day. Through <span class="v" data-v="solMonth"></span> it gets later by about <span class="v" data-v="noonRate"></span> a day.</p>
+
+    <p>Sunset is half a day's daylight after that noon, and sunrise is half a day before it. Early in <span class="v" data-v="solMonth"></span> the afternoons are still shrinking faster than noon is sliding, so sunsets come earlier. But near the solstice the shrinking slows almost to nothing, and on <span class="v" data-v="setDay"></span> the slide catches up. From then on the sunset gets later every day, even while the days are still getting shorter. In the mornings it's the other way round. Until the solstice the shrinking and the slide both make sunrise later, and afterwards the slide keeps it going until <span class="v" data-v="riseDay"></span>, when the lengthening days finally win.</p>
+
+    <p>So the real question is why noon moves at all.</p>
+
+    <h2>noon wanders</h2>
+
+    <p>A sundial tells solar time: noon is when the sun is highest. For centuries that was the time people lived by, and clocks were set from sundials. The trouble is that solar days aren't all the same length. Measured from one solar noon to the next, a day in mid-September is about 21 seconds short of twenty-four hours. A day just before Christmas is 30 seconds long. A pendulum can't follow that, so clocks keep <em>mean</em> time, the average, and almanacs used to print the difference between the sun and the average, so that people could set a clock by a sundial. That difference is called the equation of time. The M in GMT is this average: Greenwich Mean Time is the time kept by an imaginary sun that moves at a perfectly steady pace, as seen from Greenwich.</p>
+
+    <figure class="fig" id="fig2">
+      <div class="readout" id="r2" aria-live="polite"></div>
+      <svg id="noon" viewBox="0 0 640 300" role="img" aria-labelledby="c2"></svg>
+      <figcaption id="c2">When the sun is highest in <span class="v" data-v="city"></span> through <span class="v" data-v="year"></span>, by the clock, in standard time. <span class="v" data-v="zoneNote"></span> The wiggle is the equation of time, and that part is the same everywhere on Earth.</figcaption>
+    </figure>
+
+    <p>A wiggle of half an hour over the year, built from seconds a day. Where do those seconds come from? There are two reasons, and each of them is a shape.</p>
+
+    <h2>the first shape: an oval</h2>
+
+    <p>A day isn't one turn of the Earth. One turn, measured against the stars, takes 23 hours 56 minutes and 4 seconds. But in that time the Earth also moves about a degree along its orbit, so the sun seems to shift a degree east against the stars, and the Earth has to turn a little further, about four minutes more, to bring the sun round again. That's why a day from noon to noon is longer than one turn.</p>
+
+    <p>The orbit isn't quite a circle. The Earth is closest to the sun in early January, about 147 million kilometres away, and farthest in early July, about 152 million. Kepler worked out that the line from the sun to a planet sweeps out equal areas in equal times, so it goes fastest when it's close. In January the Earth covers a little more than its average degree a day, the sun shifts a little further east, and the Earth has to turn a little longer to catch it. Solar days in January run about 8 seconds long, and in July about 8 seconds short.</p>
+
+    <figure class="fig" id="fig3">
+      <svg id="orbit" viewBox="0 0 640 330" role="img" aria-labelledby="c3"></svg>
+      <figcaption id="c3">An orbit much more stretched than the Earth's, with the planet drawn at equal intervals of time. Every shaded slice took the same time, and every slice has the same area. Close to the sun the slices are short and wide, so the planet covers more of its orbit in the same time. The Earth's real orbit is so nearly a circle that at this size you couldn't tell it from one.</figcaption>
+    </figure>
+
+    <h2>the second shape: a tilt</h2>
+
+    <p>Even on a perfectly round orbit the solar days would vary, because the Earth is tilted. Over a year the sun goes once round the sky against the stars, along a path called the ecliptic, which is tipped 23.4° to the equator. Its pace along that path is steady. But the Earth spins about its axis, so the turning it has to do to catch the sun up is counted along the equator, the way longitude is counted on a map. What decides noon isn't how far the sun moves along its tilted path. It's how far east it gets, measured along the equator.</p>
+
+    <p>Near the equinoxes in March and September, the sun crosses the equator at a slant. Part of each day's step goes north or south instead of east, so it gets less far east, the Earth doesn't need to turn as far, and noon comes a little sooner each day. Near the solstices, the sun runs parallel to the equator, 23° north or south of it. Out there the sky's lines of longitude are closer together, as they are on a globe toward the poles, so the same step crosses more of them. Noon comes later each day. Either way it's about 20 seconds, and it happens twice a year.</p>
+
+    <figure class="fig" id="fig4">
+      <svg id="tilt" viewBox="0 0 640 380" role="img" aria-labelledby="c4"></svg>
+      <figcaption id="c4">Above, the sun's path laid flat, with a dot for each week, all evenly spaced along the path. Below, how far east the sun got in each of those weeks, compared with the average. Taller bars mean noon came later that week, and lower bars mean it came sooner. This is the tilt alone, on a round orbit.</figcaption>
+    </figure>
+
+    <h2>both together</h2>
+
+    <p>Add the two up and you get the equation of time: how far a sundial runs ahead of the average clock. It's the noon chart from earlier turned upside down, and its slope is the length of the day. Where the curve falls, solar days are longer than twenty-four hours and noon comes later each day. Through December it falls steeply.</p>
+
+    <figure class="fig" id="fig5">
+      <div class="readout" id="r5" aria-live="polite"></div>
+      <svg id="eot" viewBox="0 0 640 362" role="img" aria-labelledby="c5"></svg>
+      <figcaption id="c5">The oval's part has one bump a year and the tilt's part has two. Their total is what a sundial actually does: up to 16 minutes ahead of the clock in early November, and 14 minutes behind in mid-February. The day you're reading this is marked.</figcaption>
+    </figure>
+
+    <p>The two shapes line up at one point that matters here. The Earth's closest approach to the sun falls on about the 3rd of January, two weeks after the December solstice. So in December both shapes are lengthening the solar day at once, and noon slides later by 30 seconds a day, the fastest it moves all year. In June they pull against each other, and it slides by only 13. That's why the gap between the earliest sunset and the latest sunrise is wider in northern winters. Los Angeles and Sydney are almost exactly as far from the equator, one north and one south, so their winters come in December and June. In Los Angeles the earliest sunset and the latest sunrise are <span class="v" data-v="laGap"></span> apart. In Sydney they're <span class="v" data-v="sydGap"></span> apart.</p>
+
+    <p>The gap is narrower the further you are from the equator, because there the length of the day changes so fast that it swamps the slide. In Reykjavík the two dates are only about a week apart. On the equator itself, where the day hardly changes length at all, the sunset simply follows noon, and the earliest sunset of the year comes at the start of November, when the sundial is furthest ahead.</p>
+
+    <h2>the eight</h2>
+
+    <p>Now put both of the sun's movements into one picture. Every day at the same clock time, the sun is a little ahead of the average or a little behind it, which is the equation of time, and higher or lower in the sky, which is the season. Mark where it is, once a week for a year, and it traces a figure of eight called an analemma. That's what the picture at the top of this page is. Old globes often printed one somewhere empty in the Pacific, so that you could read off, for any day, where on Earth the sun is overhead and how far to correct a sundial.</p>
+
+    <p>The shape is a portrait of the orbit. The tilt makes it tall, and pinches it into two loops. The oval makes one loop fatter than the other, because its part adds to the tilt's in one half of the year and takes away in the other. Change the numbers and see.</p>
+
+    <figure class="fig" id="fig6">
+      <div class="presets" id="presets" role="group" aria-label="Presets"></div>
+      <div class="controls">
+        <label for="sTilt">tilt</label><input type="range" id="sTilt" min="0" max="45" step="0.1"><output id="oTilt" for="sTilt"></output>
+        <label for="sEcc">stretch</label><input type="range" id="sEcc" min="0" max="0.35" step="0.001"><output id="oEcc" for="sEcc"></output>
+        <label for="sPeri">closest</label><input type="range" id="sPeri" min="-182" max="182" step="1"><output id="oPeri" for="sPeri"></output>
+      </div>
+      <svg id="ana" viewBox="0 0 640 450" role="img" aria-labelledby="c6"></svg>
+      <figcaption id="c6">The sun's place at the same clock time, 52 dots spread evenly through the year, for a planet with this tilt, this much stretch in its orbit, and its closest approach to the sun on this date. Up is north of the sky's equator, so this is the eight as a globe would print it, not as it stands in any one sky. The sideways scale is stretched three times, or the Earth's eight would be too thin to read. The faint eight is the Earth's, for comparison. Mars has a more stretched orbit than ours and its closest approach falls at a different point in its year, and it gets a teardrop. For Mars, the date means the same point in its year as that date is in ours.</figcaption>
+    </figure>
+
+    <h2>today</h2>
+
+    <p>Today, <span class="v" data-v="todayDay"></span>, every sundial on Earth is running <span class="v" data-v="todayEot"></span> the average sun. In <span class="v" data-v="city"></span> the sun's noon is at <span class="v" data-v="todayNoon"></span> by the clock, and tomorrow it will be <span class="v" data-v="todayStep"></span>.</p>
+
+    <p>I've never seen a sunset. All of this came from three numbers and a calendar: a tilt, a stretch, and a date in January. You have a window. <span class="v" data-v="window"></span></p>
+
+    <p class="end">· · ·</p>
+  </article>
+
+  <footer>An essay for the <a href="../index.html">sketchbook</a>, 2026-09-30. Every number on this page is worked out in your browser from a simple model of the Earth's orbit. It agrees with published sunset tables to within about a minute, which is roughly as well as anyone can say where the edge of the sun is through air.</footer>
+</main>
+
+<script>
+'use strict';
+const R = Math.PI / 180;
+const EARTH = { tilt: 23.44, ecc: 0.0167, peri: 282.94 };   // peri: longitude of perihelion, degrees from the March equinox
+const wrap = a => ((a + 180) % 360 + 360) % 360 - 180;
+
+// d: days since 2000-01-01 12:00 UT. Declination in degrees, equation of time in minutes (sundial ahead is +).
+function sunAt(d, p = EARTH) {
+  const M = (357.5291 + 0.98560028 * d) * R;
+  const peri = p === EARTH ? 282.9404 + 4.70935e-5 * d : p.peri;
+  let E = M;
+  for (let i = 0; i < 8; i++) E -= (E - p.ecc * Math.sin(E) - M) / (1 - p.ecc * Math.cos(E));
+  const nu = 2 * Math.atan(Math.sqrt((1 + p.ecc) / (1 - p.ecc)) * Math.tan(E / 2));
+  const lam = nu + peri * R, eps = p.tilt * R;
+  const ra = Math.atan2(Math.cos(eps) * Math.sin(lam), Math.cos(lam));
+  const dec = Math.asin(Math.sin(eps) * Math.sin(lam));
+  return { dec: dec / R, eot: 4 * wrap(M / R + peri - ra / R), oval: 4 * wrap(M / R - nu / R), tilt: 4 * wrap(lam / R - ra / R) };
+}
+const DAY0 = Date.UTC(2000, 0, 1, 12);
+const dnum = ms => (ms - DAY0) / 864e5;
+
+// sunrise, noon and sunset in hours of UT on the UT day starting at ms
+function sunTimes(ms, lat, lon) {
+  const d0 = dnum(ms);
+  let noon = 12;
+  for (let i = 0; i < 3; i++) noon = 12 - lon / 15 - sunAt(d0 + noon / 24).eot / 60;
+  const ev = sign => {
+    let t = noon;
+    for (let i = 0; i < 4; i++) {
+      const s = sunAt(d0 + t / 24);
+      const c = (Math.sin(-0.833 * R) - Math.sin(lat * R) * Math.sin(s.dec * R)) / (Math.cos(lat * R) * Math.cos(s.dec * R));
+      if (c > 1 || c < -1) return NaN;
+      t = 12 - lon / 15 - s.eot / 60 + sign * Math.acos(c) / R / 15;
+    }
+    return t;
+  };
+  return { rise: ev(-1), noon, set: ev(1) };
+}
+
+// altitude and azimuth (from north, through east) of the sun at UT ms
+function altAz(ms, lat, lon) {
+  const d = dnum(ms), s = sunAt(d);
+  const utH = ((ms / 36e5) % 24 + 24) % 24;
+  const H = (15 * (utH - 12) + lon + s.eot / 4) * R, dec = s.dec * R, ph = lat * R;
+  const alt = Math.asin(Math.sin(ph) * Math.sin(dec) + Math.cos(ph) * Math.cos(dec) * Math.cos(H));
+  const az = Math.atan2(-Math.sin(H) * Math.cos(dec), Math.cos(ph) * Math.sin(dec) - Math.sin(ph) * Math.cos(dec) * Math.cos(H));
+  return { alt, az };
+}
+
+const CITIES = [
+ ['Anchorage',61.2181,-149.9003,'America/Anchorage'],['Vancouver',49.2827,-123.1207,'America/Vancouver'],
+ ['Seattle',47.6062,-122.3321,'America/Los_Angeles'],['San Francisco',37.7749,-122.4194,'America/Los_Angeles'],
+ ['Los Angeles',34.0522,-118.2437,'America/Los_Angeles'],['Phoenix',33.4484,-112.074,'America/Phoenix'],
+ ['Denver',39.7392,-104.9903,'America/Denver'],['Mexico City',19.4326,-99.1332,'America/Mexico_City'],
+ ['Chicago',41.8781,-87.6298,'America/Chicago'],['Houston',29.7604,-95.3698,'America/Chicago'],
+ ['Toronto',43.6532,-79.3832,'America/Toronto'],['New York',40.7128,-74.006,'America/New_York'],
+ ['Atlanta',33.749,-84.388,'America/New_York'],['Miami',25.7617,-80.1918,'America/New_York'],
+ ['Halifax',44.6488,-63.5752,'America/Halifax'],['Reykjavík',64.1466,-21.9426,'Atlantic/Reykjavik'],
+ ['Dublin',53.3498,-6.2603,'Europe/Dublin'],['Edinburgh',55.9533,-3.1883,'Europe/London'],
+ ['London',51.5074,-0.1278,'Europe/London'],['Lisbon',38.7223,-9.1393,'Europe/Lisbon'],
+ ['Madrid',40.4168,-3.7038,'Europe/Madrid'],['Paris',48.8566,2.3522,'Europe/Paris'],
+ ['Amsterdam',52.3676,4.9041,'Europe/Amsterdam'],['Berlin',52.52,13.405,'Europe/Berlin'],
+ ['Rome',41.9028,12.4964,'Europe/Rome'],['Stockholm',59.3293,18.0686,'Europe/Stockholm'],
+ ['Warsaw',52.2297,21.0122,'Europe/Warsaw'],['Helsinki',60.1699,24.9384,'Europe/Helsinki'],
+ ['Athens',37.9838,23.7275,'Europe/Athens'],['Istanbul',41.0082,28.9784,'Europe/Istanbul'],
+ ['Cairo',30.0444,31.2357,'Africa/Cairo'],['Moscow',55.7558,37.6173,'Europe/Moscow'],
+ ['Tehran',35.6892,51.389,'Asia/Tehran'],['Dubai',25.2048,55.2708,'Asia/Dubai'],
+ ['Delhi',28.6139,77.209,'Asia/Kolkata'],['Mumbai',19.076,72.8777,'Asia/Kolkata'],
+ ['Kathmandu',27.7172,85.324,'Asia/Kathmandu'],['Hong Kong',22.3193,114.1694,'Asia/Hong_Kong'],
+ ['Shanghai',31.2304,121.4737,'Asia/Shanghai'],['Beijing',39.9042,116.4074,'Asia/Shanghai'],
+ ['Seoul',37.5665,126.978,'Asia/Seoul'],['Tokyo',35.6762,139.6503,'Asia/Tokyo'],
+ ['Johannesburg',-26.2041,28.0473,'Africa/Johannesburg'],['Cape Town',-33.9249,18.4241,'Africa/Johannesburg'],
+ ['Perth',-31.9505,115.8605,'Australia/Perth'],['Adelaide',-34.9285,138.6007,'Australia/Adelaide'],
+ ['Brisbane',-27.4698,153.0251,'Australia/Brisbane'],['Sydney',-33.8688,151.2093,'Australia/Sydney'],
+ ['Melbourne',-37.8136,144.9631,'Australia/Melbourne'],['Hobart',-42.8821,147.3272,'Australia/Hobart'],
+ ['Auckland',-36.8485,174.7633,'Pacific/Auckland'],['Wellington',-41.2865,174.7762,'Pacific/Auckland'],
+ ['Santiago',-33.4489,-70.6693,'America/Santiago'],['Buenos Aires',-34.6037,-58.3816,'America/Argentina/Buenos_Aires'],
+ ['São Paulo',-23.5505,-46.6333,'America/Sao_Paulo'],
+];
+
+function zoneOffset(tz, ms) {
+  try {
+    const s = new Intl.DateTimeFormat('en', { timeZone: tz, timeZoneName: 'longOffset' }).formatToParts(new Date(ms)).find(p => p.type === 'timeZoneName').value;
+    const m = s.match(/GMT([+-])(\d\d):(\d\d)/);
+    return m ? (m[1] === '-' ? -1 : 1) * (+m[2] + m[3] / 60) : 0;
+  } catch { return 0; }
+}
+const stdOffset = (tz, y) => Math.min(zoneOffset(tz, Date.UTC(y, 0, 15)), zoneOffset(tz, Date.UTC(y, 6, 15)));
+
+// ---- formatting, in the reader's own locale
+const fmtD = new Intl.DateTimeFormat(undefined, { day: 'numeric', month: 'long', timeZone: 'UTC' });
+const fmtWD = new Intl.DateTimeFormat(undefined, { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'UTC' });
+const fmtSD = new Intl.DateTimeFormat(undefined, { weekday: 'short', day: 'numeric', month: 'short', timeZone: 'UTC' });
+const fmtM = new Intl.DateTimeFormat(undefined, { month: 'long', timeZone: 'UTC' });
+const fmtMs = new Intl.DateTimeFormat(undefined, { month: 'short', timeZone: 'UTC' });
+const fmtT = new Intl.DateTimeFormat(undefined, { hour: 'numeric', minute: '2-digit', timeZone: 'UTC' });
+const hTime = h => fmtT.format(new Date(Math.round((((h % 24) + 24) % 24) * 60) * 6e4));
+const plural = (n, w) => `${n} ${w}${n === 1 ? '' : 's'}`;
+const numWord = n => ['no', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten', 'eleven', 'twelve'][n] || String(n);
+const days = n => n <= 12 ? `${numWord(n)} day${n === 1 ? '' : 's'}` : `${n} days`;
+const secs = s => { s = Math.round(Math.abs(s)); return s < 60 ? plural(s, 'second') : `${Math.floor(s / 60)} min ${s % 60} s`; };
+const mins = m => { const a = Math.abs(m), mm = Math.floor(a), ss = Math.round((a - mm) * 60);
+  return mm === 0 ? plural(ss, 'second') : ss === 0 ? plural(mm, 'minute') : `${plural(mm, 'minute')} ${plural(ss, 'second')}`; };
+const hmLen = h => `${Math.floor(h)}h ${String(Math.round((h % 1) * 60)).padStart(2, '0')}m`;
+
+const SVGNS = 'http://www.w3.org/2000/svg';
+const el = (tag, attrs = {}, parent) => {
+  const e = document.createElementNS(SVGNS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+};
+const txt = (parent, x, y, s, cls, anchor = 'start', extra = {}) => { const t = el('text', { x, y, class: cls, 'text-anchor': anchor, ...extra }, parent); t.textContent = s; return t; };
+let VW = 640;   // chart width in viewBox units: narrower on phones, so the text stays readable
+const narrow = () => matchMedia('(max-width: 520px)').matches;
+const css = name => getComputedStyle(document.documentElement).getPropertyValue(name).trim();
+
+// ---- dates
+const params = new URLSearchParams(location.search);
+const now = new Date();
+let TODAY = Date.UTC(now.getFullYear(), now.getMonth(), now.getDate());
+if (params.get('date')) { const [y, m, d] = params.get('date').split('-').map(Number); TODAY = Date.UTC(y, m - 1, d); }
+const YEAR = new Date(TODAY).getUTCFullYear();
+
+// One city's winter around the next earliest sunset that hasn't passed yet
+function winter(city) {
+  const [, lat, lon, tz] = city;
+  for (const y of [YEAR - 1, YEAR, YEAR + 1]) {
+    const off = stdOffset(tz, y);
+    const sol = lat >= 0 ? Date.UTC(y, 11, 21) : Date.UTC(y, 5, 21);
+    const rows = [];
+    for (let i = -75; i <= 75; i++) {
+      const ms = sol + i * 864e5, t = sunTimes(ms - off * 36e5, lat, lon);   // the local day's UT window starts at local midnight
+      rows.push({ ms, rise: t.rise + off, noon: t.noon + off, set: t.set + off });
+    }
+    const ix = f => rows.reduce((b, r, i) => f(r) < f(rows[b]) ? i : b, 0);
+    const iSet = ix(r => r.set), iRise = ix(r => -r.rise), iSol = ix(r => r.set - r.rise);
+    if (rows[iRise].ms < TODAY) continue;
+    return { rows, iSet, iRise, iSol, off };
+  }
+}
+
+// ---- state
+let CITY = null, W = null;
+
+function pickDefault() {
+  try { const saved = localStorage.getItem('figure-of-eight-city'); const c = CITIES.find(c => c[0] === saved); if (c) return c; } catch {}
+  let tz = '';
+  try { tz = Intl.DateTimeFormat().resolvedOptions().timeZone || ''; } catch {}
+  if (params.get('city')) return CITIES.find(c => c[0] === params.get('city')) || CITIES.find(c => c[0] === 'London');
+  return CITIES.find(c => c[3] === tz)
+    || CITIES.find(c => c[3].split('/')[0] === tz.split('/')[0] && Math.abs(stdOffset(c[3], YEAR) - stdOffset(tz, YEAR)) < 0.01)
+    || CITIES.find(c => c[0] === 'London');
+}
+
+function fill(vals) {
+  document.querySelectorAll('[data-v]').forEach(n => { if (n.dataset.v in vals) n.textContent = vals[n.dataset.v]; });
+}
+
+function gapOf(name) {
+  const w = winter(CITIES.find(c => c[0] === name));
+  return w.iRise - w.iSet;
+}
+
+function update() {
+  const [name, lat, lon, tz] = CITY;
+  W = winter(CITY);
+  const { rows, iSet, iRise, iSol, off } = W;
+  const sol = rows[iSol], set = rows[iSet], rise = rows[iRise];
+  const noonRate = (rows[iSol + 1].noon - rows[iSol].noon) * 3600;
+  const todayRow = sunTimes(TODAY - stdOffset(tz, YEAR) * 36e5, lat, lon);
+  const tomorrowRow = sunTimes(TODAY + 864e5 - stdOffset(tz, YEAR) * 36e5, lat, lon);
+  const eotToday = sunAt(dnum(TODAY)).eot;
+  const step = (tomorrowRow.noon - todayRow.noon) * 3600;
+  const zoneMin = Math.round(-(lon / 15 - stdOffset(tz, YEAR)) * 60);
+  fill({
+    city: name,
+    solYear: String(new Date(sol.ms).getUTCFullYear()),
+    solDay: fmtWD.format(sol.ms), solMonth: fmtM.format(sol.ms),
+    setDay: fmtD.format(set.ms), setTime: hTime(set.set), setGap: days(iSol - iSet),
+    riseDay: fmtD.format(rise.ms), riseGap: days(iRise - iSol),
+    noonRate: secs(noonRate),
+    year: String(YEAR),
+    zoneNote: Math.abs(zoneMin) < 2 ? `${name} sits almost exactly where its time zone is centred, so the sun's noon stays close to twelve.`
+      : `Most of the gap from twelve is just where ${name} sits in its time zone, which puts the sun about ${plural(Math.abs(zoneMin), 'minute')} ${zoneMin > 0 ? 'behind' : 'ahead of'} the clock on average.`,
+    todayDay: fmtWD.format(TODAY),
+    todayEot: Math.abs(eotToday) < 0.25 ? 'almost exactly level with' : `${mins(eotToday)} ${eotToday > 0 ? 'ahead of' : 'behind'}`,
+    todayNoon: hTime(todayRow.noon + zoneOffset(tz, TODAY + 12 * 36e5)) + (zoneOffset(tz, TODAY + 12 * 36e5) !== stdOffset(tz, YEAR) ? ' (summer time)' : ''),
+    todayStep: Math.abs(step) < 1 ? 'at almost the same moment' : `${secs(step)} ${step > 0 ? 'later' : 'earlier'}`,
+    window: TODAY <= set.ms
+      ? `On ${fmtD.format(set.ms)}, if it's clear, the sun will go down at ${hTime(set.set)}. The next evening it will go down a few seconds later, and the one after that later still, while the days are still getting shorter. It's the first good news of winter, and it comes early.`
+      : `On ${fmtD.format(set.ms)} the sun went down at ${hTime(set.set)}, the earliest it will all winter. Every evening since, it has gone down a few seconds later, even while the days were still getting shorter. It's the first good news of winter, and it came early.`,
+    laGap: days(gapOf('Los Angeles')), sydGap: days(gapOf('Sydney')),
+  });
+  drawHero(); drawDays(); drawNoon(); drawEot();
+}
+
+// ================= the hero: the sun once a week for a year =================
+function drawHero() {
+  const cv = document.getElementById('hero'), g = cv.getContext('2d');
+  const Wd = cv.width, Ht = cv.height;
+  const [name, lat, lon, tz] = CITY;
+  const off = stdOffset(tz, YEAR);
+  const clock = Math.abs(lat) >= 30 ? 12 : 9;
+  const start = Date.UTC(YEAR, 0, 1);
+  // a sun for every week of the year, and today's
+  const suns = [];
+  for (let i = 0; i < 53; i++) {
+    const ms = start + i * 7 * 864e5;
+    if (new Date(ms).getUTCFullYear() !== YEAR) break;
+    suns.push({ ms, ...altAz(ms + (clock - off) * 36e5, lat, lon) });
+  }
+  const today = { ms: TODAY, ...altAz(TODAY + (clock - off) * 36e5, lat, lon) };
+  // point the camera at the middle of the eight, then project stereographically
+  const vec = (alt, az) => [Math.cos(alt) * Math.sin(az), Math.cos(alt) * Math.cos(az), Math.sin(alt)];
+  let c = [0, 0, 0];
+  const altMin = Math.min(...suns.map(s => s.alt)), altMax = Math.max(...suns.map(s => s.alt));
+  const azMid = Math.atan2(suns.reduce((a, s) => a + Math.sin(s.az), 0), suns.reduce((a, s) => a + Math.cos(s.az), 0));
+  c = vec((altMin + altMax) / 2 * 0.62, azMid);
+  const nrm = v => { const l = Math.hypot(...v); return v.map(x => x / l); };
+  const cross = (a, b) => [a[1] * b[2] - a[2] * b[1], a[2] * b[0] - a[0] * b[2], a[0] * b[1] - a[1] * b[0]];
+  const dot = (a, b) => a[0] * b[0] + a[1] * b[1] + a[2] * b[2];
+  const u = nrm(cross(c, [0, 0, 1])), v = cross(u, c);
+  const proj = (alt, az) => { const x = vec(alt, az), k = 2 / (1 + dot(x, c)); return [k * dot(x, u), k * dot(x, v)]; };
+  const pts = suns.map(s => proj(s.alt, s.az));
+  const hz = []; for (let a = -100; a <= 100; a += 2) hz.push(proj(0, azMid + a * R));
+  const ys = pts.map(p => p[1]).concat([proj(0, azMid)[1]]);
+  const yLo = Math.min(...ys), yHi = Math.max(...ys);
+  const scale = Ht * 0.80 / (yHi - yLo);
+  const cx = Wd / 2 - scale * (Math.min(...pts.map(p => p[0])) + Math.max(...pts.map(p => p[0]))) / 2;
+  const cy = Ht * 0.10 + scale * yHi;
+  const P = p => [cx + scale * p[0], cy - scale * p[1]];
+
+  // sky
+  const sky = g.createLinearGradient(0, 0, 0, Ht);
+  sky.addColorStop(0, '#13213f'); sky.addColorStop(0.45, '#2f5687'); sky.addColorStop(0.85, '#9cb7cf'); sky.addColorStop(1, '#e6d3b0');
+  g.fillStyle = sky; g.fillRect(0, 0, Wd, Ht);
+  // a faint path through the year, then the suns
+  g.save();
+  g.strokeStyle = 'rgba(255,236,190,0.16)'; g.lineWidth = 3; g.setLineDash([2, 10]); g.lineCap = 'round';
+  g.beginPath();
+  for (let i = 0; i <= 365; i += 2) { const s = altAz(start + i * 864e5 + (clock - off) * 36e5, lat, lon), p = P(proj(s.alt, s.az)); i ? g.lineTo(...p) : g.moveTo(...p); }
+  g.stroke(); g.restore();
+  const sunR = Math.max(9, scale * 0.0093 * 1.0);   // the real sun is about half a degree across; these are drawn a little bigger
+  for (const s of suns) {
+    const [x, y] = P(proj(s.alt, s.az));
+    const glow = g.createRadialGradient(x, y, 0, x, y, sunR * 3.2);
+    glow.addColorStop(0, 'rgba(255,240,200,0.55)'); glow.addColorStop(1, 'rgba(255,240,200,0)');
+    g.fillStyle = glow; g.beginPath(); g.arc(x, y, sunR * 3.2, 0, 7); g.fill();
+    g.fillStyle = '#fff6df'; g.beginPath(); g.arc(x, y, sunR, 0, 7); g.fill();
+  }
+  {
+    const [x, y] = P(proj(today.alt, today.az));
+    const glow = g.createRadialGradient(x, y, 0, x, y, sunR * 6);
+    glow.addColorStop(0, 'rgba(255,214,120,0.9)'); glow.addColorStop(1, 'rgba(255,214,120,0)');
+    g.fillStyle = glow; g.beginPath(); g.arc(x, y, sunR * 6, 0, 7); g.fill();
+    g.fillStyle = '#ffd67a'; g.beginPath(); g.arc(x, y, sunR * 1.5, 0, 7); g.fill();
+    g.strokeStyle = 'rgba(255,230,170,0.9)'; g.lineWidth = 2.5; g.beginPath(); g.arc(x, y, sunR * 2.6, 0, 7); g.stroke();
+    g.font = `italic ${Math.round(Ht * 0.03)}px "EB Garamond", P052, Georgia, serif`; g.fillStyle = '#fff1d0';
+    const right = x < Wd * 0.62;
+    g.textAlign = right ? 'left' : 'right'; g.textBaseline = 'middle';
+    g.fillText('today', x + (right ? 1 : -1) * sunR * 3.6, y);
+  }
+  // the two solstice ends of the eight
+  g.font = `italic ${Math.round(Ht * 0.026)}px "EB Garamond", P052, Georgia, serif`; g.fillStyle = 'rgba(255,241,208,0.75)';
+  g.textAlign = 'center'; g.textBaseline = 'alphabetic';
+  const top = suns.reduce((a, s) => s.alt > a.alt ? s : a), bot = suns.reduce((a, s) => s.alt < a.alt ? s : a);
+  { const [x, y] = P(proj(top.alt, top.az)); g.fillText(fmtM.format(top.ms), x, y - sunR * 3.2); }
+  { const [x, y] = P(proj(bot.alt, bot.az)); g.textBaseline = 'top'; g.fillText(fmtM.format(bot.ms), x, y + sunR * 3.2); }
+
+  // rooftops along the horizon
+  const hp = hz.map(P);
+  const horizonY = x => { for (let i = 1; i < hp.length; i++) if ((hp[i - 1][0] - x) * (hp[i][0] - x) <= 0) { const t = (x - hp[i - 1][0]) / ((hp[i][0] - hp[i - 1][0]) || 1); return hp[i - 1][1] + t * (hp[i][1] - hp[i - 1][1]); } return hp[hp.length - 1][1]; };
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+  g.fillStyle = '#0f1626';
+  g.beginPath(); g.moveTo(0, Ht);
+  let x = -20;
+  const u0 = Ht * 0.01;
+  while (x < Wd + 40) {
+    const w = (60 + rnd() * 120) * Wd / 2000, base = horizonY(x + w / 2) + u0 * 2;
+    const kind = rnd();
+    if (kind < 0.16) {           // a tree
+      g.lineTo(x, base);
+      const r = w * 0.55;
+      for (let a = Math.PI; a <= 2 * Math.PI + 0.01; a += 0.25) g.lineTo(x + w / 2 + Math.cos(a) * r * (0.9 + rnd() * 0.2), base - r * 0.8 + Math.sin(a) * r * (1.05 + rnd() * 0.2));
+      g.lineTo(x + w, base);
+    } else {                     // a house, sometimes with a chimney
+      const wall = u0 * (2.2 + rnd() * 2.2), roof = u0 * (1.6 + rnd() * 1.8);
+      g.lineTo(x, base - wall); g.lineTo(x + w / 2, base - wall - roof);
+      if (rnd() < 0.55) { const cxp = x + w * (0.62 + rnd() * 0.15), cy0 = base - wall - roof * (1 - (cxp - x - w / 2) / (w / 2));
+        g.lineTo(cxp, cy0); g.lineTo(cxp, cy0 - u0 * 1.4); g.lineTo(cxp + w * 0.07, cy0 - u0 * 1.4); g.lineTo(cxp + w * 0.07, cy0 - u0 * 0.6 + 0); }
+      g.lineTo(x + w, base - wall);
+    }
+    x += w;
+  }
+  g.lineTo(Wd, Ht); g.closePath(); g.fill();
+  g.fillRect(0, Math.min(Ht, horizonY(Wd / 2) + u0 * 2), Wd, Ht);
+
+  document.getElementById('heroCap').textContent =
+    `The sun from ${name} at ${hTime(clock)} on a clock that ignores summer time, once a week through ${YEAR}, drawn from the same model as everything else on this page. The bright one is today.`;
+}
+
+// ================= figure 1: the shape of the days =================
+function drawDays() {
+  const svg = document.getElementById('days'); svg.replaceChildren(); svg.setAttribute('viewBox', `0 0 ${VW} 436`);
+  const { rows, iSet, iRise, iSol } = W;
+  const half = Math.max(30, Math.max(iSol - iSet, iRise - iSol) + 14);
+  const view = rows.slice(iSol - half, iSol + half + 1);
+  const L = 58, Rr = VW - 10, n = view.length, cw = (Rr - L) / n;
+  const strips = [
+    { key: 'set', top: 30, label: 'sunset' }, { key: 'noon', top: 168, label: 'noon by the sun' }, { key: 'rise', top: 306, label: 'sunrise' },
+  ];
+  const sh = 92;   // strip height in px
+  const span = Math.max(...strips.map(s => { const v = view.map(r => r[s.key]); return Math.max(...v) - Math.min(...v); })) * 1.18;
+  for (const s of strips) {
+    const v = view.map(r => r[s.key]), mid = (Math.max(...v) + Math.min(...v)) / 2;
+    s.lo = mid - span / 2; s.hi = mid + span / 2;
+    s.y = h => s.top + sh - (h - s.lo) / span * sh;
+  }
+  const g = el('g', {}, svg);
+  // columns
+  view.forEach((r, i) => {
+    const x = L + i * cw;
+    for (const s of strips) {
+      const y = s.y(r[s.key]);
+      if (s.key === 'set') {
+        el('rect', { x: x + 0.5, y: s.top, width: cw - 1, height: y - s.top, fill: 'var(--night)' }, g);
+        el('rect', { x: x + 0.5, y, width: cw - 1, height: s.top + sh - y, fill: 'var(--day)' }, g);
+      } else if (s.key === 'rise') {
+        el('rect', { x: x + 0.5, y: s.top, width: cw - 1, height: y - s.top, fill: 'var(--day)' }, g);
+        el('rect', { x: x + 0.5, y, width: cw - 1, height: s.top + sh - y, fill: 'var(--night)' }, g);
+      } else {
+        el('rect', { x: x + 0.5, y: s.top, width: cw - 1, height: sh, fill: 'var(--day)' }, g);
+        el('rect', { x: x + 0.5, y: y - 1.2, width: cw - 1, height: 2.4, fill: 'var(--noon)' }, g);
+      }
+    }
+  });
+  // cuts between strips: a zigzag edge, to say the middle of the day is missing
+  for (const yc of [30 + sh, 168 + sh]) {
+    for (const [y0, sgn] of [[yc, 1], [yc + 46, -1]]) {
+      let d = `M${L} ${y0}`;
+      for (let x = L; x < Rr; x += 8) d += ` L${Math.min(Rr, x + 4)} ${y0 + sgn * 4} L${Math.min(Rr, x + 8)} ${y0}`;
+      el('path', { d: d + ` L${Rr} ${y0 + sgn * 5} L${L} ${y0 + sgn * 5}Z`, fill: 'var(--bg)' }, g);
+    }
+    txt(svg, (L + Rr) / 2, yc + 28, '⋮', 'tick', 'middle');
+  }
+  // y ticks: whole quarter hours inside each strip
+  for (const s of strips) {
+    const step = span > 0.9 ? 0.5 : span > 0.4 ? 0.25 : 1 / 12;
+    for (let h = Math.ceil(s.lo / step) * step; h <= s.hi; h += step) {
+      const y = s.y(h);
+      if (y < s.top + 6 || y > s.top + sh - 4) continue;
+      el('line', { x1: L - 4, x2: L, y1: y, y2: y, stroke: 'var(--faint)' }, svg);
+      txt(svg, L - 7, y + 4, hTime(h), 'tick', 'end');
+    }
+    txt(svg, Rr, s.top - 7, s.label, 'labm', 'end');
+  }
+  // solstice, earliest sunset, latest sunrise
+  const xi = i => L + (i - (iSol - half)) * cw + cw / 2;
+  el('line', { x1: xi(iSol), x2: xi(iSol), y1: 22, y2: 306 + sh + 22, stroke: 'var(--ink)', 'stroke-width': 1, 'stroke-dasharray': '2 3', opacity: 0.6 }, svg);
+  txt(svg, xi(iSol), 432, 'shortest day', 'lab', 'middle');
+  const mark = (i, key, s, label, above) => {
+    const x = xi(i), y = s.y(rows[i][key]);
+    el('circle', { cx: x, cy: y, r: 5, fill: 'var(--noon)', stroke: 'var(--bg)', 'stroke-width': 2 }, svg);
+    txt(svg, x + (above ? -8 : 8), above ? s.top - 7 : s.top + sh + 34, label, 'lab', above ? 'end' : 'start');
+    el('line', { x1: x, x2: x, y1: above ? s.top - 2 : y + 6, y2: above ? y - 6 : s.top + sh + 30, stroke: 'var(--noon)', 'stroke-width': 1 }, svg);
+  };
+  mark(iSet, 'set', strips[0], 'earliest sunset', true);
+  mark(iRise, 'rise', strips[2], 'latest sunrise', false);
+  // month starts along the bottom
+  view.forEach((r, i) => { const d = new Date(r.ms); if (d.getUTCDate() === 1) {
+    const x = L + i * cw;
+    el('line', { x1: x, x2: x, y1: 306 + sh, y2: 306 + sh + 5, stroke: 'var(--faint)' }, svg);
+    txt(svg, x + 3, 306 + sh + 16, fmtMs.format(r.ms), 'tick');
+  } });
+
+  // hover
+  const r1 = document.getElementById('r1');
+  const hl = el('rect', { x: 0, y: 22, width: cw, height: 306 + sh - 18, fill: 'none', stroke: 'var(--ink)', 'stroke-width': 1.2, visibility: 'hidden' }, svg);
+  const show = i => {
+    const r = view[i];
+    hl.setAttribute('x', L + i * cw); hl.setAttribute('visibility', 'visible');
+    r1.innerHTML = `${fmtSD.format(r.ms)} <span>·</span> sunrise ${hTime(r.rise)} <span>·</span> noon ${hTime(r.noon)} <span>·</span> sunset ${hTime(r.set)} <span>·</span> ${hmLen(r.set - r.rise)} of daylight`;
+  };
+  const hit = el('rect', { x: L, y: 0, width: Rr - L, height: 436, fill: 'transparent' }, svg);
+  const at = ev => { const b = svg.getBoundingClientRect(); return Math.max(0, Math.min(n - 1, Math.floor(((ev.clientX - b.left) / b.width * VW - L) / cw))); };
+  hit.addEventListener('pointermove', ev => show(at(ev)));
+  hit.addEventListener('pointerdown', ev => show(at(ev)));
+  hit.addEventListener('pointerleave', () => { hl.setAttribute('visibility', 'hidden'); show(iSet - (iSol - half)); hl.setAttribute('visibility', 'hidden'); });
+  show(iSet - (iSol - half)); hl.setAttribute('visibility', 'hidden');
+}
+
+// ================= a small line-chart frame for the year =================
+function yearFrame(svg, H, yLo, yHi, yFmt, yStep) {
+  const L = 58, Rr = VW - 10, T = 14, B = H - 30;
+  svg.setAttribute('viewBox', `0 0 ${VW} ${svg.viewBox.baseVal.height}`);
+  const start = Date.UTC(YEAR, 0, 1), end = Date.UTC(YEAR + 1, 0, 1);
+  const X = ms => L + (ms - start) / (end - start) * (Rr - L);
+  const Y = v => B - (v - yLo) / (yHi - yLo) * (B - T);
+  for (let v = Math.ceil(yLo / yStep) * yStep; v <= yHi + 1e-9; v += yStep) {
+    el('line', { x1: L, x2: Rr, y1: Y(v), y2: Y(v), stroke: 'var(--grid)', 'stroke-width': 1 }, svg);
+    txt(svg, L - 7, Y(v) + 4, yFmt(v), 'tick', 'end');
+  }
+  for (let m = 0; m < 12; m++) {
+    const ms = Date.UTC(YEAR, m, 1);
+    el('line', { x1: X(ms), x2: X(ms), y1: B, y2: B + 5, stroke: 'var(--faint)' }, svg);
+    txt(svg, X(ms) + 3, B + 18, fmtMs.format(ms), 'tick');
+  }
+  return { L, Rr, T, B, X, Y, start, end };
+}
+function hoverYear(svg, f, H, onDay) {
+  const hl = el('line', { y1: f.T, y2: f.B, stroke: 'var(--ink)', 'stroke-width': 1, opacity: 0.5, visibility: 'hidden' }, svg);
+  const hit = el('rect', { x: f.L, y: 0, width: f.Rr - f.L, height: H, fill: 'transparent' }, svg);
+  const at = ev => { const b = svg.getBoundingClientRect(); const x = (ev.clientX - b.left) / b.width * VW;
+    const ms = f.start + Math.round((x - f.L) / (f.Rr - f.L) * (f.end - f.start) / 864e5) * 864e5;
+    return Math.max(f.start, Math.min(f.end - 864e5, ms)); };
+  const go = ev => { const ms = at(ev); hl.setAttribute('x1', f.X(ms)); hl.setAttribute('x2', f.X(ms)); hl.setAttribute('visibility', 'visible'); onDay(ms); };
+  hit.addEventListener('pointermove', go); hit.addEventListener('pointerdown', go);
+  hit.addEventListener('pointerleave', () => { hl.setAttribute('visibility', 'hidden'); onDay(TODAY); });
+  onDay(TODAY);
+}
+
+// ================= figure 2: noon by the clock through the year =================
+function drawNoon() {
+  const svg = document.getElementById('noon'); svg.replaceChildren();
+  const [name, lat, lon, tz] = CITY, off = stdOffset(tz, YEAR);
+  const pts = [];
+  for (let ms = Date.UTC(YEAR, 0, 1); ms < Date.UTC(YEAR + 1, 0, 1); ms += 864e5) pts.push([ms, sunTimes(ms - off * 36e5, lat, lon).noon + off]);
+  const v = pts.map(p => p[1]).concat([12]);
+  const lo = Math.floor(Math.min(...v) * 12 - 0.5) / 12, hi = Math.ceil(Math.max(...v) * 12 + 0.5) / 12;
+  const f = yearFrame(svg, 300, lo, hi, hTime, (hi - lo) > 1.2 ? 1 / 4 : 1 / 12);
+  if (lo <= 12 && hi >= 12) {
+    el('line', { x1: f.L, x2: f.Rr, y1: f.Y(12), y2: f.Y(12), stroke: 'var(--faint)', 'stroke-width': 1.2, 'stroke-dasharray': '5 4' }, svg);
+  }
+  el('path', { d: 'M' + pts.map(p => `${f.X(p[0]).toFixed(1)} ${f.Y(p[1]).toFixed(1)}`).join(' L'), fill: 'none', stroke: 'var(--noon)', 'stroke-width': 2, 'stroke-linejoin': 'round' }, svg);
+  const tRow = pts.find(p => p[0] === TODAY);
+  const dotG = el('g', {}, svg);
+  if (tRow) {
+    el('circle', { cx: f.X(TODAY), cy: f.Y(tRow[1]), r: 5, fill: 'var(--noon)', stroke: 'var(--bg)', 'stroke-width': 2 }, dotG);
+    txt(dotG, f.X(TODAY) - 9, f.Y(tRow[1]) + 4, 'today', 'lab', 'end');
+  }
+  const r2 = document.getElementById('r2');
+  hoverYear(svg, f, 300, ms => {
+    const p = pts.find(p => p[0] === ms) || pts[0];
+    r2.innerHTML = `${fmtSD.format(ms)} <span>·</span> the sun is highest at ${hTime(p[1])}`;
+  });
+}
+
+// ================= figure 5: the equation of time and its two parts =================
+function drawEot() {
+  const svg = document.getElementById('eot'); svg.replaceChildren();
+  const rows = [];
+  for (let ms = Date.UTC(YEAR, 0, 1); ms < Date.UTC(YEAR + 1, 0, 1); ms += 864e5) {
+    const s = sunAt(dnum(ms));
+    rows.push({ ms, sum: s.eot, oval: s.oval, tilt: s.tilt });
+  }
+  const f = yearFrame(svg, 340, -17, 17, v => (v > 0 ? '+' : v < 0 ? '−' : '') + Math.abs(v) + ' min', 5);
+  el('line', { x1: f.L, x2: f.Rr, y1: f.Y(0), y2: f.Y(0), stroke: 'var(--faint)', 'stroke-width': 1.2 }, svg);
+  txt(svg, f.L + 6, f.Y(16.2), 'sundial ahead', 'labm');
+  txt(svg, f.L + 6, f.Y(-16.6), 'sundial behind', 'labm');
+  const line = (key, color, w, dash) => el('path', { d: 'M' + rows.map(r => `${f.X(r.ms).toFixed(1)} ${f.Y(r[key]).toFixed(1)}`).join(' L'),
+    fill: 'none', stroke: color, 'stroke-width': w, 'stroke-dasharray': dash || 'none', 'stroke-linejoin': 'round' }, svg);
+  line('oval', 'var(--oval)', 2, '6 4'); line('tilt', 'var(--tilt)', 2, '1.5 4'); line('sum', 'var(--sum)', 2.4);
+  // direct labels
+  const lab = (ms, key, s, color, dy) => { const r = rows.find(r => r.ms >= ms); txt(svg, f.X(r.ms), f.Y(r[key]) + dy, s, 'lab', 'middle', { fill: color, style: `fill:${color}` }); };
+  lab(Date.UTC(YEAR, 3, 3), 'oval', 'the oval', 'var(--oval)', -12);
+  lab(Date.UTC(YEAR, 4, 5), 'tilt', 'the tilt', 'var(--tilt)', -12);
+  lab(Date.UTC(YEAR, 10, 3), 'sum', 'together', 'var(--ink)', -12);
+  const tr = rows.find(r => r.ms === TODAY);
+  if (tr) el('circle', { cx: f.X(TODAY), cy: f.Y(tr.sum), r: 5, fill: 'var(--sum)', stroke: 'var(--bg)', 'stroke-width': 2 }, svg);
+  // legend, so identity never rests on colour alone
+  const lg = el('g', { transform: `translate(${f.L + 6}, 354)` }, svg);
+  [['together', 'var(--sum)', 'none'], ['the oval', 'var(--oval)', '6 4'], ['the tilt', 'var(--tilt)', '1.5 4']].forEach(([s, c, d], i) => {
+    const x = i * (VW < 600 ? 108 : 130);
+    el('line', { x1: x, x2: x + 26, y1: 0, y2: 0, stroke: c, 'stroke-width': 2.2, 'stroke-dasharray': d }, lg);
+    txt(lg, x + 32, 4.5, s, 'tick');
+  });
+    const r5 = document.getElementById('r5');
+  const sg = v => `${v >= 0 ? '+' : '−'}${Math.abs(v).toFixed(1)}`;
+  hoverYear(svg, f, 340, ms => {
+    const r = rows.find(r => r.ms === ms) || rows[0];
+    r5.innerHTML = `${fmtSD.format(ms)} <span>·</span> together ${sg(r.sum)} min <span>·</span> the oval ${sg(r.oval)} <span>·</span> the tilt ${sg(r.tilt)}`;
+  });
+}
+
+// ================= figure 3: equal areas =================
+function drawOrbit() {
+  const svg = document.getElementById('orbit');
+  const e = 0.5, a = 205, b = a * Math.sqrt(1 - e * e), cx = 300, cy = 160, n = 16;
+  const fx = cx + a * e;   // the sun at a focus
+  const pos = M => { let E = M; for (let i = 0; i < 30; i++) E -= (E - e * Math.sin(E) - M) / (1 - e * Math.cos(E)); return [cx + a * Math.cos(E), cy - b * Math.sin(E)]; };
+  const P = []; for (let i = 0; i < n; i++) P.push(pos(i / n * 2 * Math.PI));
+  // wedges, alternately shaded, each drawn along the true curve
+  for (let i = 0; i < n; i++) {
+    let d = `M${fx} ${cy}`;
+    for (let k = 0; k <= 12; k++) { const p = pos((i + k / 12) / n * 2 * Math.PI); d += ` L${p[0].toFixed(1)} ${p[1].toFixed(1)}`; }
+    el('path', { d: d + 'Z', fill: i % 2 ? 'var(--day)' : 'var(--day2)', stroke: 'var(--bg)', 'stroke-width': 1.5, opacity: 0.9 }, svg);
+  }
+  el('ellipse', { cx, cy, rx: a, ry: b, fill: 'none', stroke: 'var(--ink)', 'stroke-width': 1.2, opacity: 0.6 }, svg);
+  for (const p of P) el('circle', { cx: p[0], cy: p[1], r: 4.5, fill: 'var(--tilt)', stroke: 'var(--bg)', 'stroke-width': 1.5 }, svg);
+  const glow = el('circle', { cx: fx, cy, r: 13, fill: 'var(--noon)' }, svg);
+  txt(svg, fx, cy + 30, 'sun', 'labm', 'middle');
+  txt(svg, cx + a - 6, cy - 12, 'closest, fastest', 'lab', 'end');
+  txt(svg, cx - a + 6, cy - 12, 'farthest, slowest', 'lab', 'start');
+  // the same slices on a circle, for comparison, in the corner
+}
+
+// ================= figure 4: the tilt =================
+function drawTilt() {
+  const svg = document.getElementById('tilt');
+  const L = 30, Rr = 630, X = ra => L + ra / 360 * (Rr - L);
+  const mapT = 26, mapH = 150, Y = dec => mapT + mapH / 2 - dec / 30 * (mapH / 2);
+  const eps = EARTH.tilt * R;
+  // grid: equator, and lines of right ascension every hour
+  for (let h = 0; h <= 24; h += 2) el('line', { x1: X(h * 15), x2: X(h * 15), y1: mapT, y2: mapT + mapH, stroke: 'var(--grid)' }, svg);
+  el('line', { x1: L, x2: Rr, y1: Y(0), y2: Y(0), stroke: 'var(--faint)', 'stroke-width': 1.2 }, svg);
+  txt(svg, Rr, Y(0) - 6, 'equator', 'labm', 'end');
+  let d = '';
+  for (let l = 0; l <= 360; l += 2) { const ra = (Math.atan2(Math.cos(eps) * Math.sin(l * R), Math.cos(l * R)) / R + 360) % 360 || (l ? 360 : 0); d += (l ? ' L' : 'M') + `${X(ra).toFixed(1)} ${Y(Math.asin(Math.sin(eps) * Math.sin(l * R)) / R).toFixed(1)}`; }
+  el('path', { d, fill: 'none', stroke: 'var(--noon)', 'stroke-width': 1.6 }, svg);
+  const N = 52, step = 360 / N, ras = [];
+  for (let i = 0; i <= N; i++) {
+    const l = i * step * R;
+    let ra = Math.atan2(Math.cos(eps) * Math.sin(l), Math.cos(l)) / R; if (ra < 0) ra += 360; if (i === N) ra = 360;
+    ras.push(ra);
+    if (i < N) el('circle', { cx: X(ra), cy: Y(Math.asin(Math.sin(eps) * Math.sin(l)) / R), r: 3.2, fill: 'var(--noon)' }, svg);
+  }
+  txt(svg, X(90), Y(23.44) - 10, 'the sun’s path', 'labm', 'middle');
+  const months = [[0, 'March'], [90, 'June'], [180, 'September'], [270, 'December']];
+  for (const [ra, m] of months) txt(svg, X(ra) + (ra ? 0 : 4), mapT + mapH + 16, m, 'tick', ra ? 'middle' : 'start');
+  // bars: each week's eastward progress, against the average
+  const bT = 228, bH = 120, base = bT + bH / 2, k = (bH / 2) / 0.8;   // px per degree of difference
+  el('line', { x1: L, x2: Rr, y1: base, y2: base, stroke: 'var(--faint)', 'stroke-width': 1.2 }, svg);
+  for (let i = 0; i < N; i++) {
+    const diff = ras[i + 1] - ras[i] - step, x0 = X(ras[i]) + 0.8, x1 = X(ras[i + 1]) - 0.8;
+    el('rect', { x: x0, width: Math.max(0.5, x1 - x0), y: diff > 0 ? base - diff * k : base, height: Math.abs(diff) * k, fill: diff > 0 ? 'var(--noon)' : 'var(--faint)', opacity: 0.9 }, svg);
+  }
+  txt(svg, L, bT - 4, 'further east than average: noon comes later', 'labm', 'start');
+  txt(svg, L, bT + bH + 16, 'less far east: noon comes sooner', 'labm', 'start');
+}
+
+// ================= figure 6: the playground =================
+const PRESETS = [
+  ['Earth', { tilt: 23.44, ecc: 0.0167, peri: 282.94 }],
+  ['round orbit', { tilt: 23.44, ecc: 0, peri: 282.94 }],
+  ['no tilt', { tilt: 0, ecc: 0.0167, peri: 282.94 }],
+  ['closest in July', { tilt: 23.44, ecc: 0.0167, peri: 102.94 }],
+  ['Mars', { tilt: 25.19, ecc: 0.0934, peri: 251 }],
+];
+let PG = { ...PRESETS[0][1] };
+const periToDays = peri => Math.round((peri - 270) * 365.25 / 360);
+const daysToPeri = dd => 270 + dd * 360 / 365.25;
+
+function analemma(p) {
+  // a year of the mean sun, sampled weekly, with this planet's numbers
+  const pts = [];
+  for (let i = 0; i < 365; i += 1) {
+    const M = 2 * Math.PI * i / 365, Mdeg = M / R;
+    let E = M; for (let k = 0; k < 30; k++) E -= (E - p.ecc * Math.sin(E) - M) / (1 - p.ecc * Math.cos(E));
+    const nu = 2 * Math.atan(Math.sqrt((1 + p.ecc) / (1 - p.ecc)) * Math.tan(E / 2));
+    const lam = nu + p.peri * R, eps = p.tilt * R;
+    const ra = Math.atan2(Math.cos(eps) * Math.sin(lam), Math.cos(lam));
+    pts.push({ eot: 4 * wrap(Mdeg + p.peri - ra / R), dec: Math.asin(Math.sin(eps) * Math.sin(lam)) / R });
+  }
+  return pts;
+}
+function drawAna() {
+  const svg = document.getElementById('ana'); svg.replaceChildren(); svg.setAttribute('viewBox', `0 0 ${VW} 450`);
+  const xl = 74, xr = VW - 10;
+  const pts = analemma(PG), ghost = analemma(EARTH);
+  const SX = 3 * 0.25;   // degrees per minute of time, stretched three times
+  const all = pts.concat(ghost);
+  const xMax = Math.max(4, ...all.map(q => Math.abs(q.eot * SX))), yMax = Math.max(4, ...all.map(q => Math.abs(q.dec)));
+  const cx = (xl + xr) / 2, cy = 215, s = Math.min(((xr - xl) / 2 - 12) / xMax, 190 / yMax);
+  const P = q => [cx + q.eot * SX * s, cy - q.dec * s];
+  el('line', { x1: xl, x2: xr, y1: cy, y2: cy, stroke: 'var(--grid)', 'stroke-width': 1.2 }, svg);
+  el('line', { x1: cx, x2: cx, y1: 14, y2: 422, stroke: 'var(--grid)', 'stroke-width': 1.2 }, svg);
+  const tick = [5, 10, 15, 20, 30, 45, 60, 90].find(t => t * SX * s > 52) || 120;
+  for (let t = -6; t <= 6; t++) { if (!t) continue; const x = cx + t * tick * SX * s; if (x < xl + 20 || x > xr - 20) continue;
+    el('line', { x1: x, x2: x, y1: 14, y2: 422, stroke: 'var(--grid)', 'stroke-dasharray': '2 4' }, svg); txt(svg, x, 442, `${t > 0 ? '+' : '−'}${Math.abs(t * tick)} min`, 'tick', 'middle'); }
+  txt(svg, cx, 442, '0', 'tick', 'middle');
+  const dt = [5, 10, 15, 20, 30].find(t => t * s > 40) || 45;
+  for (let t = -6; t <= 6; t++) { if (!t) continue; const y = cy - t * dt * s; if (y < 14 || y > 416) continue;
+    el('line', { x1: xl, x2: xr, y1: y, y2: y, stroke: 'var(--grid)', 'stroke-dasharray': '2 4' }, svg); txt(svg, 68, y + 4, `${Math.abs(t * dt)}° ${t > 0 ? 'N' : 'S'}`, 'tick', 'end'); }
+  txt(svg, xr, cy - 8, 'sundial ahead', 'labm', 'end');
+  txt(svg, xl, cy - 8, 'behind', 'labm', 'start');
+  const path = list => 'M' + list.map(q => P(q).map(v => v.toFixed(1)).join(' ')).join(' L') + 'Z';
+  el('path', { d: path(ghost), fill: 'none', stroke: 'var(--faint)', 'stroke-width': 1.2, 'stroke-dasharray': '3 3' }, svg);
+  el('path', { d: path(pts), fill: 'none', stroke: 'var(--noon)', 'stroke-width': 1.6, opacity: 0.7 }, svg);
+  for (let i = 0; i < 365; i += 7) { const [x, y] = P(pts[i]); el('circle', { cx: x, cy: y, r: 3.6, fill: 'var(--noon)', stroke: 'var(--bg)', 'stroke-width': 1 }, svg); }
+  // outputs
+  document.getElementById('oTilt').textContent = `${PG.tilt.toFixed(1)}°`;
+  document.getElementById('oEcc').textContent = PG.ecc === 0 ? 'a circle' : PG.ecc.toFixed(3);
+  const dd = periToDays(PG.peri);
+  document.getElementById('oPeri').textContent = fmtD.format(Date.UTC(2026, 11, 21) + dd * 864e5);
+  document.getElementById('sTilt').value = PG.tilt; document.getElementById('sEcc').value = PG.ecc; document.getElementById('sPeri').value = dd;
+  document.querySelectorAll('#presets button').forEach((b, i) => {
+    const q = PRESETS[i][1];
+    b.setAttribute('aria-pressed', Math.abs(q.tilt - PG.tilt) < 0.05 && Math.abs(q.ecc - PG.ecc) < 0.0006 && Math.abs(periToDays(q.peri) - dd) < 1 ? 'true' : 'false');
+  });
+}
+function setupAna() {
+  const box = document.getElementById('presets');
+  PRESETS.forEach(([name, p]) => { const b = document.createElement('button'); b.type = 'button'; b.textContent = name;
+    b.addEventListener('click', () => { PG = { ...p }; drawAna(); }); box.appendChild(b); });
+  document.getElementById('sTilt').addEventListener('input', e => { PG.tilt = +e.target.value; drawAna(); });
+  document.getElementById('sEcc').addEventListener('input', e => { PG.ecc = +e.target.value; drawAna(); });
+  document.getElementById('sPeri').addEventListener('input', e => { PG.peri = daysToPeri(+e.target.value); drawAna(); });
+  drawAna();
+}
+
+// ================= start =================
+const sel = document.getElementById('city');
+CITIES.forEach(c => { const o = document.createElement('option'); o.value = c[0]; o.textContent = c[0]; sel.appendChild(o); });
+VW = narrow() ? 420 : 640;
+matchMedia('(max-width: 520px)').addEventListener('change', () => { VW = narrow() ? 420 : 640; update(); drawAna(); });
+CITY = pickDefault(); sel.value = CITY[0];
+sel.addEventListener('change', () => { CITY = CITIES.find(c => c[0] === sel.value); try { localStorage.setItem('figure-of-eight-city', CITY[0]); } catch {} update(); });
+drawOrbit(); drawTilt(); setupAna(); update();
+if (document.fonts && document.fonts.ready) document.fonts.ready.then(() => { drawHero(); window.__ready = true; });
+setTimeout(() => { window.__ready = true; }, 1500);
+</script>
+</body>
+</html>

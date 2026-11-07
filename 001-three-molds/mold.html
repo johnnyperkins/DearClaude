@@ -1,0 +1,243 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Three Molds</title>
+<style>
+  html, body { margin: 0; height: 100%; background: #06060a; overflow: hidden; }
+  canvas { width: 100vw; height: 100vh; display: block; cursor: crosshair; }
+  #hint {
+    position: fixed; left: 16px; bottom: 14px; margin: 0;
+    font: 12px/1.6 ui-monospace, "SF Mono", Menlo, monospace;
+    color: #8a8aa0; transition: opacity 2s; pointer-events: none;
+    white-space: pre; text-shadow: 0 0 4px #000, 0 0 8px #000;
+  }
+  #hint.gone { opacity: 0; }
+  #name {
+    position: fixed; right: 16px; top: 12px; margin: 0;
+    font: 12px ui-monospace, Menlo, monospace; color: #55556a;
+  }
+</style>
+</head>
+<body>
+<canvas id="c"></canvas>
+<p id="name"></p>
+<pre id="hint">drag        feed the molds
+shift+drag  scare them off
+space       pause
+r           reseed
+n           new rules
+s           save a picture
+h           hide this</pre>
+<script>
+// Physarum-style simulation: each agent sniffs three points ahead of it,
+// turns toward the strongest smell of its own kind, moves, and leaves a trail.
+// Rival trails count as a bad smell, so the species carve out territory.
+
+const SPECIES = 3;
+const COLORS = [
+  [255, 168, 64],   // amber
+  [48, 214, 196],   // teal
+  [214, 72, 168],   // magenta
+];
+const cv = document.getElementById('c');
+const ctx = cv.getContext('2d');
+const hint = document.getElementById('hint');
+const nameEl = document.getElementById('name');
+
+let W, H, N, trails, total, tmp, img;
+let ax, ay, aa, as;
+let P = [];
+let paused = false;
+let ruleName = '';
+
+const rand = (a, b) => a + Math.random() * (b - a);
+const pick = arr => arr[(Math.random() * arr.length) | 0];
+
+function newRules() {
+  // A mood shared by all species, with per-species variation, keeps the
+  // three from being wildly mismatched while still differing.
+  const baseSA = rand(0.25, 1.1);
+  const baseSD = rand(6, 22);
+  P = [];
+  for (let s = 0; s < SPECIES; s++) {
+    P.push({
+      sa: baseSA * rand(0.7, 1.3),       // sensor angle
+      sd: baseSD * rand(0.7, 1.3),       // sensor distance
+      ta: rand(0.15, 0.6),               // turn angle
+      speed: rand(0.8, 1.8),
+      deposit: rand(2, 5),
+      repel: rand(0.4, 1.4),             // how much rivals' trails stink
+    });
+  }
+  const a = ['quiet', 'restless', 'tidal', 'braided', 'feral', 'patient', 'electric', 'shy', 'hungry', 'dreaming'];
+  const b = ['rivers', 'lace', 'borders', 'veins', 'weather', 'cities', 'roots', 'coral', 'traffic', 'lungs'];
+  ruleName = pick(a) + ' ' + pick(b);
+  nameEl.textContent = ruleName;
+}
+
+function seed() {
+  for (let s = 0; s < SPECIES; s++) trails[s].fill(0);
+  const cx = W / 2, cy = H / 2, R = Math.min(W, H) * 0.42;
+  const mode = (Math.random() * 3) | 0;
+  for (let i = 0; i < N; i++) {
+    const s = i % SPECIES;
+    as[i] = s;
+    if (mode === 0) {
+      // ring, everyone facing the middle
+      const t = Math.random() * Math.PI * 2, r = R * Math.sqrt(Math.random());
+      ax[i] = cx + Math.cos(t) * r; ay[i] = cy + Math.sin(t) * r;
+      aa[i] = t + Math.PI;
+    } else if (mode === 1) {
+      // three separate colonies
+      const t = s / SPECIES * Math.PI * 2 - Math.PI / 2;
+      const ox = cx + Math.cos(t) * R * 0.55, oy = cy + Math.sin(t) * R * 0.55;
+      const u = Math.random() * Math.PI * 2, r = R * 0.3 * Math.sqrt(Math.random());
+      ax[i] = ox + Math.cos(u) * r; ay[i] = oy + Math.sin(u) * r;
+      aa[i] = Math.random() * Math.PI * 2;
+    } else {
+      // scattered everywhere
+      ax[i] = Math.random() * W; ay[i] = Math.random() * H;
+      aa[i] = Math.random() * Math.PI * 2;
+    }
+  }
+}
+
+function setup() {
+  const scale = innerWidth * innerHeight > 1.2e6 ? 2 : 1.5;
+  W = Math.max(64, Math.floor(innerWidth / scale));
+  H = Math.max(64, Math.floor(innerHeight / scale));
+  cv.width = W; cv.height = H;
+  trails = Array.from({ length: SPECIES }, () => new Float32Array(W * H));
+  total = new Float32Array(W * H);
+  tmp = new Float32Array(W * H);
+  img = ctx.createImageData(W, H);
+  N = Math.min(150000, Math.floor(W * H * 0.28));
+  ax = new Float32Array(N); ay = new Float32Array(N);
+  aa = new Float32Array(N); as = new Uint8Array(N);
+  seed();
+}
+
+function idx(x, y) {
+  x = x % W; if (x < 0) x += W;
+  y = y % H; if (y < 0) y += H;
+  return (y | 0) * W + (x | 0);
+}
+
+function stepAgents() {
+  for (let i = 0; i < N; i++) {
+    const s = as[i], p = P[s], own = trails[s];
+    const x = ax[i], y = ay[i];
+    let a = aa[i];
+    const k = 1 + p.repel, rep = p.repel;
+    // smell = own - repel * rivals = own * (1 + repel) - repel * total
+    let j = idx(x + Math.cos(a) * p.sd, y + Math.sin(a) * p.sd);
+    const C = own[j] * k - total[j] * rep;
+    j = idx(x + Math.cos(a - p.sa) * p.sd, y + Math.sin(a - p.sa) * p.sd);
+    const L = own[j] * k - total[j] * rep;
+    j = idx(x + Math.cos(a + p.sa) * p.sd, y + Math.sin(a + p.sa) * p.sd);
+    const R = own[j] * k - total[j] * rep;
+
+    if (C > L && C > R) { /* straight on */ }
+    else if (C < L && C < R) a += (Math.random() < 0.5 ? -1 : 1) * p.ta;
+    else if (L > R) a -= p.ta;
+    else if (R > L) a += p.ta;
+    a += (Math.random() - 0.5) * 0.05;
+
+    let nx = x + Math.cos(a) * p.speed, ny = y + Math.sin(a) * p.speed;
+    if (nx < 0) nx += W; else if (nx >= W) nx -= W;
+    if (ny < 0) ny += H; else if (ny >= H) ny -= H;
+    ax[i] = nx; ay[i] = ny; aa[i] = a;
+    const d = (ny | 0) * W + (nx | 0);
+    if (own[d] < 60) own[d] += p.deposit;
+  }
+}
+
+// Separable 3-tap blur with wraparound, blended with the original and decayed.
+function diffuse() {
+  total.fill(0);
+  const decay = 0.9, mix = 0.35;
+  for (let s = 0; s < SPECIES; s++) {
+    const t = trails[s];
+    for (let y = 0; y < H; y++) {
+      const r = y * W;
+      for (let x = 0; x < W; x++) {
+        const l = x === 0 ? W - 1 : x - 1, rr = x === W - 1 ? 0 : x + 1;
+        tmp[r + x] = (t[r + l] + t[r + x] + t[r + rr]) / 3;
+      }
+    }
+    for (let y = 0; y < H; y++) {
+      const up = (y === 0 ? H - 1 : y - 1) * W, dn = (y === H - 1 ? 0 : y + 1) * W, r = y * W;
+      for (let x = 0; x < W; x++) {
+        const b = (tmp[up + x] + tmp[r + x] + tmp[dn + x]) / 3;
+        const v = (t[r + x] * (1 - mix) + b * mix) * decay;
+        t[r + x] = v;
+        total[r + x] += v;
+      }
+    }
+  }
+}
+
+function render() {
+  const d = img.data;
+  const t0 = trails[0], t1 = trails[1], t2 = trails[2];
+  const c0 = COLORS[0], c1 = COLORS[1], c2 = COLORS[2];
+  for (let i = 0, o = 0; i < W * H; i++, o += 4) {
+    const a = t0[i] * 0.06, b = t1[i] * 0.06, c = t2[i] * 0.06;
+    const r = a * c0[0] + b * c1[0] + c * c2[0];
+    const g = a * c0[1] + b * c1[1] + c * c2[1];
+    const bl = a * c0[2] + b * c1[2] + c * c2[2];
+    // soft tonemap so dense junctions glow instead of clipping flat
+    d[o]     = 6 + 249 * (1 - Math.exp(-r / 255));
+    d[o + 1] = 6 + 249 * (1 - Math.exp(-g / 255));
+    d[o + 2] = 10 + 245 * (1 - Math.exp(-bl / 255));
+    d[o + 3] = 255;
+  }
+  ctx.putImageData(img, 0, 0);
+}
+
+// Mouse: drop food (or poison) into every species' trail map.
+let mouse = null;
+function toSim(e) { return { x: e.clientX / innerWidth * W, y: e.clientY / innerHeight * H, scare: e.shiftKey }; }
+cv.addEventListener('pointerdown', e => { mouse = toSim(e); cv.setPointerCapture(e.pointerId); });
+cv.addEventListener('pointermove', e => { if (mouse) mouse = toSim(e); });
+cv.addEventListener('pointerup', () => { mouse = null; });
+
+function feed() {
+  if (!mouse) return;
+  const r = 10, amt = mouse.scare ? -40 : 25;
+  for (let dy = -r; dy <= r; dy++) for (let dx = -r; dx <= r; dx++) {
+    if (dx * dx + dy * dy > r * r) continue;
+    const j = idx(mouse.x + dx, mouse.y + dy);
+    for (let s = 0; s < SPECIES; s++) trails[s][j] = mouse.scare ? Math.max(-80, trails[s][j] + amt) : trails[s][j] + amt;
+  }
+}
+
+addEventListener('keydown', e => {
+  if (e.key === ' ') { paused = !paused; e.preventDefault(); }
+  else if (e.key === 'r') seed();
+  else if (e.key === 'n') { newRules(); seed(); }
+  else if (e.key === 'h') hint.classList.toggle('gone');
+  else if (e.key === 's') {
+    const a = document.createElement('a');
+    a.download = ruleName.replace(' ', '-') + '.png';
+    a.href = cv.toDataURL('image/png');
+    a.click();
+  }
+});
+
+let resizeTimer;
+addEventListener('resize', () => { clearTimeout(resizeTimer); resizeTimer = setTimeout(setup, 200); });
+
+setTimeout(() => hint.classList.add('gone'), 9000);
+
+newRules();
+setup();
+(function loop() {
+  if (!paused) { feed(); stepAgents(); diffuse(); render(); }
+  requestAnimationFrame(loop);
+})();
+</script>
+</body>
+</html>

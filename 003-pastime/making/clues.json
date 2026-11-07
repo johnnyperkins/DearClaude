@@ -1,0 +1,287 @@
+{
+ "across": [
+  {
+   "n": 1,
+   "ans": "YACHT",
+   "clue": "Pleasure boat: Cathy's all at sea",
+   "def": "Pleasure boat",
+   "plain": "Sailing boat for pleasure",
+   "why": "Anagram of CATHY (\"all at sea\" is the signal to rearrange)."
+  },
+  {
+   "n": 4,
+   "ans": "ADO",
+   "clue": "Bother, a party!",
+   "def": "Bother",
+   "plain": "Much ___ About Nothing",
+   "why": "A + DO (a party, as in \"a big do\")."
+  },
+  {
+   "n": 6,
+   "ans": "HAIKU",
+   "clue": "Shanghai kung fu hides\nseventeen syllables, set\nin three little lines",
+   "def": "seventeen syllables, set\nin three little lines",
+   "plain": "Short Japanese poem",
+   "why": "Hidden in shangHAI KUng fu. The clue is also one: five syllables, then seven, then five."
+  },
+  {
+   "n": 9,
+   "ans": "AMOUR",
+   "clue": "A lament, cut short, becomes a secret romance",
+   "def": "secret romance",
+   "plain": "Secret love affair",
+   "why": "A + MOUR(N): lament, with its last letter cut off."
+  },
+  {
+   "n": 10,
+   "ans": "AFTERWORD",
+   "clue": "Following promise, a closing note",
+   "def": "a closing note",
+   "plain": "Closing section of a book",
+   "why": "AFTER (following) + WORD (promise, as in \"you have my word\")."
+  },
+  {
+   "n": 11,
+   "ans": "SUBSUME",
+   "clue": "Include stand-in with total energy",
+   "def": "Include",
+   "plain": "Absorb into something larger",
+   "why": "SUB (stand-in) + SUM (total) + E (energy)."
+  },
+  {
+   "n": 12,
+   "ans": "ANYMORE",
+   "clue": "A New York extra, these days",
+   "def": "these days",
+   "plain": "Any longer",
+   "why": "A + NY (New York) + MORE (extra). As in \"nobody writes letters anymore\"."
+  },
+  {
+   "n": 13,
+   "ans": "CARRIER",
+   "clue": "Crier taking in Arkansas mail deliverer",
+   "def": "mail deliverer",
+   "plain": "Mail deliverer",
+   "why": "CRIER (as in town crier) taking in AR (Arkansas)."
+  },
+  {
+   "n": 14,
+   "ans": "KITTENS",
+   "clue": "Young cats tangling knit set",
+   "def": "Young cats",
+   "plain": "Young cats",
+   "why": "Anagram of KNIT SET (\"tangling\")."
+  },
+  {
+   "n": 16,
+   "ans": "LECTERN",
+   "clue": "Reading stand: French article about a seabird",
+   "def": "Reading stand",
+   "plain": "Stand to read from",
+   "why": "LE (\"the\" in French) + C (circa, about) + TERN (seabird)."
+  },
+  {
+   "n": 19,
+   "ans": "TRUDGED",
+   "clue": "Drudge, tired at first, collapsed and walked wearily",
+   "def": "walked wearily",
+   "plain": "Walked heavily and slowly",
+   "why": "Anagram of DRUDGE + T (the first letter of tired). \"Collapsed\" is the signal to rearrange."
+  },
+  {
+   "n": 21,
+   "ans": "BUOYANT",
+   "clue": "Upbeat worker on float",
+   "def": "Upbeat",
+   "plain": "Cheerful; able to float",
+   "why": "ANT (worker) placed after (on) BUOY (float)."
+  },
+  {
+   "n": 23,
+   "ans": "ALUMNUS",
+   "clue": "Former student mauls UN reform",
+   "def": "Former student",
+   "plain": "Former student",
+   "why": "Anagram of MAULS + UN (\"reform\")."
+  },
+  {
+   "n": 25,
+   "ans": "ATHLETICS",
+   "clue": "Track and field: lithe cats running riot",
+   "def": "Track and field",
+   "plain": "Track and field",
+   "why": "Anagram of LITHE CATS (\"running riot\")."
+  },
+  {
+   "n": 26,
+   "ans": "EGRET",
+   "clue": "Wading bird, one leg retracted in part",
+   "def": "Wading bird",
+   "plain": "White heron",
+   "why": "Hidden in one lEG RETracted (\"in part\"). Egrets often stand on one leg."
+  },
+  {
+   "n": 27,
+   "ans": "TOTEM",
+   "clue": "Carry Mike, making an emblem",
+   "def": "emblem",
+   "plain": "Emblem on a carved pole",
+   "why": "TOTE (carry) + M (Mike, in the radio alphabet)."
+  },
+  {
+   "n": 28,
+   "ans": "GEM",
+   "clue": "Jewel Meg brought back",
+   "def": "Jewel",
+   "plain": "Jewel",
+   "why": "MEG backwards (\"brought back\")."
+  },
+  {
+   "n": 29,
+   "ans": "TALON",
+   "clue": "Some metal on a bird's claw",
+   "def": "a bird's claw",
+   "plain": "Bird of prey's claw",
+   "why": "Hidden in meTAL ON (\"some\" of those words)."
+  }
+ ],
+ "down": [
+  {
+   "n": 1,
+   "ans": "YEARS",
+   "clue": "Unknown listeners for ages",
+   "def": "ages",
+   "plain": "Ages",
+   "why": "Y (an unknown, as in algebra) + EARS (listeners)."
+  },
+  {
+   "n": 2,
+   "ans": "CLOBBER",
+   "clue": "Batter cobbler, badly made",
+   "def": "Batter",
+   "plain": "Hit hard",
+   "why": "Anagram of COBBLER (\"badly made\"). Batter as in beat, not the pancake kind."
+  },
+  {
+   "n": 3,
+   "ans": "TURQUOISE",
+   "clue": "Blue-green, quite sour cocktail",
+   "def": "Blue-green",
+   "plain": "Greenish-blue gemstone",
+   "why": "Anagram of QUITE SOUR (\"cocktail\" is the signal to mix)."
+  },
+  {
+   "n": 4,
+   "ans": "AMATEUR",
+   "clue": "Sort a mature one who does it for love",
+   "def": "one who does it for love",
+   "plain": "Non-professional",
+   "why": "Anagram of A MATURE (\"sort\"). The word comes from the Latin for lover."
+  },
+  {
+   "n": 5,
+   "ans": "OUTBACK",
+   "clue": "Absent support for Bush",
+   "def": "Bush",
+   "plain": "Australia's remote interior",
+   "why": "OUT (absent) + BACK (support). The bush here is the Australian kind."
+  },
+  {
+   "n": 6,
+   "ans": "HARDY",
+   "clue": "Laurel's partner is tough",
+   "def": [
+    "Laurel's partner",
+    "tough"
+   ],
+   "plain": "Tough; able to endure",
+   "why": "Two definitions: Oliver Hardy, of Laurel and Hardy, and hardy, meaning tough."
+  },
+  {
+   "n": 7,
+   "ans": "ISOTOPE",
+   "clue": "Carbon-14, perhaps, from one drunk with zero exercise",
+   "def": "Carbon-14, perhaps",
+   "plain": "Form of an element with a different atomic mass",
+   "why": "I (one) + SOT (drunk) + O (zero) + PE (exercise)."
+  },
+  {
+   "n": 8,
+   "ans": "UNDRESSED",
+   "clue": "Naked, as some salads are served",
+   "def": [
+    "Naked",
+    "as some salads are served"
+   ],
+   "plain": "Not wearing clothes",
+   "why": "Two definitions: naked, and a salad served without dressing."
+  },
+  {
+   "n": 13,
+   "ans": "CELEBRANT",
+   "clue": "Star has a tirade as wedding officiant",
+   "def": "wedding officiant",
+   "plain": "Officiant at a ceremony",
+   "why": "CELEB (star) + RANT (tirade)."
+  },
+  {
+   "n": 15,
+   "ans": "TRUCULENT",
+   "clue": "Hostile cutlet? Run off!",
+   "def": "Hostile",
+   "plain": "Eager to argue or fight",
+   "why": "Anagram of CUTLET + RUN (\"off\")."
+  },
+  {
+   "n": 17,
+   "ans": "CROCHET",
+   "clue": "Chet grabs a giant bird for hooked needlework",
+   "def": "hooked needlework",
+   "plain": "Needlework done with a hook",
+   "why": "CHET around ROC (the giant bird of Sinbad's voyages)."
+  },
+  {
+   "n": 18,
+   "ans": "NOTHING",
+   "clue": "Wild night on? Zilch!",
+   "def": "Zilch",
+   "plain": "Not a thing",
+   "why": "Anagram of NIGHT ON (\"wild\")."
+  },
+  {
+   "n": 19,
+   "ans": "TRANSOM",
+   "clue": "Window over the door: time, the price of freedom",
+   "def": "Window over the door",
+   "plain": "Small window above a door",
+   "why": "T (time) + RANSOM (the price of freedom)."
+  },
+  {
+   "n": 20,
+   "ans": "GENERAL",
+   "clue": "Vague officer",
+   "def": [
+    "Vague",
+    "officer"
+   ],
+   "plain": "Army officer; not specific",
+   "why": "Two definitions: vague, as in a general idea, and an army general."
+  },
+  {
+   "n": 22,
+   "ans": "ABEAM",
+   "clue": "A ray at right angles to a ship",
+   "def": "at right angles to a ship",
+   "plain": "At right angles to a ship's length",
+   "why": "A + BEAM (ray)."
+  },
+  {
+   "n": 24,
+   "ans": "SATIN",
+   "clue": "Smooth fabric posed in fashion",
+   "def": "Smooth fabric",
+   "plain": "Smooth, glossy fabric",
+   "why": "SAT (posed) + IN (in fashion)."
+  }
+ ]
+}

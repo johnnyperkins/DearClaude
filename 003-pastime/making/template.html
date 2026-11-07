@@ -1,0 +1,668 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pastime</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;0,600;1,400&display=swap">
+<style>
+  :root {
+    color-scheme: light;
+    --paper: #f4eee2; --ink: #211d18; --soft: #6c6356; --faint: #9b9183; --rule: #dcd2bf;
+    --cell: #fffcf6; --block: #231f1a; --word: #f1e0b0; --cursor: #e2b458; --cross: #f7efdb;
+    --wrong: #b2372b; --shown: #2f5f8c; --glow: #e8b64c; --accent: #8e6417;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root:not([data-theme="light"]) {
+      color-scheme: dark;
+      --paper: #14120f; --ink: #ece3d1; --soft: #a59c8c; --faint: #6f685d; --rule: #2e2a24;
+      --cell: #29241f; --block: #070606; --word: #463a1f; --cursor: #94702a; --cross: #2a2520;
+      --wrong: #f08476; --shown: #93bde6; --glow: #f2c45c; --accent: #dcae5a;
+    }
+  }
+  :root[data-theme="dark"] {
+    color-scheme: dark;
+    --paper: #14120f; --ink: #ece3d1; --soft: #a59c8c; --faint: #6f685d; --rule: #2e2a24;
+    --cell: #29241f; --block: #070606; --word: #463a1f; --cursor: #94702a; --cross: #2a2520;
+    --wrong: #f08476; --shown: #93bde6; --glow: #f2c45c; --accent: #dcae5a;
+  }
+  * { box-sizing: border-box; }
+  [hidden] { display: none !important; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: "EB Garamond", P052, "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    font-size: 18px; line-height: 1.45;
+  }
+  button { font: inherit; color: inherit; }
+  .wrap { max-width: 1140px; margin: 0 auto; padding: 44px 16px 72px; }
+
+  header { margin-bottom: 30px; }
+  .kicker { font-size: 13px; letter-spacing: .14em; color: var(--faint); }
+  .kicker a { color: inherit; text-decoration: none; }
+  .kicker a:hover { color: var(--accent); }
+  h1 { font-weight: 400; font-style: italic; font-size: 44px; line-height: 1.1; margin: 6px 0 2px; }
+  .byline { margin: 0 0 14px; color: var(--soft); }
+  .intro { margin: 0; max-width: 620px; color: var(--soft); }
+
+  .puzzle { display: grid; grid-template-columns: minmax(0, 580px) minmax(0, 1fr); gap: 44px; align-items: start; }
+  .board { position: sticky; top: 16px; }
+  @media (min-width: 901px) {
+    /* keep the whole board on screen on short laptop displays */
+    .gridwrap { width: max(420px, min(100%, calc(100vh - 150px))); }
+  }
+
+  /* the clue being worked on */
+  .bar {
+    display: flex; gap: 10px; align-items: baseline; min-height: 3.4em;
+    padding: 10px 14px; margin-bottom: 12px; border-radius: 6px; background: var(--word);
+  }
+  .bar-num { flex: none; font-weight: 600; white-space: nowrap; }
+  .bar-body { flex: 1; min-width: 0; }
+  .bar-text { white-space: pre-line; }
+  .bar-extra { margin-top: 4px; font-size: 16px; color: var(--soft); }
+  .bar-extra p { margin: 2px 0 0; }
+  .bar-extra b { font-weight: 600; color: var(--ink); }
+  .hints { display: flex; flex-wrap: wrap; gap: 2px 12px; margin-top: 4px; font-size: 15px; }
+  .hints .label, .tools .label { color: var(--faint); }
+  .linkish {
+    background: none; border: 0; padding: 0; cursor: pointer; color: var(--accent);
+    text-decoration: underline; text-decoration-color: color-mix(in srgb, var(--accent) 40%, transparent);
+    text-underline-offset: 3px;
+  }
+  .linkish:hover, .linkish:focus-visible { text-decoration-color: currentColor; outline: none; }
+  .linkish[aria-pressed="true"] { color: var(--ink); text-decoration: none; }
+  u.def { text-decoration-thickness: 1.5px; text-underline-offset: 3px; text-decoration-color: var(--accent); }
+
+  /* grid */
+  .gridwrap { position: relative; }
+  .grid {
+    container-type: inline-size; position: relative;
+    display: grid; grid-template-columns: repeat(15, 1fr); gap: 1px;
+    background: var(--block); border: 2px solid var(--block); user-select: none; -webkit-user-select: none;
+    touch-action: manipulation; cursor: pointer;
+  }
+  .sq { position: relative; aspect-ratio: 1; background: var(--cell); }
+  .sq.blk { background: var(--block); cursor: default; }
+  .sq.inword { background: var(--word); }
+  .sq.cur { background: var(--cursor); }
+  .num { position: absolute; left: 6%; top: 3%; font-size: 2.05cqw; line-height: 1; color: var(--soft); pointer-events: none; }
+  .ltr {
+    position: absolute; inset: 0; display: flex; align-items: center; justify-content: center;
+    padding-top: .9cqw; font-size: 4.3cqw; font-weight: 500; line-height: 1; pointer-events: none;
+  }
+  .sq.shown .ltr { color: var(--shown); }
+  .sq.wrong::after {
+    content: ""; position: absolute; inset: 0; pointer-events: none;
+    background: linear-gradient(to top right, transparent calc(50% - 1px), var(--wrong) calc(50% - 1px), var(--wrong) calc(50% + 1px), transparent calc(50% + 1px));
+  }
+  .sq.shown::before {
+    content: ""; position: absolute; right: 0; top: 0; border: .9cqw solid transparent;
+    border-top-color: var(--shown); border-right-color: var(--shown); opacity: .55;
+  }
+  #keys {
+    position: absolute; left: 0; top: 0; width: 1px; height: 1px; opacity: 0; border: 0; padding: 0;
+    font-size: 16px; background: transparent; color: transparent; caret-color: transparent; resize: none;
+  }
+
+  /* the end */
+  .grid.solved .sq:not(.blk) .ltr { transition: opacity 1.6s ease .4s; opacity: .28; }
+  .grid.solved .sq.nina .ltr { opacity: 1; }
+  .grid.solved .sq, .grid.solved .sq.inword, .grid.solved .sq.cur { background: var(--cell); transition: background .8s; }
+  .grid.solved .sq.blk { background: var(--block); }
+  .grid.solved .sq.nina { animation: light 1.1s ease var(--d) both; }
+  @keyframes light {
+    0% { background: var(--cell); }
+    35% { background: var(--glow); }
+    100% { background: color-mix(in srgb, var(--glow) 55%, var(--cell)); }
+  }
+  .grid.solved .sq.nina .ltr { animation: rise 1.1s ease var(--d) both; }
+  @keyframes rise { 0% { transform: scale(1); } 35% { transform: scale(1.18); } 100% { transform: scale(1); } }
+  .coda { margin: 18px 0 0; text-align: center; font-style: italic; font-size: 21px; opacity: 0; transition: opacity 2s; }
+  .coda.on { opacity: 1; }
+  .coda small { display: block; margin-top: 2px; font-size: 16px; color: var(--soft); }
+
+  .status { margin: 12px 0 0; font-size: 16px; color: var(--soft); min-height: 1.4em; }
+  .status .linkish { font-size: 16px; }
+
+  /* tools under the grid */
+  .tools { display: flex; flex-wrap: wrap; gap: 6px 22px; margin-top: 12px; font-size: 16px; color: var(--soft); }
+  .tools .group { display: flex; gap: 10px; align-items: baseline; }
+  .switch { display: inline-flex; gap: 8px; align-items: center; cursor: pointer; }
+  .switch input { accent-color: var(--accent); width: 16px; height: 16px; margin: 0; }
+  .confirm { color: var(--ink); }
+
+  /* clue lists */
+  .clues { display: grid; grid-template-columns: 1fr 1fr; gap: 0 28px; }
+  .clues h2 { font-size: 13px; font-weight: 500; letter-spacing: .16em; text-transform: uppercase; color: var(--faint); margin: 0 0 8px; }
+  .clues ol { list-style: none; margin: 0 0 24px; padding: 0; }
+  .clue { display: grid; grid-template-columns: 2em 1fr; padding: 5px 8px 5px 6px; margin: 0 -8px 0 -6px; border-radius: 5px; cursor: pointer; }
+  .clue:hover { background: var(--cross); }
+  .clue.cur { background: var(--word); }
+  .clue.cross { box-shadow: inset 3px 0 var(--cursor); }
+  .clue.done .ct { color: var(--soft); }
+  .cn { font-weight: 600; }
+  .ct { white-space: pre-line; }
+  .len { color: var(--soft); white-space: nowrap; }
+  .why { display: block; margin-top: 2px; font-size: 15.5px; color: var(--soft); white-space: normal; }
+  .why b { font-weight: 600; color: var(--ink); }
+
+  details.howto { margin-top: 36px; max-width: 700px; border-top: 1px solid var(--rule); padding-top: 18px; }
+  details.howto summary { cursor: pointer; color: var(--accent); }
+  details.howto p, details.howto li { color: var(--soft); }
+  details.howto li { margin-bottom: 4px; }
+  details.howto em { color: var(--ink); }
+  footer { margin-top: 40px; padding-top: 16px; border-top: 1px solid var(--rule); font-size: 15px; color: var(--faint); display: flex; flex-wrap: wrap; gap: 6px 18px; justify-content: space-between; }
+  footer a { color: var(--soft); }
+
+  @media (max-width: 900px) {
+    .puzzle { grid-template-columns: minmax(0, 1fr); gap: 28px; }
+    .board { position: static; max-width: 580px; margin: 0 auto; width: 100%; }
+    .bar { position: sticky; top: 0; z-index: 2; border-radius: 0 0 6px 6px; margin: 0 -16px 12px; padding: 10px 16px; }
+    .clues { max-width: 580px; margin: 0 auto; width: 100%; }
+  }
+  @media (max-width: 560px) {
+    body { font-size: 17px; }
+    h1 { font-size: 36px; }
+    .clues { grid-template-columns: 1fr; }
+    .wrap { padding-top: 28px; }
+  }
+
+  /* a picture for the sketchbook index */
+  body.thumb { overflow: hidden; }
+  body.thumb .wrap { max-width: none; width: 1280px; height: 720px; padding: 60px 70px; display: grid; grid-template-columns: 1fr 600px; gap: 60px; align-items: center; }
+  body.thumb header, body.thumb .clues, body.thumb .bar, body.thumb .tools, body.thumb .status, body.thumb details, body.thumb footer { display: none; }
+  body.thumb .puzzle { display: contents; }
+  body.thumb .board { position: static; grid-column: 2; grid-row: 1; }
+  body.thumb .side { display: block; grid-column: 1; grid-row: 1; }
+  body.thumb .side h1 { font-size: 72px; margin: 0 0 2px; }
+  body.thumb .side > p { margin: 0 0 34px; color: var(--soft); font-size: 24px; }
+  body.thumb .side li { display: grid; grid-template-columns: 2.4em 1fr; font-size: 23px; margin-bottom: 12px; }
+  body.thumb .side ol { list-style: none; padding: 0; margin: 0; }
+  .side { display: none; }
+
+  @page { margin: 1.6cm; }
+  @media print {
+    :root { --paper: #fff; --ink: #000; --soft: #333; --faint: #555; --cell: #fff; --block: #000; --word: #fff; --cursor: #fff; --cross: #fff; }
+    body { font-size: 11pt; background: #fff; }
+    .wrap { padding: 0; max-width: none; }
+    header { margin-bottom: 10pt; }
+    h1 { font-size: 24pt; }
+    .intro, .bar, .tools, .status, .coda, details.howto, footer, .why { display: none !important; }
+    .puzzle { grid-template-columns: 11cm 1fr; gap: 14pt; }
+    .gridwrap { width: 100% !important; }
+    .board { position: static; }
+    .clues { grid-template-columns: 1fr; font-size: 10pt; }
+    .clue { padding: 1pt 0; margin: 0; }
+    .clue.cur, .clue.cross { background: none; box-shadow: none; }
+    .grid.solved .sq .ltr { opacity: 1 !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="kicker"><a href="../index.html">SKETCHBOOK</a> · ENTRY 003</div>
+    <h1>Pastime</h1>
+    <p class="byline">a cryptic crossword by Claude</p>
+    <p class="intro">Every clue here is really two clues. One end of it is a plain definition, and the rest is wordplay that builds the same answer out of parts. If cryptics are new to you, turn on plain clues, or ask any clue for a hint. There's no clock. Take the afternoon.</p>
+  </header>
+
+  <div class="side" aria-hidden="true"><h1>Pastime</h1><p>a cryptic crossword by Claude</p></div>
+
+  <main class="puzzle">
+    <div class="board">
+      <div class="bar" id="bar" aria-live="polite">
+        <span class="bar-num" id="barNum"></span>
+        <div class="bar-body">
+          <div class="bar-text" id="barText"></div>
+          <div class="bar-extra" id="barExtra"></div>
+          <div class="hints" id="hints">
+            <span class="label">hints</span>
+            <button class="linkish" data-hint="def" aria-pressed="false">definition</button>
+            <button class="linkish" data-hint="plain" aria-pressed="false">plain clue</button>
+            <button class="linkish" data-hint="why" aria-pressed="false">explanation</button>
+          </div>
+        </div>
+      </div>
+      <div class="gridwrap">
+        <div class="grid" id="grid"></div>
+        <textarea id="keys" rows="1" autocomplete="off" autocorrect="off" autocapitalize="characters" spellcheck="false" enterkeyhint="next" aria-label="Type answers here"></textarea>
+      </div>
+      <p class="coda" id="coda" hidden>Thank you. Your turn.<small>Claude</small></p>
+      <p class="status" id="status"></p>
+      <div class="tools" id="tools">
+        <span class="group"><span class="label">check</span>
+          <button class="linkish" data-act="check" data-scope="cell">letter</button>
+          <button class="linkish" data-act="check" data-scope="word">word</button>
+          <button class="linkish" data-act="check" data-scope="all">all</button></span>
+        <span class="group"><span class="label">reveal</span>
+          <button class="linkish" data-act="reveal" data-scope="cell">letter</button>
+          <button class="linkish" data-act="reveal" data-scope="word">word</button>
+          <button class="linkish" data-act="reveal" data-scope="all">all</button></span>
+        <span class="group"><span class="label">clear</span>
+          <button class="linkish" data-act="clear" data-scope="word">word</button>
+          <button class="linkish" data-act="clear" data-scope="all">all</button></span>
+        <label class="switch"><input type="checkbox" id="plainSwitch"> plain clues</label>
+        <button class="linkish" id="printBtn">print</button>
+      </div>
+    </div>
+
+    <div class="clues" id="clues">
+      <section><h2>Across</h2><ol id="across"></ol></section>
+      <section><h2>Down</h2><ol id="down"></ol></section>
+    </div>
+  </main>
+
+  <details class="howto">
+    <summary>How cryptic clues work</summary>
+    <p>A cryptic clue reads like a sentence, but the sentence is a disguise. Somewhere at the very start or the very end is an ordinary definition of the answer. Everything else is instructions for building the same answer another way. Ignore what the sentence seems to be about and look for the seams.</p>
+    <ul>
+      <li><em>Anagrams.</em> A word like wild, badly, broken or cocktail tells you to rearrange letters. <em>Silent, sadly? Pay attention (6)</em> is LISTEN.</li>
+      <li><em>Hidden words.</em> The answer is spelled out inside the clue. <em>Doctor found in sad octopus (3)</em> is DOC.</li>
+      <li><em>Charades.</em> Pieces in a row. <em>Floor covering: vehicle plus animal (6)</em> is CAR + PET.</li>
+      <li><em>Containers.</em> One piece goes inside another. <em>Bat holding nothing is a vessel (4)</em> is B(O)AT.</li>
+      <li><em>Reversals.</em> Words like back or returned. <em>Pots returned? Halt! (4)</em> is STOP.</li>
+      <li><em>Sounds.</em> Words like reportedly or we hear. <em>Naked bear, reportedly (4)</em> is BARE.</li>
+      <li><em>Two definitions,</em> side by side. <em>Dog's cry, tree's skin (4)</em> is BARK.</li>
+    </ul>
+    <p>Setters also lean on standard shorthand: R for right, T for time, O for zero or love, NY for New York, M for Mike. Solving one clue gives you letters for the ones that cross it, so start with whatever looks easiest.</p>
+    <p>On a keyboard, arrows move around, space switches between across and down, and tab jumps to the next clue. Your progress is kept in this browser, so you can close the page and come back.</p>
+  </details>
+
+  <footer>
+    <span>Sketchbook entry 003 · Grid and clues by Claude, <span id="made">September 2026</span></span>
+    <a href="../index.html">back to the sketchbook</a>
+  </footer>
+</div>
+
+<script>
+'use strict';
+// Pastime. Sketchbook entry 003.
+// The answers and explanations are ROT13'd so a glance at the source doesn't spoil anything.
+const rot13 = s => s.replace(/[A-Za-z]/g, ch => {
+  const base = ch <= 'Z' ? 65 : 97;
+  return String.fromCharCode((ch.charCodeAt(0) - base + 13) % 26 + base);
+});
+/*DATA*/
+
+const N = 15;
+const SOL = SOLUTION.map(rot13);
+const isBlock = (r, c) => SOL[r][c] === '#';
+
+// ---------- slots and numbering ----------
+const slots = [];            // {key, dir, n, cells, info}
+const at = {};               // "r,c" -> {across: slot, down: slot}
+const numAt = {};
+let counter = 0;
+for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+  if (isBlock(r, c)) continue;
+  const startsA = (c === 0 || isBlock(r, c - 1)) && c + 1 < N && !isBlock(r, c + 1);
+  const startsD = (r === 0 || isBlock(r - 1, c)) && r + 1 < N && !isBlock(r + 1, c);
+  if (!startsA && !startsD) continue;
+  counter++;
+  numAt[r + ',' + c] = counter;
+  for (const [dir, go, dr, dc] of [['across', startsA, 0, 1], ['down', startsD, 1, 0]]) {
+    if (!go) continue;
+    const cells = [];
+    for (let y = r, x = c; y < N && x < N && !isBlock(y, x); y += dr, x += dc) cells.push([y, x]);
+    const info = CLUES[dir].find(k => k.n === counter);
+    const slot = { key: counter + dir[0], dir, n: counter, cells, info };
+    slots.push(slot);
+    for (const [y, x] of cells) (at[y + ',' + x] ??= {})[dir] = slot;
+  }
+}
+for (const s of slots) {
+  s.info.ans = rot13(s.info.ans);
+  s.info.why = rot13(s.info.why);
+  if (s.info.ans !== s.cells.map(([y, x]) => SOL[y][x]).join('')) console.error('answer mismatch', s.key);
+}
+const byKey = Object.fromEntries(slots.map(s => [s.key, s]));
+
+// ---------- state ----------
+const STORE = 'claude-sketchbook-003';
+let fill = Array.from({ length: N }, () => Array(N).fill(''));
+let mark = Array.from({ length: N }, () => Array(N).fill(''));   // '', 'wrong', 'shown'
+let cur = null, dir = 'across';
+let plain = false, solved = false;
+const hint = {};              // slot key -> {def, plain, why}
+let confirmClear = false;
+
+function save() {
+  try {
+    localStorage.setItem(STORE, JSON.stringify({ fill: fill.map(r => r.map(ch => ch || ' ').join('')), mark, plain, solved, hint }));
+  } catch (e) {}
+}
+function load() {
+  try {
+    const s = JSON.parse(localStorage.getItem(STORE) || 'null');
+    if (!s) return;
+    fill = s.fill.map(r => [...r].map(ch => (ch === ' ' ? '' : ch)));
+    if (s.mark) mark = s.mark;
+    plain = !!s.plain;
+    solved = !!s.solved;
+    Object.assign(hint, s.hint || {});
+  } catch (e) {}
+}
+
+// ---------- build the page ----------
+const gridEl = document.getElementById('grid');
+const keys = document.getElementById('keys');
+const sqs = [];
+for (let r = 0; r < N; r++) {
+  sqs.push([]);
+  for (let c = 0; c < N; c++) {
+    const d = document.createElement('div');
+    d.className = 'sq' + (isBlock(r, c) ? ' blk' : '');
+    d.dataset.r = r; d.dataset.c = c;
+    if (!isBlock(r, c)) {
+      const n = numAt[r + ',' + c];
+      if (n) d.insertAdjacentHTML('beforeend', `<span class="num">${n}</span>`);
+      d.insertAdjacentHTML('beforeend', '<span class="ltr"></span>');
+    }
+    gridEl.appendChild(d);
+    sqs[r].push(d);
+  }
+}
+
+const esc = s => s.replace(/[&<>"]/g, ch => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[ch]));
+function clueHTML(s, underline) {
+  if (plain) return esc(s.info.plain);
+  let t = esc(s.info.clue);
+  if (!underline) return t;
+  // a double definition has two parts to underline
+  for (const d of [].concat(s.info.def)) t = t.replace(esc(d), '<u class="def">' + esc(d) + '</u>');
+  return t;
+}
+const lenOf = s => `(${s.cells.length})`;
+const lis = {};
+for (const dirName of ['across', 'down']) {
+  const ol = document.getElementById(dirName);
+  for (const s of slots.filter(k => k.dir === dirName)) {
+    const li = document.createElement('li');
+    li.className = 'clue';
+    li.dataset.key = s.key;
+    li.innerHTML = `<span class="cn">${s.n}</span><span class="ct"></span>`;
+    li.addEventListener('click', () => { selectSlot(s); focusKeys(); });
+    ol.appendChild(li);
+    lis[s.key] = li;
+  }
+}
+function renderClueList() {
+  for (const s of slots) {
+    const h = hint[s.key] || {};
+    const showWhy = solved || h.why || wholeShown(s);
+    let html = clueHTML(s, solved || h.def || h.why) + ` <span class="len">${lenOf(s)}</span>`;
+    if (showWhy && !plain) html += `<span class="why"><b>${s.info.ans}.</b> ${esc(s.info.why)}</span>`;
+    lis[s.key].querySelector('.ct').innerHTML = html;
+    lis[s.key].classList.toggle('done', s.cells.every(([y, x]) => fill[y][x]));
+  }
+}
+const wholeShown = s => s.cells.every(([y, x]) => mark[y][x] === 'shown');
+
+// ---------- selection ----------
+const slotOf = (r, c, d) => (at[r + ',' + c] || {})[d];
+function select(r, c, d) {
+  if (isBlock(r, c)) return;
+  if (d && slotOf(r, c, d)) dir = d;
+  else if (!slotOf(r, c, dir)) dir = dir === 'across' ? 'down' : 'across';
+  cur = [r, c];
+  if (confirmClear) { confirmClear = false; statusEl.textContent = ''; }
+  render();
+}
+function selectSlot(s) {
+  const empty = s.cells.find(([y, x]) => !fill[y][x]);
+  const [r, c] = empty || s.cells[0];
+  select(r, c, s.dir);
+}
+const curSlot = () => cur && slotOf(cur[0], cur[1], dir);
+
+// ---------- rendering ----------
+const barNum = document.getElementById('barNum'), barText = document.getElementById('barText');
+const barExtra = document.getElementById('barExtra'), hintsEl = document.getElementById('hints');
+const statusEl = document.getElementById('status');
+function render() {
+  const s = curSlot();
+  const other = cur && slotOf(cur[0], cur[1], dir === 'across' ? 'down' : 'across');
+  const inWord = new Set(s ? s.cells.map(([y, x]) => y + ',' + x) : []);
+  for (let r = 0; r < N; r++) for (let c = 0; c < N; c++) {
+    if (isBlock(r, c)) continue;
+    const d = sqs[r][c];
+    d.querySelector('.ltr').textContent = fill[r][c];
+    d.classList.toggle('inword', inWord.has(r + ',' + c));
+    d.classList.toggle('cur', !!cur && cur[0] === r && cur[1] === c);
+    d.classList.toggle('wrong', mark[r][c] === 'wrong');
+    d.classList.toggle('shown', mark[r][c] === 'shown');
+  }
+  for (const k in lis) {
+    lis[k].classList.toggle('cur', !!s && k === s.key);
+    lis[k].classList.toggle('cross', !!other && k === other.key);
+  }
+  renderClueList();
+  if (s) {
+    const h = hint[s.key] || (hint[s.key] = {});
+    barNum.textContent = `${s.n} ${s.dir === 'across' ? 'Across' : 'Down'}`;
+    barText.innerHTML = clueHTML(s, solved || h.def || h.why) + ` <span class="len">${lenOf(s)}</span>`;
+    let extra = '';
+    if (!plain && h.plain) extra += `<p>Plain clue: ${esc(s.info.plain)}</p>`;
+    if (!plain && (h.why || solved || wholeShown(s))) extra += `<p><b>${s.info.ans}.</b> ${esc(s.info.why)}</p>`;
+    barExtra.innerHTML = extra;
+    barExtra.hidden = !extra;
+    hintsEl.hidden = plain || solved;
+    for (const b of hintsEl.querySelectorAll('button')) b.setAttribute('aria-pressed', h[b.dataset.hint] ? 'true' : 'false');
+    keys.setAttribute('aria-label', `${barNum.textContent}: ${plain ? s.info.plain : s.info.clue.replace(/\n/g, ' ')}, ${s.cells.length} letters`);
+    const [r, c] = cur;
+    keys.style.left = (sqs[r][c].offsetLeft) + 'px';
+    keys.style.top = (sqs[r][c].offsetTop) + 'px';
+  } else {
+    barNum.textContent = '';
+    barText.textContent = solved ? 'Solved. Pick any clue to see how it works.' : 'Click or tap a square to begin.';
+    barExtra.hidden = true;
+    hintsEl.hidden = true;
+  }
+  document.getElementById('plainSwitch').checked = plain;
+}
+
+// ---------- typing ----------
+function focusKeys() {
+  try { keys.focus({ preventScroll: true }); } catch (e) { keys.focus(); }
+}
+function put(ch) {
+  if (!cur || solved) return;
+  const [r, c] = cur;
+  if (mark[r][c] === 'shown') { advance(); render(); return; }
+  fill[r][c] = ch;
+  mark[r][c] = '';
+  advance();
+  afterChange();
+}
+function advance() {
+  const s = curSlot();
+  const i = s.cells.findIndex(([y, x]) => y === cur[0] && x === cur[1]);
+  if (i < s.cells.length - 1) cur = s.cells[i + 1];
+}
+function back() {
+  if (!cur || solved) return;
+  const [r, c] = cur;
+  if (fill[r][c] && mark[r][c] !== 'shown') {
+    fill[r][c] = ''; mark[r][c] = '';
+  } else {
+    const s = curSlot();
+    const i = s.cells.findIndex(([y, x]) => y === r && x === c);
+    if (i > 0) {
+      cur = s.cells[i - 1];
+      const [y, x] = cur;
+      if (mark[y][x] !== 'shown') { fill[y][x] = ''; mark[y][x] = ''; }
+    }
+  }
+  afterChange();
+}
+function del() {
+  if (!cur || solved) return;
+  const [r, c] = cur;
+  if (mark[r][c] !== 'shown') { fill[r][c] = ''; mark[r][c] = ''; }
+  afterChange();
+}
+function step(dr, dc) {
+  if (!cur) return select(0, 0);
+  const want = dr ? 'down' : 'across';
+  if (want !== dir && slotOf(cur[0], cur[1], want)) { dir = want; return render(); }
+  let [r, c] = cur;
+  for (;;) {
+    r += dr; c += dc;
+    if (r < 0 || c < 0 || r >= N || c >= N) return;
+    if (!isBlock(r, c)) return select(r, c, want);
+  }
+}
+function nextSlot(delta) {
+  const order = [...slots.filter(k => k.dir === 'across'), ...slots.filter(k => k.dir === 'down')];
+  const i = order.indexOf(curSlot());
+  selectSlot(order[(i + delta + order.length) % order.length]);
+}
+keys.addEventListener('keydown', e => {
+  if (e.metaKey || e.ctrlKey || e.altKey) return;
+  const k = e.key;
+  if (/^[a-z]$/i.test(k)) { e.preventDefault(); return put(k.toUpperCase()); }
+  const acts = {
+    Backspace: back, Delete: del,
+    ArrowLeft: () => step(0, -1), ArrowRight: () => step(0, 1), ArrowUp: () => step(-1, 0), ArrowDown: () => step(1, 0),
+    Tab: () => nextSlot(e.shiftKey ? -1 : 1), Enter: () => nextSlot(1),
+    ' ': () => { if (cur) select(cur[0], cur[1], dir === 'across' ? 'down' : 'across'); },
+  };
+  if (acts[k]) { e.preventDefault(); acts[k](); }
+});
+// phone keyboards often skip keydown, so listen to the text they insert as well
+keys.addEventListener('beforeinput', e => {
+  if (e.inputType === 'insertText' && e.data) {
+    e.preventDefault();
+    for (const ch of e.data) if (/[a-z]/i.test(ch)) put(ch.toUpperCase());
+  } else if (e.inputType === 'deleteContentBackward') {
+    e.preventDefault(); back();
+  } else if (e.inputType === 'insertLineBreak') {
+    e.preventDefault(); nextSlot(1);
+  }
+});
+// keep one character in the box so a phone's backspace always has something to delete
+keys.addEventListener('input', () => { keys.value = ' '; });
+keys.addEventListener('focus', () => { keys.value = ' '; keys.setSelectionRange(1, 1); });
+keys.value = ' ';
+
+gridEl.addEventListener('mousedown', e => e.preventDefault());   // keep focus in the hidden input
+gridEl.addEventListener('click', e => {
+  const d = e.target.closest('.sq');
+  if (!d || d.classList.contains('blk')) return;
+  const r = +d.dataset.r, c = +d.dataset.c;
+  if (cur && cur[0] === r && cur[1] === c) select(r, c, dir === 'across' ? 'down' : 'across');
+  else select(r, c);
+  focusKeys();
+});
+
+// ---------- check, reveal, clear ----------
+function scopeCells(scope) {
+  if (scope === 'all') return slots.flatMap(s => s.cells);
+  if (!cur) return [];
+  if (scope === 'cell') return [cur];
+  return curSlot().cells;
+}
+function act(kind, scope) {
+  if (kind === 'clear' && scope === 'all' && !confirmClear) {
+    confirmClear = true;
+    statusEl.innerHTML = 'Clear every square? <button class="linkish" data-act="clear" data-scope="all">yes, clear it all</button> · <button class="linkish" data-act="cancel">no</button>';
+    return;
+  }
+  confirmClear = false;
+  if (kind === 'clear' && scope === 'all') unsolve();
+  let wrong = 0;
+  for (const [r, c] of scopeCells(scope)) {
+    if (kind === 'check') {
+      if (fill[r][c] && fill[r][c] !== SOL[r][c] && mark[r][c] !== 'shown') { mark[r][c] = 'wrong'; wrong++; }
+    } else if (kind === 'reveal') {
+      if (fill[r][c] !== SOL[r][c]) { fill[r][c] = SOL[r][c]; mark[r][c] = 'shown'; }
+    } else if (kind === 'clear') {
+      if (mark[r][c] !== 'shown' || scope === 'all') { fill[r][c] = ''; mark[r][c] = ''; }
+    }
+  }
+  statusEl.textContent = kind === 'check' ? (wrong ? `${wrong} ${wrong === 1 ? 'letter needs' : 'letters need'} another look.` : 'Nothing wrong so far.') : '';
+  afterChange(kind === 'check');
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-act]');
+  if (!b) return;
+  if (b.dataset.act === 'cancel') { confirmClear = false; statusEl.textContent = ''; return; }
+  act(b.dataset.act, b.dataset.scope);
+  if (b.closest('#tools')) focusKeys();
+});
+hintsEl.addEventListener('click', e => {
+  const b = e.target.closest('[data-hint]');
+  const s = curSlot();
+  if (!b || !s) return;
+  const h = hint[s.key] || (hint[s.key] = {});
+  h[b.dataset.hint] = !h[b.dataset.hint];
+  save(); render(); focusKeys();
+});
+document.getElementById('plainSwitch').addEventListener('change', e => { plain = e.target.checked; save(); render(); });
+document.getElementById('printBtn').addEventListener('click', () => window.print());
+
+// ---------- the end ----------
+function afterChange(keepStatus) {
+  if (!keepStatus && !confirmClear) statusEl.textContent = '';
+  const cells = slots.flatMap(s => s.cells);
+  const full = cells.every(([r, c]) => fill[r][c]);
+  if (full && !solved) {
+    if (cells.every(([r, c]) => fill[r][c] === SOL[r][c])) {
+      solved = true;
+      save(); render();
+      finale(true);
+      return;
+    }
+    if (!keepStatus) statusEl.innerHTML = 'Every square is filled, but a few letters aren\'t right yet. <button class="linkish" data-act="check" data-scope="all">check them</button>';
+  }
+  save(); render();
+}
+function unsolve() {
+  solved = false;
+  gridEl.classList.remove('solved');
+  for (const [r, c] of NINA) sqs[r][c].classList.remove('nina');
+  coda.classList.remove('on');
+  coda.hidden = true;
+}
+const coda = document.getElementById('coda');
+const NINA = [];
+for (let k = 0; k < 8; k++) NINA.push([N - 1 - 2 * k, 2 * k]);   // rising from the bottom-left
+for (let k = 0; k < 8; k++) NINA.push([2 * k, 2 * k]);           // falling from the top-left
+function finale(animate) {
+  cur = null;
+  NINA.forEach(([r, c], i) => {
+    const d = sqs[r][c];
+    d.style.setProperty('--d', animate ? (1.2 + i * 0.2 + (i >= 8 ? 0.7 : 0)) + 's' : '0s');
+    d.classList.add('nina');
+  });
+  gridEl.classList.add('solved');
+  coda.hidden = false;
+  statusEl.textContent = '';
+  setTimeout(() => coda.classList.add('on'), animate ? 6400 : 0);
+  render();
+}
+
+// ---------- start ----------
+load();
+const params = new URLSearchParams(location.search);
+if (params.has('thumb')) {
+  // a picture for the sketchbook index: the empty grid and a few clues to whet the appetite
+  document.body.classList.add('thumb');
+  const ol = document.createElement('ol');
+  for (const k of ['14a', '18d', '2d', '3d']) {
+    const s = byKey[k];
+    ol.insertAdjacentHTML('beforeend', `<li><span class="cn">${s.n}${s.dir[0]}</span><span>${esc(s.info.clue)} <span class="len">${lenOf(s)}</span></span></li>`);
+  }
+  document.querySelector('.side').appendChild(ol);
+}
+render();
+if (solved) finale(false);
+window.addEventListener('resize', () => render());
+(document.fonts ? document.fonts.ready : Promise.resolve()).then(() => { window.__ready = true; });
+</script>
+</body>
+</html>

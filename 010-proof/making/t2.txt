@@ -1,0 +1,43 @@
+switch off the alarm clock
+go downstairs
+go to the kitchen
+pick up the note
+read it
+look at the oven
+switch the oven on
+get the torch from the drawer
+take batteries from fridge
+put the batteries into the torch
+switch torch on
+go down to the cellar
+look at fuse box
+flip the oven switch
+reset the breaker
+get the roasting tin
+go upstairs
+put the roasting tin in the oven
+give flour to gerald
+examine gerald
+look at recipe card
+go outside
+go into the flour store
+pick up a sack of flour
+go back to the bakehouse
+put the sack in the flour bin
+put 2kg flour in the mixer
+add 1.3 litres of water to the mixer
+add 50g of fresh yeast
+add 40 grams salt
+turn the mixer on
+put the dough in the tub
+put the tub on the oven
+check the dough
+wait 30
+poke the dough
+wait 30
+poke the dough
+x dough
+shape the dough into rolls
+x oven
+take loaves out of the fridge
+look at loaves

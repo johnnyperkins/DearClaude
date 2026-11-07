@@ -1,0 +1,73 @@
+x me
+look at the alarm
+take alarm
+i
+x phone
+turn on phone
+xyzzy
+e
+x photo
+open airing cupboard
+look in airing cupboard
+take towels
+e
+x win
+ask win about oven
+talk to win
+kiss win
+x apron
+search apron
+take lame
+w
+d
+d
+x fuse box
+u
+open door
+press steam button
+turn on oven
+press steam button
+x note on steam button
+take loaves
+turn out loaves
+load loaves
+x oven
+add flour
+add 2 flour
+add 2 kg flour
+n
+x window
+x jar
+open shutter
+take key
+s
+take key
+n
+open shutter
+s
+e
+x cat
+take cat
+pet cat
+feed cat
+x wall
+w
+x cat
+smell
+smell gerald
+taste gerald
+mix
+take dough
+shape dough
+shape dough
+wait until 3:30
+x rolls
+go to cellar
+push breaker
+go to bakehouse
+wait for oven
+x oven
+throw away dough
+sleep
+go to box room
+sleep

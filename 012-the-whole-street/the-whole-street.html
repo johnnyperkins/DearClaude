@@ -1,0 +1,578 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Whole Street</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=EB+Garamond:ital,wght@0,400;0,500;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --night: #0c101b; --ink: #ece4d2; --muted: #9c937f; --faint: #615b50; --line: #252a37;
+    --glow: #f4c66d; --candle: #e9973a;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--night); }
+  body {
+    margin: 0; background: var(--night); color: var(--ink);
+    font-family: "EB Garamond", P052, "Palatino Linotype", Palatino, Georgia, serif;
+    font-size: 19px; line-height: 1.55;
+  }
+  main { max-width: 760px; margin: 0 auto; padding: 0 16px 80px; }
+  a { color: inherit; }
+  button { font: inherit; color: inherit; }
+  :focus-visible { outline: 2px solid var(--glow); outline-offset: 3px; }
+
+  /* the street */
+  .street { margin: 0 -16px; }
+  #street { display: block; width: 100%; height: auto; max-height: 56vh; }
+  #street .house { cursor: pointer; }
+  #street .house:focus { outline: none; }
+  #street .house:focus-visible .facade, #street .house:hover .facade { filter: brightness(1.35); }
+  #street .fade { transition: opacity 1.4s ease; }
+  #street .lit { transition: opacity 1.1s ease, fill 1.1s ease; }
+
+  header { text-align: center; margin: 26px 0 0; }
+  h1 { font-weight: 400; font-style: italic; font-size: 44px; line-height: 1.1; margin: 0; }
+  .sub { color: var(--muted); margin: 8px auto 0; max-width: 520px; font-size: 17px; }
+
+  /* the sonnet */
+  .poem-wrap { margin: 34px auto 0; max-width: 560px; }
+  .which { text-align: center; color: var(--muted); font-size: 16px; margin: 0 0 18px; min-height: 1.5em; }
+  .which b { font-weight: 400; color: var(--ink); font-style: italic; }
+  ol.poem { list-style: none; margin: 0; padding: 0; perspective: 600px; }
+  ol.poem li { margin: 0; }
+  ol.poem li:nth-child(4n):not(:last-child) { margin-bottom: 14px; }
+  ol.poem li:nth-child(n+13) .text { padding-left: 1.4em; }
+  .line {
+    display: flex; align-items: baseline; gap: 12px; width: 100%; text-align: left;
+    background: none; border: 0; padding: 3px 6px 3px 0; margin: 0; cursor: pointer; border-radius: 4px;
+  }
+  .line:hover .text { color: #fff8e6; }
+  .tab {
+    flex: none; width: 26px; height: 26px; border-radius: 50%; display: inline-grid; place-items: center;
+    font-size: 13px; font-variant-numeric: lining-nums; color: #fff; position: relative; top: -1px;
+    box-shadow: inset 0 0 0 1px rgba(255,255,255,.18); transition: background-color .5s;
+  }
+  .text { display: block; transform-origin: 50% 60%; }
+  .text.flip { animation: flip .42s ease; }
+  @keyframes flip {
+    0% { transform: rotateX(0); opacity: 1; }
+    45% { transform: rotateX(88deg); opacity: .15; }
+    55% { transform: rotateX(-88deg); opacity: .15; }
+    100% { transform: rotateX(0); opacity: 1; }
+  }
+  .dark-band .text { color: #d9c6a2; }
+  .dark-band .line:hover .text { color: #f3dcae; }
+
+  .under { text-align: center; margin: 26px 0 0; }
+  .address { color: var(--faint); font-size: 15px; letter-spacing: .06em; font-variant-numeric: lining-nums; word-spacing: .1em; }
+  .buttons { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 14px; }
+  .pill {
+    background: none; border: 1px solid var(--line); border-radius: 20px; padding: 5px 16px; cursor: pointer;
+    font-size: 16px; color: var(--ink);
+  }
+  .pill:hover { border-color: var(--muted); }
+
+  .cast { margin: 44px auto 0; max-width: 560px; padding: 0; list-style: none;
+    display: grid; grid-template-columns: repeat(2, 1fr); gap: 4px 24px; font-size: 16px; }
+  .cast button { background: none; border: 0; padding: 3px 0; cursor: pointer; display: flex; gap: 10px; align-items: center; color: var(--muted); text-align: left; }
+  .cast button:hover, .cast button[aria-current="true"] { color: var(--ink); }
+  .cast .tab { width: 22px; height: 22px; font-size: 12px; top: 0; }
+
+  .about { margin: 56px auto 0; max-width: 560px; color: var(--muted); font-size: 17px; }
+  .about p { margin: 0 0 14px; }
+  .about em { color: var(--ink); }
+  .end { color: var(--faint); font-size: 14px; margin-top: 30px; }
+
+  @media (max-width: 520px) {
+    body { font-size: 16px; }
+    h1 { font-size: 34px; }
+    .line { gap: 8px; padding-right: 0; }
+    .tab { width: 20px; height: 20px; font-size: 11px; }
+    ol.poem li:nth-child(n+13) .text { padding-left: 0; }
+    ol.poem li:nth-child(12) { margin-bottom: 14px; }
+    .address { font-size: 13px; letter-spacing: 0; word-spacing: 0; }
+    .poem-wrap { margin-top: 26px; }
+    #street { min-height: 170px; object-fit: cover; }
+    .cast { grid-template-columns: 1fr; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .text.flip { animation: none; }
+    #street .fade, #street .lit { transition: none; }
+  }
+  @media print {
+    html, body { background: #fff; color: #000; }
+    .street, .buttons, .cast, .about, .sub { display: none; }
+    .tab { box-shadow: none; border: 1px solid #000; color: #000 !important; background: none !important; }
+    .dark-band .text, .address { color: #000; }
+  }
+</style>
+</head>
+<body>
+<div class="street"><svg id="street" viewBox="0 0 1000 400" preserveAspectRatio="xMidYMid slice" role="img" aria-label="A terrace of ten houses at night, numbers 1 to 19, with a corner shop at the end. The windows of the houses in the poem below are lit."></svg></div>
+<main>
+  <header>
+    <h1>the whole street</h1>
+    <p class="sub">Ten houses, one evening, the week the clocks go back. Each house has a sonnet, and at line nine the power goes in all of them. Tap a line to hear it from the next house along.</p>
+  </header>
+
+  <section class="poem-wrap" aria-label="The sonnet">
+    <p class="which" id="which"></p>
+    <ol class="poem" id="poem"></ol>
+    <div class="under">
+      <div class="address" id="address"></div>
+      <div class="buttons">
+        <button class="pill" id="shuffle">another street</button>
+      </div>
+    </div>
+  </section>
+
+  <ul class="cast" id="cast" aria-label="Read one house's sonnet"></ul>
+
+  <section class="about">
+    <p>Line one of any house fits after line two of any other, and so on all the way down, so the street holds 10<sup>14</sup> sonnets, a hundred thousand billion. Reading one a minute, day and night, would take about 190 million years. You are almost certainly the first person to read the one above.</p>
+    <p>The idea is Raymond Queneau's. In 1961 he published <em>Cent mille milliards de poèmes</em>: ten sonnets printed one to a page, each page cut into fourteen strips so you could turn the lines separately. Here every line has to stand alone. No line leans on someone who was only named in the line before, so a mix never leaves you with a <em>she</em> who isn't there. Each line also has the same job in all ten sonnets. Line nine is always the power going off, and line thirteen is always it coming back.</p>
+    <p>The address under the poem lists the house each line came from. You can share it, and it opens the same poem. Tap a house, or a name in the list, to read one house's sonnet on its own.</p>
+    <p class="end">Entry 012 in a sketchbook. Written by Claude, 2026-10-28.</p>
+  </section>
+</main>
+
+<script type="text/plain" id="poems">
+# 1 | the driving instructor
+All day I've been the passenger again,
+and still I'm braking, somewhere in my head.
+I check tomorrow's list: a Mr Crane,
+and through the wall a trumpet wakes the dead.
+I've taught nine hundred people how to go,
+and I'm the one who waves, as from a pier.
+Next spring I'll drive to Skye. I'll take it slow,
+and nobody will tell me where to steer.
+The kitchen goes, the street goes, every light,
+and my hand gropes for hazards on the wall.
+I stand out on the step, my breath gone white,
+and half the street I've taught to drive, or stall.
+The lights come back, like green. And I obey,
+and I get down the atlas, plan the way.
+
+# 3 | the trumpeter
+The house is mine. My mum is on the train,
+and I'm supposed to do my French instead.
+I go for the top C and burst a vein,
+and someone thumps the wall, from next door's bed.
+I've got a solo Friday in the show,
+and Dad says he'll be there, like every year.
+I'll look for Mum, and only Mum, and blow,
+and I won't see the empty seat from here.
+The Wi-Fi dies, the lamp dies. Brilliant. Right,
+and I'm not scared. I'm not. Not me. Not small.
+I take the trumpet out into the night,
+and I play Friday's solo. Hear that, Paul?
+The power's back, and someone shouts 'Hooray',
+and I go in and do my French. Okay.
+
+# 5 | the night nurse
+The night shift's mine. The dark is my domain,
+and I eat breakfast as the news is read.
+I press my tunic, take two for the pain,
+and I sew on a button, in white thread.
+Bed twelve will die tonight or soon, I know,
+and nobody should die with no one near.
+I've held a hundred hands, and felt them slow,
+and still I don't know what the dying hear.
+The power's gone. I've worked in worse. Sit tight,
+and my pen torch comes on: a little scrawl.
+I step outside, my cardigan too slight,
+and down the street I hear a trumpet call.
+The street comes back. I catch the bus, and sway,
+and bed twelve, please, hold on until the day.
+
+# 7 | the postman
+I did this round for forty years, in rain,
+and I knew every dog, and where to tread.
+I watch the street now from behind the pane,
+and every door's a letterbox I've fed.
+The names are going now. The doctors know,
+and faces come without their names. I peer.
+I've drawn a map, in pencil, of the row,
+and I go round the houses, till they're clear.
+The street goes out, like names do, out of sight,
+and names come through like post. I hear them fall.
+I count the doors along by heart tonight,
+and I say every name, the whole long haul.
+The lamps come back, pink first, like dawn in May,
+and I write names down quick, before they stray.
+
+# 9 | the new arrival
+I'm four days in. The boxes all remain,
+and I still live with someone else's red.
+I search a box marked KITCHEN, all in vain,
+and there's the kettle, in the box marked BED.
+There's no one here I know to say hello,
+and that was meant to be the point, I fear.
+I'll paint it all, put bulbs in, let things grow,
+and sometime someone here will call me dear.
+The power goes, mid-label, as I write,
+and I feel through the boxes, at a crawl.
+I find the latch and step out, half in fright,
+and there's the street, in slippers, short and tall.
+The lights come on. A woman says, 'I'm May',
+and someone waves. I wave. I think I'll stay.
+
+# 11 | the new parent
+I've slept in forty-minute bits since Jane,
+and I've forgotten what the clock just said.
+I walk the landing, singing one refrain,
+and still the baby screams, though changed and fed.
+Nobody warned me love could floor me so,
+and now I lie awake with one cocked ear.
+My mother says it's colic, and they grow,
+and I just nod, and walk, in second gear.
+The lights go out. The baby stops, polite,
+and I stand frozen, not to start a squall.
+I take the baby out, which isn't bright,
+and Jane looks up as if she's seen it all.
+The house comes on. The baby sleeps. Hooray,
+and I switch off the house, and creep away.
+
+# 13 | the sister
+My sister's been tomorrow since the plane,
+and every Wednesday night I ring ahead.
+I hold the phone up to the windowpane,
+and Auckland sees the street my sister fled.
+Mum's in the home. She thinks I'm Auntie Jo,
+and if I told my sister, she'd appear.
+I keep it to the weather, to and fro,
+and my voice does its best to sound sincere.
+The power cuts my sister off mid-bite,
+and half the world between us feels quite small.
+I stand out in the street, the phone still bright,
+and here's the lamp post where we'd bounce a ball.
+The phone rings when the lights come back. I pray,
+and I tell Auckland all of it, today.
+
+# 15 | the engineer
+They let me go in March. I don't explain,
+and still I leave at eight for Dad's old shed.
+I come in, sigh, and moan about the strain,
+and Sue says 'Oh, poor love,' and butters bread.
+The money lasts till Christmas, then I'll owe,
+and that was it: a thirty-year career.
+I hold it in, against the undertow,
+and I tell Sue the traffic was severe.
+The dark comes down and stops my lie mid-flight,
+and in the dark it's easy, like a fall.
+I tell Sue everything. She doesn't fight,
+and Sue says, 'Love, I know. I know.' That's all.
+Then everything comes on. Sue brings a tray,
+and in the morning, I lie in. I stay.
+
+# 17 | the stargazer
+The streetlamps drown the stars out. I complain,
+and I know where the stars are, overhead.
+Tonight is clear. The sky's an orange stain,
+and seven stars get through, like crumbs of bread.
+When I was small, the whole sky used to glow,
+and now the Milky Way's a souvenir.
+I'll drive to Kielder, telescope in tow,
+and Kielder's sky's a proper hemisphere.
+The streetlamps go. My heart goes up, a kite,
+and I am in the yard, eyes wide, in thrall.
+I shout 'Turn off your phones!' with all my might,
+and there's the galaxy, a smoky sprawl.
+The lamps warm slowly back. The sky goes grey,
+and now the whole street's seen the Milky Way.
+
+# 19 | the shopkeeper
+I run the corner shop. I'm not a chain,
+and I know who is broke, and who is wed.
+I sell a scratchcard to a man called Shane,
+and Shane wins nothing, and buys one for Fred.
+A Tesco's coming to the road below,
+and screens are coming for the last cashier.
+Old Mrs Firth wants asking how's her toe,
+and I know every paper, every beer.
+The fridges die. I'd never heard them, quite,
+and now I hear the shop clock on the wall.
+I hand out candles, birthday and plain white,
+and for an hour the shop's a village hall.
+The fridges shudder, and resume their bray,
+and I don't charge for candles, anyway.
+</script>
+<script>
+(() => {
+  // --- the sonnets: '# number | who' then fourteen lines
+  const HOUSES = document.getElementById('poems').textContent.trim().split(/^# /m).filter(Boolean).map(block => {
+    const [head, ...lines] = block.trim().split('\n').map(s => s.trim()).filter(Boolean);
+    const [num, who] = head.split('|').map(s => s.trim());
+    return { num: +num, who, lines };
+  });
+  const N = HOUSES.length, L = 14;
+  const DOORS = ['#9b2f2a', '#2b4f80', '#2f6a49', '#a8841c', '#77736d', '#6a3e72', '#227f7b', '#3a3d44', '#46679e', '#b4622a'];
+
+  // --- state: which house each line comes from, kept in the address bar
+  let pick = [];
+  let solo = null;            // a house index when one house's sonnet is shown whole
+  const fromHash = () => {
+    const m = location.hash.match(/^#([0-9]{14})$/);
+    if (!m) return false;
+    pick = [...m[1]].map(Number);
+    solo = pick.every(p => p === pick[0]) ? pick[0] : null;
+    return true;
+  };
+  const shuffle = () => {
+    // a real mix: at least five different houses
+    do { pick = Array.from({ length: L }, () => Math.floor(Math.random() * N)); } while (new Set(pick).size < 5);
+    solo = null;
+  };
+  const save = () => { try { history.replaceState(null, '', '#' + pick.join('')); } catch (e) {} };
+
+  // --- the poem
+  const poemEl = document.getElementById('poem');
+  const rows = [];
+  for (let i = 0; i < L; i++) {
+    const li = document.createElement('li');
+    if (i >= 8 && i < 12) li.className = 'dark-band';
+    const b = document.createElement('button');
+    b.className = 'line';
+    b.innerHTML = '<span class="tab" aria-hidden="true"></span><span class="text"></span>';
+    b.addEventListener('click', e => turn(i, e.shiftKey ? -1 : 1));
+    b.addEventListener('keydown', e => {
+      if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') { e.preventDefault(); turn(i, e.key === 'ArrowRight' ? 1 : -1); }
+      if (e.key === 'ArrowDown' || e.key === 'ArrowUp') {
+        e.preventDefault();
+        rows[Math.max(0, Math.min(L - 1, i + (e.key === 'ArrowDown' ? 1 : -1)))].btn.focus();
+      }
+    });
+    b.addEventListener('mouseenter', () => setDark(i >= 8 && i < 12));
+    b.addEventListener('focus', () => setDark(i >= 8 && i < 12));
+    li.appendChild(b);
+    poemEl.appendChild(li);
+    rows.push({ btn: b, tab: b.firstChild, text: b.lastChild });
+  }
+  poemEl.addEventListener('mouseleave', () => { if (!poemEl.contains(document.activeElement)) setDark(false); });
+  poemEl.addEventListener('focusout', e => { if (!poemEl.contains(e.relatedTarget)) setDark(false); });
+
+  function fill(i, animate) {
+    const h = HOUSES[pick[i]], r = rows[i];
+    const put = () => {
+      r.text.textContent = h.lines[i];
+      r.tab.textContent = h.num;
+      r.tab.style.backgroundColor = DOORS[pick[i]];
+      r.btn.title = `No. ${h.num}, ${h.who}`;
+      r.btn.setAttribute('aria-label', `Line ${i + 1}, from number ${h.num}: ${h.lines[i]}`);
+    };
+    if (!animate) return put();
+    r.text.classList.remove('flip'); void r.text.offsetWidth; r.text.classList.add('flip');
+    setTimeout(put, 190);
+  }
+  function turn(i, dir) {
+    pick[i] = (pick[i] + dir + N) % N;
+    solo = null;
+    fill(i, true);
+    setDark(i >= 8 && i < 12);
+    after();
+  }
+  function render(animate) {
+    for (let i = 0; i < L; i++) fill(i, animate);
+    after();
+  }
+  function after() {
+    save();
+    const which = document.getElementById('which');
+    if (solo !== null) which.innerHTML = `No. ${HOUSES[solo].num}, <b>${HOUSES[solo].who}</b>`;
+    else {
+      const k = new Set(pick).size;
+      which.textContent = k === 1 ? `No. ${HOUSES[pick[0]].num}, ${HOUSES[pick[0]].who}` : `${['', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine', 'ten'][k]} houses`;
+    }
+    document.getElementById('address').textContent = solo !== null ? 'all fourteen lines from one house'
+      : pick.map(p => HOUSES[p].num).join(' · ');
+    document.querySelectorAll('.cast button').forEach((b, j) => b.setAttribute('aria-current', solo === j ? 'true' : 'false'));
+    lightWindows();
+  }
+  function showHouse(j) {
+    pick = Array(L).fill(j); solo = j;
+    render(true);
+  }
+
+  // --- the cast list
+  const cast = document.getElementById('cast');
+  HOUSES.forEach((h, j) => {
+    const li = document.createElement('li');
+    li.innerHTML = `<button><span class="tab" style="background-color:${DOORS[j]}">${h.num}</span><span>${h.who}</span></button>`;
+    li.firstChild.addEventListener('click', () => { showHouse(j); document.getElementById('which').scrollIntoView({ behavior: 'smooth', block: 'start' }); });
+    cast.appendChild(li);
+  });
+  document.getElementById('shuffle').addEventListener('click', () => { shuffle(); render(true); setDark(false); });
+
+  // --- the drawing
+  const svg = document.getElementById('street');
+  const NS = 'http://www.w3.org/2000/svg';
+  const el = (tag, attrs, parent = svg) => {
+    const e = document.createElementNS(NS, tag);
+    for (const k in attrs) e.setAttribute(k, attrs[k]);
+    parent.appendChild(e);
+    return e;
+  };
+  let seed = 7;
+  const rand = () => (seed = (seed * 16807) % 2147483647) / 2147483647;
+
+  const defs = el('defs', {});
+  defs.innerHTML = `
+    <linearGradient id="skyOn" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0c1120"/><stop offset=".55" stop-color="#1f1d2a"/><stop offset="1" stop-color="#4a2d22"/>
+    </linearGradient>
+    <linearGradient id="skyOff" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#03050c"/><stop offset=".7" stop-color="#070b18"/><stop offset="1" stop-color="#0e1424"/>
+    </linearGradient>
+    <radialGradient id="pool" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#f09a3e" stop-opacity=".55"/><stop offset=".45" stop-color="#e98a2c" stop-opacity=".18"/><stop offset="1" stop-color="#e98a2c" stop-opacity="0"/>
+    </radialGradient>
+    <radialGradient id="halo" cx=".5" cy=".5" r=".5">
+      <stop offset="0" stop-color="#ffd59a" stop-opacity=".9"/><stop offset=".25" stop-color="#f59b3c" stop-opacity=".35"/><stop offset="1" stop-color="#e98a2c" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="road" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1a1716"/><stop offset="1" stop-color="#0d0c0c"/>
+    </linearGradient>
+    <filter id="soft" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="14"/></filter>
+    <filter id="softer" x="-20%" y="-50%" width="140%" height="200%"><feGaussianBlur stdDeviation="5"/></filter>`;
+
+  // sky, normal and in the power cut
+  el('rect', { x: 0, y: 0, width: 1000, height: 400, fill: 'url(#skyOn)' });
+  const off = el('g', { class: 'fade', opacity: 0 });
+  el('rect', { x: 0, y: 0, width: 1000, height: 400, fill: 'url(#skyOff)' }, off);
+  // the Milky Way: soft band, then a thick dust of stars along it
+  const band = el('g', { transform: 'rotate(-24 500 150)' }, off);
+  el('ellipse', { cx: 470, cy: 120, rx: 620, ry: 46, fill: '#8d97b8', opacity: .16, filter: 'url(#soft)' }, band);
+  el('ellipse', { cx: 520, cy: 128, rx: 380, ry: 20, fill: '#b9c1db', opacity: .14, filter: 'url(#softer)' }, band);
+  el('ellipse', { cx: 600, cy: 118, rx: 160, ry: 9, fill: '#04060d', opacity: .55, filter: 'url(#softer)' }, band);
+  for (let k = 0; k < 520; k++) {
+    const x = -150 + rand() * 1300, y = 120 + (rand() + rand() + rand() - 1.5) * 70;
+    el('circle', { cx: x.toFixed(1), cy: y.toFixed(1), r: (rand() * .7 + .25).toFixed(2), fill: '#dfe5f7', opacity: (rand() * .6 + .2).toFixed(2) }, band);
+  }
+  for (let k = 0; k < 260; k++) {
+    el('circle', { cx: (rand() * 1000).toFixed(1), cy: (rand() * 230).toFixed(1), r: (rand() * rand() * 1.4 + .35).toFixed(2),
+      fill: rand() < .15 ? '#ffe2b8' : '#e8edf9', opacity: (rand() * .7 + .25).toFixed(2) }, off);
+  }
+  // the seven that get through the orange
+  const seven = el('g', { class: 'fade' });
+  [[118, 46], [205, 88], [341, 30], [530, 62], [688, 24], [802, 70], [931, 40]].forEach(([x, y]) =>
+    el('circle', { cx: x, cy: y, r: 1.3, fill: '#f3ead8', opacity: .85 }, seven));
+
+  // the terrace: ten houses, doors in mirrored pairs, a corner shop at the end
+  const ROOF = 118, EAVES = 140, GROUND = 322;
+  el('path', { d: `M0 ${EAVES} L0 ${ROOF + 6} L1000 ${ROOF + 6} L1000 ${EAVES} Z`, fill: '#151821' });
+  const windows = [];
+  for (let j = 0; j < N; j++) {
+    const x0 = j * 100, shop = j === N - 1, left = j % 2 === 0;
+    const g = el('g', { class: 'house', tabindex: 0, role: 'button', 'aria-label': `Read number ${HOUSES[j].num}, ${HOUSES[j].who}` });
+    g.addEventListener('click', () => showHouse(j));
+    g.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); showHouse(j); } });
+    const brick = ['#2a1f1b', '#2d211c', '#281d1a', '#2e231e', '#2b201c'][j % 5];
+    el('rect', { class: 'facade', x: x0, y: EAVES, width: 100, height: GROUND - EAVES, fill: brick }, g);
+    el('rect', { x: x0, y: EAVES, width: 100, height: 5, fill: '#1b1715' }, g);
+    if (j) el('rect', { x: x0 - .6, y: EAVES, width: 1.2, height: GROUND - EAVES, fill: '#1c1513' }, g);
+    // chimney on the party wall
+    if (j % 2 === 0) {
+      el('rect', { x: x0 - 13 + (j ? 0 : 13), y: ROOF - 24, width: j ? 26 : 16, height: 30, fill: '#1d1715' }, g);
+      for (const dx of j ? [-8, 4] : [2]) el('rect', { x: x0 + dx, y: ROOF - 32, width: 5, height: 9, fill: '#3a2a22' }, g);
+    }
+    const lights = [];
+    const win = (x, y, w, h, bars) => {
+      el('rect', { x: x - 2, y: y - 2, width: w + 4, height: h + 4, fill: '#d8cfbd', opacity: .22 }, g);
+      el('rect', { x, y, width: w, height: h, fill: '#0b0d14' }, g);
+      const lit = el('rect', { class: 'lit', x, y, width: w, height: h, fill: '#f4c66d', opacity: 0 }, g);
+      if (bars) {
+        el('rect', { x, y: y + h / 2 - 1, width: w, height: 2, fill: '#1b1611' }, g);
+        el('rect', { x: x + w / 2 - 1, y, width: 2, height: h, fill: '#1b1611' }, g);
+      }
+      el('rect', { x: x - 4, y: y + h + 1, width: w + 8, height: 4, fill: '#cfc6b2', opacity: .3 }, g);
+      lights.push(lit);
+      return lit;
+    };
+    // upstairs
+    win(x0 + (left ? 44 : 14), 168, 42, 52, true);
+    if (shop) {
+      // shopfront: fascia, big window, door at the corner
+      el('rect', { x: x0 + 4, y: 236, width: 92, height: 16, fill: '#7a3a1c' }, g);
+      el('text', { x: x0 + 50, y: 248, 'text-anchor': 'middle', 'font-size': 9.5, 'letter-spacing': 1.2, fill: '#f1dfb8',
+        'font-family': 'EB Garamond, P052, serif' }, g).textContent = 'NEWS · FOOD';
+      win(x0 + 8, 258, 56, 50, false);
+      // shelves in the window
+      for (let s = 0; s < 3; s++) el('rect', { x: x0 + 8, y: 272 + s * 13, width: 56, height: 1.6, fill: '#6b4a2a', opacity: .8 }, g);
+      el('rect', { x: x0 + 70, y: 256, width: 22, height: GROUND - 256, fill: DOORS[j] }, g);
+      el('rect', { x: x0 + 73, y: 260, width: 16, height: 26, fill: '#0b0d14' }, g);
+      lights.push(el('rect', { class: 'lit', x: x0 + 73, y: 260, width: 16, height: 26, fill: '#f4c66d', opacity: 0 }, g));
+    } else {
+      // downstairs window and front door with its fanlight
+      win(x0 + (left ? 46 : 12), 252, 42, 50, true);
+      const dx = x0 + (left ? 10 : 66);
+      el('rect', { x: dx - 2, y: 240, width: 28, height: GROUND - 240, fill: '#c9bfa9', opacity: .18 }, g);
+      el('rect', { x: dx, y: 256, width: 24, height: GROUND - 256, fill: DOORS[j] }, g);
+      el('rect', { x: dx, y: 242, width: 24, height: 12, fill: '#0b0d14' }, g);
+      lights.push(el('rect', { class: 'lit', x: dx, y: 242, width: 24, height: 12, fill: '#f4c66d', opacity: 0 }, g));
+      el('text', { x: dx + 12, y: 251.5, 'text-anchor': 'middle', 'font-size': 8.5, fill: '#2a1d12',
+        'font-family': 'EB Garamond, P052, serif' }, g).textContent = HOUSES[j].num;
+      el('circle', { cx: dx + (left ? 19 : 5), cy: 292, r: 1.6, fill: '#d9b75c' }, g);
+      el('rect', { x: dx - 4, y: GROUND - 3, width: 32, height: 3, fill: '#5b5249' }, g);
+    }
+    // a few things to see when the light is on
+    if (j === 4) for (const [bx, by, bw, bh] of [[50, 286, 18, 16], [68, 290, 16, 12], [54, 274, 14, 12]])
+      el('rect', { x: x0 + bx, y: by, width: bw, height: bh, fill: '#8a6a43', opacity: .9 }, g);
+    if (j === 1) el('path', { d: `M${x0 + 30} 220 l0 -26 M${x0 + 22} 194 l16 0 l-2 -8 l-12 0 z`, stroke: '#20160f', 'stroke-width': 2, fill: '#20160f' }, g);
+    windows.push(lights);
+  }
+  // pavement, kerb, road, and three sodium lamps
+  el('rect', { x: 0, y: GROUND, width: 1000, height: 22, fill: '#26231f' });
+  el('rect', { x: 0, y: GROUND + 22, width: 1000, height: 4, fill: '#4a453e' });
+  el('rect', { x: 0, y: GROUND + 26, width: 1000, height: 400 - GROUND - 26, fill: 'url(#road)' });
+  const lamps = el('g', { class: 'fade' });
+  for (const lx of [150, 500, 850]) {
+    el('rect', { x: lx - 2, y: 196, width: 4, height: GROUND + 20 - 196, fill: '#141414' });
+    el('path', { d: `M${lx} 198 q0 -14 16 -14 l6 0`, stroke: '#141414', 'stroke-width': 3, fill: 'none' });
+    el('rect', { x: lx + 16, y: 182, width: 14, height: 6, rx: 2, fill: '#141414' });
+    el('ellipse', { cx: lx + 23, cy: 192, rx: 70, ry: 70, fill: 'url(#halo)' }, lamps);
+    el('ellipse', { cx: lx + 23, cy: GROUND + 26, rx: 150, ry: 26, fill: 'url(#pool)' }, lamps);
+    el('rect', { x: lx + 17, y: 187, width: 12, height: 3, rx: 1.5, fill: '#ffcf8a' }, lamps);
+  }
+
+  let dark = false;
+  function setDark(d) {
+    dark = d;
+    off.setAttribute('opacity', d ? 1 : 0);
+    seven.setAttribute('opacity', d ? 0 : 1);
+    lamps.setAttribute('opacity', d ? 0 : 1);
+    lightWindows();
+  }
+  let flick = null;
+  function lightWindows() {
+    // a house's windows light up for the lines it gives: one line lights the fanlight,
+    // more light the rooms. In the power cut only candles are left.
+    const count = Array(N).fill(0);
+    pick.forEach(p => count[p]++);
+    windows.forEach((ls, j) => {
+      const c = count[j];
+      ls.forEach((w, k) => {
+        const on = c > 0 && (k === ls.length - 1 || c >= (k === 0 ? 3 : 2));
+        w.setAttribute('fill', dark ? '#e9973a' : '#f4c66d');
+        w.dataset.on = on ? (dark ? 'candle' : '1') : '';
+        w.setAttribute('opacity', on ? (dark ? .45 : Math.min(1, .82 + c * .06)) : 0);
+      });
+    });
+    if (dark && !flick && !matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      flick = setInterval(() => svg.querySelectorAll('[data-on="candle"]').forEach(w =>
+        w.setAttribute('opacity', (.34 + Math.random() * .2).toFixed(2))), 180);
+    }
+    if (!dark && flick) { clearInterval(flick); flick = null; }
+  }
+
+  if (!fromHash()) shuffle();
+  render(false);
+  window.addEventListener('hashchange', () => { if (fromHash()) render(true); });
+  window.__houses = HOUSES; window.__setDark = setDark; window.__show = showHouse;
+  window.__ready = true;
+})();
+</script>
+</body>
+</html>

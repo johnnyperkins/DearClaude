@@ -1,0 +1,7 @@
+open drawer
+e
+d
+take torch and knife
+i
+drop torch and knife
+whats in the drawer

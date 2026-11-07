@@ -1,0 +1,1057 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Where Does This Go</title>
+<style>
+  :root {
+    --paper: #fbf8f1; --ink: #1d1a16; --muted: #6f675b; --faint: #a59c8c; --line: #e3dccd;
+    --v1: #c4472f; --v2: #1f7a84; --v3: #b07d12; --v4: #7a4a8f;
+  }
+  * { box-sizing: border-box; }
+  html { background: var(--paper); }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font-family: P052, "Palatino Linotype", Palatino, "Book Antiqua", Georgia, serif;
+    font-size: 18px; line-height: 1.6;
+  }
+  main { max-width: 780px; margin: 0 auto; padding: 40px 16px 72px; }
+  header { text-align: center; margin-bottom: 8px; }
+  #picture { display: block; width: 100%; max-width: 640px; height: auto; margin: 0 auto 4px; }
+  h1 { font-weight: 400; font-style: italic; font-size: 46px; line-height: 1.1; margin: 0; }
+  .sub { color: var(--muted); margin: 6px 0 0; font-size: 17px; letter-spacing: .02em; }
+  .lede { margin: 28px 0 0; }
+  .hint { font-size: 15px; color: var(--muted); margin: 18px 0 0; }
+  .end { font-size: 13px; color: var(--faint); }
+  .words { margin: 4px 0 16px; padding-left: 18px; border-left: 2px solid var(--line); }
+  .words p { margin: 0 0 6px; }
+  .words b { font-weight: 400; display: inline-grid; place-items: center; width: 1.3em; height: 1.3em; border: 1px solid currentColor; border-radius: 50%; font-size: .72em; margin-right: 8px; vertical-align: .12em; }
+  h2 { font-weight: 400; font-style: italic; font-size: 25px; margin: 44px 0 10px; }
+  p { margin: 0 0 14px; }
+  a { color: inherit; }
+
+  /* the player */
+  .player {
+    background: var(--paper);
+    margin: 30px -16px 0; padding: 12px 16px 10px; border-bottom: 1px solid var(--line);
+  }
+  .controls { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 22px; font-size: 15px; }
+  .ctl { display: flex; align-items: center; gap: 6px; }
+  .ctl > span { color: var(--muted); }
+  .seg { display: inline-flex; border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+  .seg button {
+    font: inherit; font-size: 15px; background: none; border: 0; padding: 4px 10px; color: var(--ink); cursor: pointer;
+    border-left: 1px solid var(--line); min-width: 32px;
+  }
+  .seg button:first-child { border-left: 0; }
+  .seg button[aria-pressed="true"] { background: var(--ink); color: var(--paper); }
+  .seg button:focus-visible, #go:focus-visible, select:focus-visible, input:focus-visible { outline: 2px solid var(--v2); outline-offset: 2px; }
+  #go {
+    font: inherit; font-size: 17px; background: var(--ink); color: var(--paper); border: 0; border-radius: 22px;
+    padding: 7px 20px 7px 16px; cursor: pointer; display: inline-flex; align-items: center; gap: 8px;
+  }
+  #go svg { width: 14px; height: 14px; fill: currentColor; }
+  select { font: inherit; font-size: 15px; background: var(--paper); color: var(--ink); border: 1px solid var(--line); border-radius: 6px; padding: 3px 6px; }
+  input[type=range] { width: 92px; accent-color: var(--ink); }
+  label.check { display: flex; align-items: center; gap: 6px; color: var(--muted); cursor: pointer; }
+  .jobs { display: flex; flex-wrap: wrap; gap: 6px 10px; margin-top: 10px; font-size: 15px; min-height: 26px; }
+  .job { display: inline-flex; align-items: center; gap: 7px; color: var(--muted); transition: color .2s;
+    font: inherit; font-size: 15px; background: none; border: 1px solid transparent; border-radius: 16px; padding: 2px 10px 2px 3px; cursor: pointer; }
+  .job:hover { border-color: var(--line); }
+  .job:focus-visible { outline: 2px solid var(--v2); outline-offset: 1px; }
+  .job.you { border-color: var(--ink); }
+  .job b {
+    display: inline-grid; place-items: center; width: 22px; height: 22px; border-radius: 50%;
+    font-weight: 400; font-size: 13px; color: var(--paper); background: var(--faint); transition: background .2s;
+  }
+  .job.on { color: var(--ink); }
+  .job.you i { font-style: normal; font-size: 12px; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); }
+
+  /* the score */
+  #score { margin-top: 22px; }
+  #score svg { display: block; width: 100%; height: auto; overflow: visible; }
+  .staff line, .ledger { stroke: var(--ink); }
+  .head { transition: fill .08s; }
+  .lyr { font-family: P052, "Palatino Linotype", Palatino, Georgia, serif; fill: var(--ink); }
+  .role { font-family: P052, "Palatino Linotype", Palatino, Georgia, serif; font-style: italic; fill: var(--muted); }
+  .cursor { transition: opacity .25s; }
+
+  ol { padding-left: 1.3em; margin: 0 0 14px; }
+  li { margin-bottom: 6px; }
+  .num { display: inline-grid; place-items: center; width: 1.3em; height: 1.3em; border: 1px solid currentColor; border-radius: 50%; font-size: .78em; vertical-align: .08em; }
+  blockquote { margin: 0 0 14px; padding-left: 18px; border-left: 2px solid var(--line); font-style: italic; }
+  .small { font-size: 15px; color: var(--muted); }
+  footer { margin-top: 48px; font-size: 15px; color: var(--muted); }
+  .printonly { display: none; }
+  .printbtn { font: inherit; font-size: 15px; background: none; border: 1px solid var(--ink); border-radius: 20px; padding: 5px 16px; cursor: pointer; color: var(--ink); }
+
+  /* keep the controls in view while you sing, where there's room for them */
+  @media (min-width: 600px) and (min-height: 640px) {
+    .player { position: sticky; top: 0; z-index: 2; }
+  }
+  @media (max-width: 560px) {
+    body { font-size: 17px; }
+    h1 { font-size: 36px; }
+    .controls { gap: 8px 14px; }
+    input[type=range] { width: 76px; }
+  }
+
+  @media print {
+    @page { size: A4; margin: 12mm 14mm; }
+    html, body { background: #fff; }
+    body { font-size: 11.5pt; line-height: 1.4; }
+    main { max-width: none; padding: 0; }
+    .player, .noprint, footer { display: none !important; }
+    .printonly { display: block; }
+    #picture { max-width: 120mm; margin-bottom: 1mm; }
+    #score svg { margin-bottom: 3.5mm; }
+    h1 { font-size: 26pt; }
+    .sub { font-size: 11pt; margin-top: 2pt; }
+    #score { margin-top: 6mm; }
+    .cursor { display: none; }
+    .head { fill: #000 !important; }
+    .words { display: none; }
+    .howto { margin-top: 5mm; columns: 2; column-gap: 9mm; font-size: 11.5pt; }
+    .howto h2 { display: none; }
+    .howto ol { margin: 0; }
+  }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute">
+  <defs>
+    <filter id="wc" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="9" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.014" numOctaves="3" seed="21" result="lo"/>
+      <feColorMatrix in="lo" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0.6 0 0 0 0.5" result="mask"/>
+      <feComposite in="d" in2="mask" operator="in" result="body"/>
+      <feMorphology in="d" operator="erode" radius="2.4" result="er"/>
+      <feComposite in="d" in2="er" operator="out" result="edge"/>
+      <feGaussianBlur in="edge" stdDeviation="1.1" result="edgeb"/>
+      <feMerge><feMergeNode in="body"/><feMergeNode in="edgeb"/></feMerge>
+    </filter>
+    <filter id="wcs" x="-15%" y="-15%" width="130%" height="130%" color-interpolation-filters="sRGB">
+      <feTurbulence type="fractalNoise" baseFrequency="0.03" numOctaves="3" seed="7" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="4" xChannelSelector="R" yChannelSelector="G" result="d"/>
+      <feTurbulence type="fractalNoise" baseFrequency="0.014" numOctaves="3" seed="21" result="lo"/>
+      <feColorMatrix in="lo" type="matrix" values="0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  0.9 0 0 0 0.3" result="mask"/>
+      <feComposite in="d" in2="mask" operator="in" result="body"/>
+      <feMorphology in="d" operator="erode" radius="1.4" result="er"/>
+      <feComposite in="d" in2="er" operator="out" result="edge"/>
+      <feGaussianBlur in="edge" stdDeviation="0.7" result="edgeb"/>
+      <feMerge><feMergeNode in="body"/><feMergeNode in="edgeb"/></feMerge>
+    </filter>
+    <filter id="inkf" x="-5%" y="-5%" width="110%" height="110%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.9" numOctaves="1" seed="2" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="0.9" xChannelSelector="R" yChannelSelector="G"/>
+    </filter>
+  </defs>
+</svg>
+<main>
+  <header>
+    <svg id="picture" viewBox="0 0 640 230" role="img" aria-label="A draining rack by a sink with four plates standing in it, two mugs, a pot of cutlery, a tea towel on a rail and a few soap bubbles"></svg>
+    <h1>where does this go</h1>
+    <p class="sub">a round for four people and a sink</p>
+  </header>
+
+  <div class="lede noprint">
+    <p>A round is a song that is its own accompaniment. Everyone learns the same tune. One person starts, and when they reach the second line the next person starts from the top, and so on, until four people are singing four different lines of the same song at once. This one is for washing up. It works with two or three people, and with more than four if some of you double up. Nobody has to be able to sing.</p>
+  </div>
+
+  <p class="hint noprint">Press Sing with one singer to learn the tune. Then tap a singer's letter to sing their part yourself: they go quiet, and their dot keeps your place. The voices can only manage vowels, so the words are up to you. The two taps at the start give you the first note.</p>
+
+  <section class="player noprint" aria-label="Player">
+    <div class="controls">
+      <button id="go" type="button"><svg viewBox="0 0 14 14" aria-hidden="true"><path id="goicon" d="M2 1L13 7L2 13Z"/></svg><span id="golabel">Sing</span></button>
+      <div class="ctl"><span id="vl">singers</span><div class="seg" id="voices" role="group" aria-labelledby="vl"></div></div>
+      <div class="ctl"><span id="tl">times round</span><div class="seg" id="times" role="group" aria-labelledby="tl"></div></div>
+      <div class="ctl"><label for="tempo">speed</label><span class="end">slow</span><input id="tempo" type="range" min="50" max="84" step="1" value="66"><span class="end">fast</span></div>
+      <label class="check"><input id="sink" type="checkbox" checked> sink sounds</label>
+    </div>
+    <div class="jobs" id="jobs" role="group" aria-label="The singers. Press one to sing that part yourself."></div>
+  </section>
+
+  <section id="score" aria-label="The score: four lines of music, one for each part"></section>
+
+  <section class="howto">
+    <h2>how to sing it</h2>
+    <ol>
+      <li>Learn the tune together first. Everyone sings all four lines. The second line is the tricky one: "dry it and" goes down three times, then up once.</li>
+      <li>Singer A starts at <span class="num">1</span>. When A reaches <span class="num">2</span>, B starts from the top. C starts when A reaches <span class="num">3</span>, and D when A reaches <span class="num">4</span>.</li>
+      <li>Go round as many times as you like. Keep going when you lose your place: you'll find it again at the start of a line.</li>
+      <li>To finish, each singer stops at the end of the last line, one after the other, so the last one sings "nobody knows where this goes" on their own. Hold the last note the last time round.</li>
+    </ol>
+  </section>
+
+  <section class="noprint">
+    <h2>who's who</h2>
+    <p>The first line is washing up. The second is drying and can't keep up. The third knows exactly where everything goes and says so. The fourth is putting things away, and asks where they go.</p>
+    <p>Whenever someone is asking where this goes, someone else is singing the answer, and nobody hears it. Sing it on your own and it's worse: you tell yourself where the cups go, and four bars later you've forgotten.</p>
+    <div class="words" id="words"></div>
+
+    <h2>why the lines fit</h2>
+    <p>Every line is written over the same short run of chords (F, F, B flat, F, G minor, C, F, F, two to a bar). Whichever lines happen to be sounding, they're all on the same chord at the same time, so any of them can sit on top of any other. Writing a round is a bit like filling a crossword, where every word across also has to work as part of the words down. Nothing clashes on the beat. Between the beats there are a few rubs where someone is passing from one note to the next.</p>
+
+    <h2>where rounds come from</h2>
+    <p>The oldest round written down in English is <i>Sumer is icumen in</i>, copied in the 1200s and now in the British Library. It opens:</p>
+    <blockquote>Sumer is icumen in,<br>Lhude sing cuccu!</blockquote>
+    <p>"Summer has come in, loudly sing, cuckoo." Four people sing it as a round while two more sing a short repeating part underneath. The first printed book of rounds in English was Thomas Ravenscroft's <i>Pammelia</i>, in 1609. His second book that year, <i>Deuteromelia</i>, has the first printing of "Three Blind Mice", with a different tune and darker words.</p>
+    <p>Rounds sung for fun were called catches. They were often rude, Henry Purcell wrote dozens, and the best of them hide a joke that only appears when the parts overlap.</p>
+
+    <p class="small">The four voices are synthesized in your browser, from a buzz and some filters. The notes are drawn with glyphs from Noto Music, under the SIL Open Font License.</p>
+    <p><button class="printbtn" type="button" onclick="print()">Print it for the fridge</button></p>
+  </section>
+
+  <footer>Entry 011 in <a href="../index.html">a sketchbook</a>. Made by Claude, 2026-10-03.</footer>
+</main>
+
+<script>
+'use strict';
+const NS = 'http://www.w3.org/2000/svg';
+const GLYPHS = {"upm":1000,"gclef":{"d":"M314 801Q300 854 291.0 906.0Q282 958 282 1012Q282 1059 288.5 1100.5Q295 1142 307 1177Q320 1217 341.0 1252.5Q362 1288 385.5 1311.0Q409 1334 427 1334Q451 1334 493 1249Q514 1206 524.0 1156.0Q534 1106 534 1049Q534 978 515.0 907.5Q496 837 459.5 775.0Q423 713 372 666L407 498Q422 500 432.0 501.0Q442 502 447 502Q508 502 556.0 467.5Q604 433 632.5 377.0Q661 321 661 254Q661 177 621.5 115.5Q582 54 503 25Q508 8 532 -117Q538 -147 541.0 -164.5Q544 -182 545.0 -195.0Q546 -208 546 -225Q546 -275 521.5 -314.5Q497 -354 455.5 -376.0Q414 -398 363 -398Q311 -398 271.0 -378.5Q231 -359 208.0 -324.5Q185 -290 185 -245Q185 -197 211.5 -165.0Q238 -133 287 -133Q329 -133 355.5 -163.5Q382 -194 382 -236Q382 -272 357.0 -299.0Q332 -326 292 -326H282Q308 -365 364 -365Q433 -365 472.0 -320.0Q511 -275 511 -205Q511 -188 507.0 -159.5Q503 -131 493 -91Q483 -51 477.5 -25.0Q472 1 470 12Q436 2 390 2Q304 2 222 52Q142 102 96.0 184.0Q50 266 50 361Q50 451 91 530Q132 609 192.5 675.0Q253 741 314 801ZM341 826Q364 838 390.0 870.5Q416 903 440.0 945.0Q464 987 479.0 1029.5Q494 1072 494 1106Q494 1142 483.0 1163.0Q472 1184 445 1184Q421 1184 398.5 1162.0Q376 1140 358.5 1103.5Q341 1067 331.0 1022.0Q321 977 321 930Q321 898 327.5 872.0Q334 846 341 826ZM398 379Q371 373 347.0 353.5Q323 334 308.5 306.5Q294 279 294 248Q294 223 307.0 196.5Q320 170 339 154Q352 142 365 136Q380 129 380 123Q380 120 370 117Q332 126 301.5 151.0Q271 176 253.5 211.5Q236 247 236 287Q236 330 253.5 370.0Q271 410 302.5 442.0Q334 474 374 490L345 641Q229 547 174.5 456.5Q120 366 120 277Q120 212 154.0 156.0Q188 100 247.0 65.5Q306 31 380 31Q400 31 420.5 35.0Q441 39 464 45ZM495 55Q593 97 593 227Q593 270 571.0 305.5Q549 341 512.0 362.0Q475 383 429 383Z","b":[50,-398,661,1334]},"flat":{"d":"M51 524H88V179Q117 220 148.0 243.5Q179 267 209 267Q250 267 273.0 242.0Q296 217 296 173Q296 115 263 70Q241 40 208.0 19.0Q175 -2 138.5 -13.5Q102 -25 69 -25H51ZM88 141V3Q115 3 153 25Q192 47 215.5 83.0Q239 119 239 162Q239 191 230.5 206.5Q222 222 199 222Q171 222 140.5 198.0Q110 174 88 141Z","b":[51,-25,296,524]},"rest4":{"d":"M147 878 307 683Q257 624 230.0 581.0Q203 538 203 494Q203 457 227.0 416.5Q251 376 303 314L287 292Q243 320 205 320Q177 320 163.0 301.5Q149 283 149 257Q149 225 162.5 196.5Q176 168 199 142L186 123Q117 173 84.0 214.0Q51 255 51 303Q51 346 78.0 366.0Q105 386 143 386Q173 386 221 363V365L67 570Q168 659 168 736Q168 797 104 878Z","b":[51,123,307,878]},"rest8":{"d":"M155 269 251 609Q230 590 203.5 582.0Q177 574 151 574Q108 574 79.0 597.0Q50 620 50 663Q50 691 70.0 710.5Q90 730 121 730Q150 730 168.5 711.5Q187 693 187 662Q187 640 177 623Q177 617 189 617Q244 617 294 703H312L191 269Z","b":[50,269,312,730]},"rest16":{"d":"M155 147 251 487Q230 468 203.5 460.0Q177 452 151 452Q108 452 79.0 475.0Q50 498 50 541Q50 569 69.5 588.5Q89 608 121 608Q150 608 168.5 589.5Q187 571 187 540Q187 518 177 501Q177 495 189 495Q230 495 267 541L319 731Q298 712 271.5 704.0Q245 696 219 696Q176 696 147.0 719.0Q118 742 118 785Q118 813 138.0 832.5Q158 852 189 852Q219 852 237.0 833.0Q255 814 255 784Q255 774 252.0 763.5Q249 753 245 745Q245 739 257 739Q312 739 362 825H380L191 147Z","b":[50,147,380,852]},"head":{"d":"M159 -1Q111 -1 80.5 21.5Q50 44 50 90Q50 141 78.5 181.5Q107 222 153.0 245.5Q199 269 251 269Q295 269 321.0 245.5Q347 222 347 179Q347 130 321.0 89.0Q295 48 252.5 23.5Q210 -1 159 -1Z","b":[50,-1,347,269]},"void":{"d":"M159 -1Q111 -1 80.5 21.5Q50 44 50 90Q50 141 78.5 181.5Q107 222 153.0 245.5Q199 269 251 269Q295 269 321.0 245.5Q347 222 347 179Q347 130 321.0 89.0Q295 48 252.5 23.5Q210 -1 159 -1ZM77 66Q77 56 84.5 48.0Q92 40 105 40Q140 40 192 69Q227 89 255.5 113.5Q284 138 301.0 162.5Q318 187 318 204Q318 215 312.5 222.5Q307 230 293 230Q274 230 247.0 218.0Q220 206 190.5 187.0Q161 168 135.0 145.5Q109 123 93.0 102.0Q77 81 77 66Z","b":[50,-1,347,269]},"flag8":{"d":"M0 1009H26Q33 968 41.5 936.5Q50 905 66.5 875.5Q83 846 112 812L152 765Q178 736 202 704Q274 611 274 511Q274 407 186 259H170Q199 318 221.0 377.5Q243 437 243 491Q243 518 235.0 546.5Q227 575 212 605Q181 666 125.0 704.5Q69 743 0 743Z","b":[0,259,274,1009]},"flag16":{"d":"M0 1009H26Q30 974 38.5 950.5Q47 927 60 907Q77 882 98.5 865.5Q120 849 146 823Q176 794 205.5 757.0Q235 720 254.5 674.5Q274 629 274 573Q274 551 271.0 527.5Q268 504 260 478Q286 440 286 368Q286 320 273.5 272.5Q261 225 235 191H219Q266 283 266 351Q266 416 220 471Q190 508 150.5 537.0Q111 566 71.5 585.5Q32 605 0 613ZM32 823Q32 798 38.5 773.5Q45 749 56 727Q64 713 87.5 683.0Q111 653 145 619Q181 585 211.5 552.0Q242 519 247 505Q251 520 251 547Q251 623 202.0 690.0Q153 757 32 823Z","b":[0,191,286,1009]},"fermata":{"d":"M673 648Q671 698 646.0 743.0Q621 788 579.5 823.0Q538 858 486.0 878.0Q434 898 378 898Q324 898 272.5 879.0Q221 860 179.0 825.5Q137 791 111.0 746.0Q85 701 83 648H50Q57 720 83.0 783.5Q109 847 152.0 896.0Q195 945 252.0 972.5Q309 1000 378 1000Q447 1000 505.5 971.5Q564 943 607.5 894.0Q651 845 677.0 781.5Q703 718 708 648ZM378 648Q353 648 337.0 662.0Q321 676 321 699Q321 719 337.5 732.5Q354 746 378 746Q401 746 417.0 731.5Q433 717 433 699Q433 676 417.0 662.0Q401 648 378 648Z","b":[50,648,708,1000]}};
+const Q = new URLSearchParams(location.search);
+
+// ---------- entry 006's pen: tapered ink and loose watercolour ----------
+function mulberry32(a) { return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+function noise1(rng) {
+  const g = Array.from({ length: 256 }, () => rng() * 2 - 1);
+  return x => { const i = Math.floor(x), f = x - i, u = f * f * (3 - 2 * f); return g[i & 255] * (1 - u) + g[(i + 1) & 255] * u; };
+}
+// smooth curve through points (Catmull-Rom as cubic Beziers)
+function sm(pts, closed = false) {
+  const n = pts.length, P = i => closed ? pts[(i + n) % n] : pts[Math.max(0, Math.min(n - 1, i))];
+  let d = `M${P(0)[0]},${P(0)[1]}`;
+  for (let i = 0; i < (closed ? n : n - 1); i++) {
+    const p0 = P(i - 1), p1 = P(i), p2 = P(i + 1), p3 = P(i + 2);
+    d += `C${p1[0] + (p2[0] - p0[0]) / 6},${p1[1] + (p2[1] - p0[1]) / 6} ${p2[0] - (p3[0] - p1[0]) / 6},${p2[1] - (p3[1] - p1[1]) / 6} ${p2[0]},${p2[1]}`;
+  }
+  return closed ? d + 'Z' : d;
+}
+const ln = (...pts) => 'M' + pts.map(p => p.join(',')).join('L');
+const circ = (cx, cy, r) => `M${cx - r},${cy}a${r},${r} 0 1,0 ${2 * r},0a${r},${r} 0 1,0 ${-2 * r},0Z`;
+const ell = (cx, cy, rx, ry) => `M${cx - rx},${cy}a${rx},${ry} 0 1,0 ${2 * rx},0a${rx},${ry} 0 1,0 ${-2 * rx},0Z`;
+const rect = (x, y, w, h) => `M${x},${y}h${w}v${h}h${-w}Z`;
+
+function makePen(svg, seed, W, H) {
+  const rng = mulberry32(seed), nz = noise1(rng);
+  const cp = el('clipPath', { id: 'panel' + seed }, svg); el('rect', { x: 4, y: 4, width: W - 8, height: H - 8 }, cp);
+  const root = el('g', { 'clip-path': `url(#panel${seed})` }, svg);
+  const meas = el('path', { d: 'M0,0', visibility: 'hidden' }, svg);
+  let clipN = 0, cur;
+  const r = (a, b) => a + (b - a) * rng();
+
+  function layer(o = {}) {
+    const k = o.k ?? 1;
+    const g = el('g', { transform: `translate(${o.x ?? 0},${o.y ?? 0}) scale(${o.flip ? -k : k},${k})` }, o.free ? svg : root);
+    cur = { knock: el('g', {}, g), washes: el('g', { style: 'mix-blend-mode:multiply' }, g), inks: el('g', { filter: 'url(#inkf)' }, g) };
+    return cur;
+  }
+  layer();
+
+  function sample(d, closed) {
+    meas.setAttribute('d', d);
+    const L = meas.getTotalLength();
+    return { L, at: closed ? s => meas.getPointAtLength(((s % L) + L) % L) : s => meas.getPointAtLength(Math.max(0, Math.min(L, s))) };
+  }
+
+  // a tapered ink stroke along any path
+  function stroke(d, w = 2, o = {}) {
+    const closed = /z\s*$/i.test(d);
+    const { L, at } = sample(d, closed);
+    if (!L) return;
+    const over = closed ? (o.over ?? r(0.03, 0.08)) * L : 0;
+    const s0 = closed ? r(0, L) : 0, total = L + over;
+    const off = r(0, 200), amp = o.wobble ?? Math.min(1.2, 0.3 + L / 400);
+    const ti = Math.min(total * 0.35, o.ti ?? 10), to = Math.min(total * 0.4, o.to ?? 16);
+    const m = Math.max(4, Math.ceil(total / 1.5)), left = [], right = [], P = [];
+    for (let i = 0; i <= m; i++) { const q = at(s0 + i / m * total); P.push([q.x, q.y]); }
+    for (let i = 0; i <= m; i++) {
+      const s = i / m * total, [px, py] = P[i], a = P[Math.max(0, i - 1)], b = P[Math.min(m, i + 1)];
+      let tx = b[0] - a[0], ty = b[1] - a[1]; const tl = Math.hypot(tx, ty) || 1; tx /= tl; ty /= tl;
+      const nx = -ty, ny = tx;
+      const f = Math.max(0, Math.min(1, s / ti, (total - s) / to));
+      const mn = o.min ?? 0.25, taper = mn + (1 - mn) * Math.sin(f * Math.PI / 2);
+      const wd = w * taper * (1 + (o.press ?? 0.2) * nz(off + 50 + s / 22)) / 2;
+      const dv = amp * nz(off + s / 40);
+      const cx = px + nx * dv, cy = py + ny * dv;
+      left.push([cx + nx * wd, cy + ny * wd]); right.push([cx - nx * wd, cy - ny * wd]);
+    }
+    const pts = left.concat(right.reverse());
+    el('path', { d: 'M' + pts.map(p => p[0].toFixed(2) + ',' + p[1].toFixed(2)).join('L') + 'Z', fill: o.color || INK, opacity: o.alpha ?? 1 }, o.into || cur.inks);
+  }
+
+  function fill(d, color = INK, o = {}) { el('path', { d, fill: color, 'fill-rule': 'evenodd', opacity: o.alpha ?? 1 }, o.into || cur.inks); }
+  function knock(d) { el('path', { d, fill: PAPER }, cur.knock); }
+
+  // loose watercolour: offset, ragged, darker at the edges, glazes where it overlaps
+  function wash(d, color, o = {}) {
+    const k = o.loose ?? 3;
+    meas.setAttribute('d', d);
+    const b = meas.getBBox(), small = Math.max(b.width, b.height) < 90;
+    el('path', { d, fill: color, 'fill-rule': 'evenodd', opacity: o.alpha ?? 0.55, filter: small ? 'url(#wcs)' : 'url(#wc)',
+      transform: `translate(${r(-k, k).toFixed(1)},${r(-k, k).toFixed(1)})` }, cur.washes);
+  }
+
+  // parallel hatching clipped to a shape
+  function hatch(clipD, angle = -45, gap = 5, w = 0.9, o = {}) {
+    const id = 'c' + seed + '_' + (clipN++);
+    const cp = el('clipPath', { id }, svg); el('path', { d: clipD }, cp);
+    const g = el('g', { 'clip-path': `url(#${id})` }, cur.inks);
+    meas.setAttribute('d', clipD);
+    const b = meas.getBBox(), cx = b.x + b.width / 2, cy = b.y + b.height / 2, R = Math.hypot(b.width, b.height) / 2 + 4;
+    const a = angle * Math.PI / 180, ux = Math.cos(a), uy = Math.sin(a);
+    for (let t = -R; t <= R; t += gap * r(0.8, 1.2)) {
+      const px = cx - uy * t, py = cy + ux * t;
+      stroke(ln([px - ux * R, py - uy * R], [px + ux * R, py + uy * R]), w, { into: g, wobble: 0.6, ti: 6, to: 6, ...o });
+    }
+  }
+
+  function text(str, x, y, size, o = {}) {
+    const t = el('text', { x, y, 'font-size': size, 'font-family': o.font || '"Patrick Hand", Z003, cursive', fill: o.color || INK,
+      'text-anchor': o.anchor || 'middle', transform: `rotate(${o.rot ?? r(-2, 2)} ${x} ${y})`, 'letter-spacing': o.ls ?? 0 }, o.into || cur.inks);
+    t.textContent = str;
+    return t;
+  }
+
+  return { stroke, s: stroke, fill, knock, wash, hatch, text, layer, r, rng, svg, W, H };
+}
+
+// ---------- the picture, drawn with entry 006's pen ----------
+const INK = '#1d1a16', PAPER = '#fbf8f1';
+function drawPicture() {
+  const svg = document.getElementById('picture');
+  const p = makePen(svg, 11, 640, 230);
+  const { s, wash, knock, fill } = p;
+  // the worktop
+  p.layer();
+  wash(sm([[60, 205], [300, 204], [580, 205], [560, 214], [420, 219], [260, 218], [110, 216]], true), '#c9d3d6', { alpha: 0.4, loose: 1.5 });
+  s(sm([[46, 204], [200, 203], [420, 204.5], [596, 203.5]]), 1.6);
+  // a tea towel over its rail, striped like everyone's
+  p.layer();
+  s(sm([[88, 108], [170, 107]]), 2.4);
+  s(sm([[90, 100], [90, 108]]), 2); s(sm([[168, 99], [168, 107]]), 2);
+  p.layer();
+  const towel = sm([[100, 104], [112, 99], [130, 100], [148, 99], [158, 104], [160, 140], [161, 176], [146, 178], [130, 175], [114, 178], [99, 176], [99, 140]], true);
+  knock(towel);
+  wash(towel, '#efe6d2', { alpha: 0.85, loose: 1 });
+  for (const [y, h] of [[118, 5], [150, 4], [158, 7]]) wash(rect(99, y, 62, h), '#c4472f', { alpha: 0.55, loose: 0.6 });
+  s(towel, 1.9);
+  s(sm([[101, 111], [130, 112], [159, 110]]), 1.1, { alpha: 0.7 });
+  s(sm([[124, 120], [126, 150], [124, 172]]), 0.9, { alpha: 0.45 });
+  // the rack's back wires
+  p.layer();
+  for (let x = 176; x <= 396; x += 22) s(sm([[x, 200], [x - 2, 168], [x + 3, 150], [x + 8, 168], [x + 7, 200]]), 1.2, { alpha: 0.6 });
+  // four plates, one for each part, the rims in the parts' colours
+  const rims = ['#c4472f', '#1f7a84', '#b07d12', '#7a4a8f'];
+  [[212, 146, -7], [262, 142, -3], [312, 140, 3], [362, 144, 8]].forEach(([cx, cy, tilt], i) => {
+    p.layer();
+    const R = 48, rx = R * 0.94;
+    const plate = ell(cx, cy, rx, R), well = ell(cx + 1, cy + 1, rx * 0.62, R * 0.64);
+    knock(plate);
+    wash(plate, '#f6f1e6', { alpha: 0.9, loose: 0.5 });
+    wash(plate + ell(cx, cy, rx * 0.8, R * 0.82), rims[i], { alpha: 0.5, loose: 0.8 });
+    wash(well, '#e8e1d2', { alpha: 0.5, loose: 1 });
+    s(plate, 2);
+    s(ell(cx, cy, rx * 0.8, R * 0.82), 1.1, { alpha: 0.75 });
+    s(well, 1.2, { alpha: 0.6 });
+    // a glint
+    s(sm([[cx - rx * 0.55, cy - R * 0.5], [cx - rx * 0.38, cy - R * 0.66], [cx - rx * 0.18, cy - R * 0.74]]), 1.6, { color: '#fff', alpha: 0.9 });
+  });
+  // the rack's front wires and rails, in front of the plates
+  p.layer();
+  for (let x = 187; x <= 407; x += 22) {
+    s(sm([[x, 200], [x - 2, 178], [x + 2, 166], [x + 6, 178], [x + 5, 200]]), 1.6);
+  }
+  wash(rect(168, 192, 256, 10), '#9aa6aa', { alpha: 0.5, loose: 1 });
+  s(sm([[166, 193], [300, 192], [426, 193]]), 1.7);
+  s(sm([[166, 201], [300, 200.5], [426, 201]]), 1.7);
+  s(sm([[166, 193], [164, 197], [166, 201]]), 1.4);
+  s(sm([[426, 193], [428, 197], [426, 201]]), 1.4);
+  // two mugs upside down, drying
+  [[452, 0, '#d9cbb0'], [500, 1, '#9fb7b9']].forEach(([x, k, c]) => {
+    p.layer();
+    const body = sm([[x - 19, 203], [x - 21, 168], [x - 18, 160], [x + 18, 160], [x + 21, 168], [x + 19, 203]]) + 'Z';
+    const handle = sm([[x + 20, 172], [x + 32, 170], [x + 34, 182], [x + 30, 192], [x + 19, 192]]);
+    knock(body);
+    wash(body, c, { alpha: 0.75, loose: 1 });
+    s(body, 2);
+    s(handle, 2.6);
+    s(sm([[x - 12, 168], [x - 12.5, 194]]), 1.6, { color: '#fff', alpha: 0.8 });
+  });
+  // a pot of cutlery
+  p.layer();
+  const pot = sm([[536, 203], [533, 160], [571, 160], [568, 203]]) + 'Z';
+  s(sm([[544, 162], [541, 108], [538, 98], [541, 88], [547, 88], [549, 98], [546, 108], [548, 162]]), 1.6);   // spoon
+  s(sm([[556, 162], [557, 112]]), 1.8); s(sm([[551, 112], [563, 112]]), 1.6);
+  for (const dx of [-5, -1.7, 1.7, 5]) s(sm([[557 + dx, 112], [557 + dx, 96]]), 1.2);                     // fork
+  s(sm([[565, 162], [568, 120], [566, 100]]), 1.6); s(sm([[566, 100], [571, 92], [574, 100], [569, 121]]), 1.4); // a wooden spoon
+  p.layer();
+  knock(pot);
+  wash(pot, '#b9c4a8', { alpha: 0.7, loose: 1 });
+  s(pot, 2);
+  s(ell(552, 160, 19, 3.5), 1.4);
+  // soap bubbles drifting up
+  p.layer();
+  for (const [x, y, r] of [[250, 72, 9], [272, 48, 6], [296, 66, 4.5], [330, 38, 7.5], [352, 70, 3.5], [226, 40, 4], [312, 18, 3]]) {
+    wash(circ(x, y, r), '#b9d4e0', { alpha: 0.35, loose: 0.3 });
+    s(circ(x, y, r), 1.1, { alpha: 0.8 });
+    s(sm([[x - r * 0.55, y - r * 0.1], [x - r * 0.4, y - r * 0.45], [x - r * 0.05, y - r * 0.6]]), 1, { color: '#fff', alpha: 0.9 });
+  }
+}
+
+
+// ---------- the round ----------
+// [pitch, sixteenths, syllable, sound]. A 6/8 bar is 12 sixteenths. A syllable ending in "-" runs on into the next.
+// sound is onset|vowel|coda: onsets and codas are rough classes of consonant, vowels are listed in VOWELS.
+const LINES = [
+  { who: 'the washer', job: 'washing', notes: [
+    ['C5', 6, 'Hot', 'h|O|t'], ['C5', 4, 'wa-', 'w|O|'], ['A4', 2, 'ter,', 't|@|'],
+    ['D5', 6, 'hot', 'h|O|t'], ['C5', 2, 'wa-', 'w|O|'], ['A4', 2, 'ter', 't|@|'], ['C5', 2, 'and', '|a|n'],
+    ['D5', 6, 'plen-', 'p|E|n'], ['C5', 4, 'ty', 't|i|'], ['Bb4', 2, 'of', '|@|v'],
+    ['A4', 12, 'soap,', 's|ou|p'],
+  ]},
+  { who: 'the dryer', job: 'drying', notes: [
+    ['A4', 2, 'dry', 'd|ai|'], ['G4', 2, 'it', '|I|t'], ['F4', 2, 'and', '|a|n'], ['A4', 2, 'dry', 'd|ai|'], ['G4', 2, 'it', '|I|t'], ['F4', 2, 'and', '|a|n'],
+    ['Bb4', 2, 'dry', 'd|ai|'], ['A4', 2, 'it', '|I|t'], ['G4', 2, 'and', '|a|n'], ['F4', 2, 'dry', 'd|ai|'], ['G4', 2, 'it', '|I|t'], ['A4', 2, 'and', '|a|n'],
+    ['Bb4', 2, 'tea', 't|i|'], ['A4', 2, 'tow-', 't|au|'], ['G4', 2, "el's", '|@|z'], ['C5', 2, 'soak-', 's|ou|k'], ['Bb4', 2, 'ing,', '|I|n'], ['G4', 2, 'and', '|a|n'],
+    ['A4', 2, 'here', 'h|I@|'], ['G4', 2, 'comes', 'k|V|z'], ['F4', 2, 'an-', '|@|n'], ['C5', 4, 'oth-', '|V|'], ['C5', 2, 'er:', 'l|@|'],
+  ]},
+  { who: 'the one who knows', job: 'knowing', notes: [
+    ['F4', 3, 'Plates', 'p|ei|s'], ['G4', 1, 'in', '|I|n'], ['A4', 2, 'the', 'l|@|'], ['C5', 3, 'rack', 'r|a|k'], ['Bb4', 1, 'and', '|a|n'], ['A4', 2, 'the', 'l|@|'],
+    ['D5', 3, 'cups', 'k|V|s'], ['C5', 1, 'on', '|O|n'], ['Bb4', 2, 'the', 'l|@|'], ['A4', 3, 'hooks', 'h|U|s'], ['G4', 1, 'and', '|a|n'], ['F4', 2, 'the', 'l|@|'],
+    ['G4', 3, 'pans', 'p|a|z'], ['A4', 1, 'in', '|I|n'], ['Bb4', 2, 'the', 'l|@|'], ['G4', 3, 'cup-', 'k|V|'], ['E4', 1, 'board', 'p|O|t'], ['D4', 2, 'be-', 'p|I|'],
+    ['C4', 6, 'low.', 'l|ou|'], [null, 6],
+  ]},
+  { who: 'the one putting away', job: 'putting away', notes: [
+    ['C4', 2, 'Where', 'w|E|'], ['D4', 2, 'does', 'd|V|z'], ['C4', 2, 'this', 'l|I|s'], ['F4', 6, 'go?', 'k|ou|'],
+    ['D4', 2, 'Where', 'w|E|'], ['E4', 2, 'does', 'd|V|z'], ['F4', 2, 'this', 'l|I|s'], ['A4', 6, 'go?', 'k|ou|'],
+    ['Bb4', 2, 'No-', 'n|ou|'], ['A4', 2, 'bod-', 'p|O|'], ['G4', 2, 'y', 't|i|'], ['E4', 6, 'knows', 'n|ou|z'],
+    ['F4', 4, 'where', 'w|E|'], ['G4', 2, 'this', 'l|I|s'], ['F4', 6, 'goes.', 'k|ou|z'],
+  ]},
+];
+const LINE_LEN = 48, BAR = 12;
+
+const STEP = { C: 0, D: 1, E: 2, F: 3, G: 4, A: 5, B: 6 }, SEMI = { C: 0, D: 2, E: 4, F: 5, G: 7, A: 9, B: 11 };
+function parse(p) {
+  const m = /^([A-G])(b|#)?(\d)$/.exec(p);
+  const oct = +m[3];
+  return { step: oct * 7 + STEP[m[1]], midi: 12 * (oct + 1) + SEMI[m[1]] + (m[2] === 'b' ? -1 : m[2] === '#' ? 1 : 0) };
+}
+for (const L of LINES) {
+  let t = 0;
+  L.events = L.notes.map(([p, d, syl, snd]) => {
+    const e = { t, d, rest: !p, syl: syl || '' };
+    if (p) Object.assign(e, parse(p), { snd: snd.split('|') });
+    t += d;
+    return e;
+  });
+}
+
+// ---------- engraving ----------
+const S = 9;                       // one staff space, in svg units
+const G = (GLYPHS && GLYPHS.upm) ? 250 : 250;   // the font's staff space, in font units
+const K = S / G;
+function el(tag, attrs, parent) {
+  const e = document.createElementNS(NS, tag);
+  for (const k in attrs) e.setAttribute(k, attrs[k]);
+  if (parent) parent.appendChild(e);
+  return e;
+}
+// a font glyph with its origin at x,y (font baseline), scaled to the staff
+function glyph(name, x, y, parent, o = {}) {
+  const g = GLYPHS[name];
+  return el('path', { d: g.d, transform: `translate(${x.toFixed(2)},${y.toFixed(2)}) scale(${(o.flipX ? -K : K) * (o.k || 1)},${(o.flipY ? K : -K) * (o.k || 1)})`, ...(o.attrs || {}) }, parent);
+}
+const textW = (() => {
+  const c = document.createElement('canvas').getContext('2d');
+  return (s, px, style = '') => { c.font = `${style} ${px}px P052, "Palatino Linotype", Palatino, Georgia, serif`; return c.measureText(s).width; };
+})();
+
+const LYR = 1.55 * S;              // lyric size
+const HEADW = 1.18 * S;            // notehead width (glyph is 297 units wide at 250 a space)
+const VOICE = ['var(--v1)', 'var(--v2)', 'var(--v3)', 'var(--v4)'];
+const WHO = ['A', 'B', 'C', 'D'];
+
+let layout = null;                 // per line: [{ sys, x }] for each event, for the cursors
+function engrave() {
+  const box = document.getElementById('score');
+  box.textContent = '';
+  const narrow = box.clientWidth < 540;
+  const barsPer = narrow ? 2 : 4;
+  const W = narrow ? 380 : 760;
+  layout = LINES.map(() => []);
+  const systems = [];
+  for (let li = 0; li < LINES.length; li++) {
+    for (let b0 = 0; b0 < 4; b0 += barsPer) systems.push({ li, b0, first: li === 0 && b0 === 0, last: li === 3 && b0 + barsPer === 4, entry: b0 === 0 });
+  }
+  for (const sy of systems) {
+    const L = LINES[sy.li];
+    const top = 6 * S, H = top + 4 * S + 4.2 * S;
+    const svg = el('svg', { viewBox: `0 0 ${W} ${H}`, 'aria-hidden': 'true' }, box);
+    sy.svg = svg;
+    const bot = top + 4 * S;             // bottom staff line
+    const yOf = step => bot - (step - 30) * S / 2;   // E4 is step 30
+    const g = el('g', {}, svg);
+    // staff
+    const st = el('g', { class: 'staff' }, g);
+    for (let i = 0; i < 5; i++) el('line', { x1: 0, x2: W, y1: top + i * S, y2: top + i * S, 'stroke-width': 0.8 }, st);
+    // clef, key, time
+    let x = 0.6 * S;
+    glyph('gclef', x, bot, g); x += 3.1 * S;
+    glyph('flat', x, top + 2.48 * S, g); x += 1.6 * S;     // B flat on the middle line
+    if (sy.first) {
+      for (const [n, yy] of [['6', top + 2 * S], ['8', bot]]) {
+        const t = el('text', { x: x + 0.9 * S, y: yy - 0.12 * S, 'font-size': 2.75 * S, 'font-weight': 700, 'text-anchor': 'middle', class: 'lyr' }, g);
+        t.textContent = n;
+      }
+      x += 2.6 * S;
+    }
+    x += 1.1 * S;
+    if (sy.first) {
+      const t = el('text', { x: W - 1, y: top - 4.4 * S + 0.45 * S, 'font-size': 1.45 * S, 'text-anchor': 'end', class: 'role' }, g);
+      t.textContent = 'Lilting, two beats to a bar';
+    }
+    // who sings this line
+    if (sy.entry) {
+      const n = sy.li + 1;
+      el('circle', { cx: x + HEADW / 2, cy: top - 4.4 * S, r: 1.05 * S, fill: 'none', stroke: 'var(--ink)', 'stroke-width': 0.9 }, g);
+      const t = el('text', { x: x + HEADW / 2, y: top - 4.4 * S + 0.5 * S, 'font-size': 1.4 * S, 'text-anchor': 'middle', class: 'lyr' }, g);
+      t.textContent = n;
+      const r = el('text', { x: x + HEADW / 2 + 1.7 * S, y: top - 4.4 * S + 0.45 * S, 'font-size': 1.35 * S, class: 'role' }, g);
+      r.textContent = L.who;
+    }
+    // this system's events
+    const evs = L.events.map((e, i) => ({ e, i })).filter(({ e }) => e.t >= sy.b0 * BAR && e.t < (sy.b0 + barsPer) * BAR);
+    // Each note wants room for its length; each lyric needs room to clear its neighbour's.
+    // Find the one scale for the lengths that makes the system exactly full.
+    const barPad = 1.2 * S, endPad = 0.6 * S;
+    const avail = W - x - (barsPer * barPad + endPad) - (sy.last ? 1.4 * S : 0);
+    const base = evs.map(({ e }) => S * (1.7 + 1.25 * Math.log2(e.d)));
+    const need = lyr => evs.map(({ e }, k) => {
+      const head = HEADW + ([3, 6, 12].includes(e.d) ? 1.4 * S : 0.9 * S);
+      const nx = evs[k + 1];
+      if (!nx || !e.syl) return head;
+      const w = s => s ? textW(s.replace(/-$/, ''), lyr) : 0;
+      const gap = e.syl.endsWith('-') ? 1.8 * S : 0.75 * S;
+      // the next note starts a bar later than it looks: the bar padding adds room
+      const bpad = Math.floor(nx.e.t / BAR) !== Math.floor(e.t / BAR) ? barPad : 0;
+      return Math.max(head, w(e.syl) / 2 + w(nx.e.syl) / 2 + gap - bpad);
+    });
+    let lyr = LYR, mins = need(lyr);
+    while (mins.reduce((a, b) => a + b, 0) > avail && lyr > LYR * 0.75) { lyr *= 0.97; mins = need(lyr); }
+    const fill = k => base.reduce((a, b, i) => a + Math.max(mins[i], b * k), 0);
+    let lo = 0, hi = 4;
+    for (let it = 0; it < 40; it++) { const m = (lo + hi) / 2; fill(m) > avail ? hi = m : lo = m; }
+    const widths = base.map((b, i) => Math.max(mins[i], b * lo));
+    sy.lyr = lyr;
+    let bar = sy.b0;
+    x -= barPad;   // the first bar's padding is already in the clef area
+    const placed = [];
+    evs.forEach(({ e, i }, k) => {
+      const b = Math.floor(e.t / BAR);
+      if (b !== bar || k === 0) {
+        if (k > 0) { el('line', { x1: x, x2: x, y1: top, y2: bot, stroke: 'var(--ink)', 'stroke-width': 1 }, g); }
+        x += barPad; bar = b;
+      }
+      placed.push({ e, i, x });
+      layout[sy.li][i] = { sy, x, cx: x + HEADW / 2 };
+      x += widths[k];
+    });
+    // close the system
+    const endX = W - 0.5;
+    if (sy.last) {
+      el('rect', { x: endX - 0.55 * S, y: top, width: 0.55 * S, height: 4 * S, fill: 'var(--ink)' }, g);
+      el('line', { x1: endX - 1.25 * S, x2: endX - 1.25 * S, y1: top, y2: bot, stroke: 'var(--ink)', 'stroke-width': 1 }, g);
+      for (const yy of [top + 1.5 * S, top + 2.5 * S]) el('circle', { cx: endX - 2.05 * S, cy: yy, r: 0.27 * S, fill: 'var(--ink)' }, g);
+    } else {
+      el('line', { x1: endX, x2: endX, y1: top, y2: bot, stroke: 'var(--ink)', 'stroke-width': 1 }, g);
+    }
+    // notes, grouped by beat for beaming
+    const beats = new Map();
+    for (const p of placed) {
+      if (p.e.rest) continue;
+      const k = Math.floor(p.e.t / 6);
+      if (!beats.has(k)) beats.set(k, []);
+      beats.get(k).push(p);
+    }
+    const notesG = el('g', {}, g);
+    for (const p of placed) {
+      const { e, x } = p;
+      if (e.rest) {
+        // a dotted crotchet rest
+        glyph('rest4', x, bot, notesG);
+        el('circle', { cx: x + 2.0 * S, cy: top + 1.5 * S, r: 0.24 * S, fill: 'var(--ink)' }, notesG);
+        continue;
+      }
+      const y = yOf(e.step);
+      // ledger lines
+      for (let s = 28; s >= e.step; s -= 2) el('line', { x1: x - 0.45 * S, x2: x + HEADW + 0.45 * S, y1: yOf(s), y2: yOf(s), class: 'ledger', 'stroke-width': 0.9 }, notesG);
+      const head = glyph(e.d >= 8 ? 'void' : 'head', x - 50 * K, y + 134 * K, notesG, { attrs: { class: 'head', fill: 'var(--ink)' } });
+      if (sy.last && p === placed[placed.length - 1]) {
+        // hold it, the last time round
+        const fb = GLYPHS.fermata.b;
+        glyph('fermata', x + HEADW / 2 - (fb[0] + fb[2]) / 2 * K, top - 0.4 * S + fb[1] * K, notesG);
+        const t = el('text', { x: x + HEADW / 2, y: top - 2.3 * S, 'font-size': 1.2 * S, 'text-anchor': 'middle', class: 'role' }, notesG);
+        t.textContent = 'last time';
+      }
+      p.head = head;
+      head.dataset.line = layout[sy.li][p.i] ? sy.li : sy.li;
+      head.dataset.i = p.i;
+      if ([3, 6, 12].includes(e.d)) {
+        const dy = e.step % 2 === 0 ? -S / 2 : 0;   // on a line: move the dot up into the space
+        el('circle', { cx: x + HEADW + 0.55 * S, cy: y + dy, r: 0.24 * S, fill: 'var(--ink)' }, notesG);
+      }
+      // lyric
+      if (e.syl) {
+        const t = el('text', { x: x + HEADW / 2, y: bot + 3.3 * S, 'font-size': sy.lyr.toFixed(2), 'text-anchor': 'middle', class: 'lyr' }, notesG);
+        t.textContent = e.syl.replace(/-$/, '');
+        p.lyrW = textW(t.textContent, sy.lyr);
+      }
+    }
+    // hyphens between syllables of one word
+    for (let k = 0; k < placed.length - 1; k++) {
+      const a = placed[k], b = placed[k + 1];
+      if (a.e.syl && a.e.syl.endsWith('-')) {
+        const x0 = a.x + HEADW / 2 + a.lyrW / 2, x1 = b.x + HEADW / 2 - b.lyrW / 2;
+        const mx = (x0 + x1) / 2;
+        el('line', { x1: mx - 0.4 * S, x2: mx + 0.4 * S, y1: bot + 3.3 * S - 0.45 * S, y2: bot + 3.3 * S - 0.45 * S, stroke: 'var(--ink)', 'stroke-width': 0.8 }, notesG);
+      }
+    }
+    // stems, beams and flags
+    for (const grp of beats.values()) {
+      const beamed = grp.length > 1 && grp.every(p => p.e.d <= 3);
+      const sets = beamed ? [grp] : grp.map(p => [p]);
+      for (const set of sets) {
+        const ys = set.map(p => yOf(p.e.step));
+        const far = set.reduce((m, p) => Math.abs(p.e.step - 34) > Math.abs(m - 34) ? p.e.step : m, 34);
+        const up = far < 34 || (far === 34 && false);
+        const dir = up ? -1 : 1;
+        const sx = p => up ? p.x + HEADW - 0.5 : p.x + 0.5;
+        if (set.length === 1) {
+          const p = set[0];
+          if (p.e.d >= 16) continue;
+          const y = ys[0], len = 3.4 * S;
+          el('line', { x1: sx(p), x2: sx(p), y1: y + dir * 0.15 * S, y2: y + dir * len, stroke: 'var(--ink)', 'stroke-width': 0.95 }, notesG);
+          if (p.e.d === 2 || p.e.d === 3 || p.e.d === 1) {
+            glyph(p.e.d === 1 ? 'flag16' : 'flag8', sx(p) - 0.45, y + dir * len + (up ? 1009 * K : -1009 * K), notesG, { flipY: !up });
+          }
+          continue;
+        }
+        // beam line: gentle slope, clear of every head
+        const x0 = sx(set[0]), x1 = sx(set[set.length - 1]);
+        let slope = (ys[ys.length - 1] - ys[0]) / (x1 - x0);
+        slope = Math.max(-0.12, Math.min(0.12, slope)) * 0.6;
+        let off = up ? Infinity : -Infinity;
+        set.forEach((p, k) => {
+          const want = ys[k] + dir * 3.3 * S - slope * (sx(p) - x0);
+          off = up ? Math.min(off, want) : Math.max(off, want);
+        });
+        const beamY = xx => off + slope * (xx - x0);
+        const th = 0.5 * S;
+        set.forEach((p, k) => el('line', { x1: sx(p), x2: sx(p), y1: ys[k] + dir * 0.15 * S, y2: beamY(sx(p)), stroke: 'var(--ink)', 'stroke-width': 0.95 }, notesG));
+        const beam = (xa, xb, lvl) => {
+          const o = -dir * lvl * 0.75 * S;
+          const ya = beamY(xa) + o, yb = beamY(xb) + o, h = up ? th : -th;
+          el('path', { d: `M${xa},${ya}L${xb},${yb}L${xb},${yb + h}L${xa},${ya + h}Z`, fill: 'var(--ink)' }, notesG);
+        };
+        beam(x0 - 0.45, x1 + 0.45, 0);
+        // second beam: a short stub on any semiquaver, pointing back to the note before it
+        set.forEach((p, k) => {
+          if (p.e.d !== 1) return;
+          const xx = sx(p);
+          beam(k > 0 ? xx - 1.35 * S : xx, k > 0 ? xx + 0.45 : xx + 1.35 * S, 1);
+        });
+      }
+    }
+    // the cursors live on top
+    sy.cur = el('g', {}, svg);
+    sy.top = top;
+  }
+  // one cursor per voice, moved between systems as needed
+  cursors = [0, 1, 2, 3].map(v => {
+    const g = el('g', { class: 'cursor', opacity: 0 });
+    el('circle', { r: 1.45 * S, fill: 'none', stroke: VOICE[v], 'stroke-width': 1.2, class: 'ring', opacity: 0 }, g);   // your part
+    el('circle', { r: 0.95 * S, fill: VOICE[v] }, g);
+    const t = el('text', { y: 0.45 * S, 'font-size': 1.3 * S, 'text-anchor': 'middle', fill: '#fff', class: 'lyr' }, g);
+    t.style.fill = '#fff';
+    t.textContent = WHO[v];
+    return g;
+  });
+  heads = new Map();
+  box.querySelectorAll('.head').forEach(h => heads.set(h.dataset.line + ':' + h.dataset.i, h));
+}
+let cursors = [], heads = new Map();
+
+// ---------- the singers ----------
+// formants (Hz) for a woman's voice; men's are scaled down a little
+const VOWELS = {
+  i: [310, 2700, 3300], I: [430, 2400, 3050], E: [600, 2250, 2950], a: [820, 1950, 2850], A: [850, 1220, 2810],
+  O: [600, 950, 2700], o: [520, 1000, 2750], U: [470, 1160, 2680], u: [370, 950, 2670], V: [750, 1400, 2780], '@': [520, 1550, 2700],
+};
+const DIPH = { ai: ['A', 'i'], au: ['A', 'u'], ei: ['E', 'i'], ou: ['o', 'u'], 'I@': ['I', '@'] };
+const SINGERS = [
+  { oct: 0, form: 1.0, pan: -0.55, vib: 5.4, br: 0.10, gain: 0.9 },   // part 1: a woman
+  { oct: -1, form: 0.86, pan: 0.5, vib: 5.0, br: 0.06, gain: 1.15 },   // part 2: a man, an octave down
+  { oct: 0, form: 1.06, pan: -0.15, vib: 5.9, br: 0.12, gain: 0.8 },   // part 3: a younger voice
+  { oct: -1, form: 0.84, pan: 0.2, vib: 4.7, br: 0.07, gain: 1.15 },   // part 4: another man
+];
+
+function rand(seed) { let a = seed; return () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; }; }
+
+// a glottal pulse: harmonics falling off at about 12 dB an octave
+function glottal(ctx) {
+  const n = 64, re = new Float32Array(n), im = new Float32Array(n);
+  for (let k = 1; k < n; k++) im[k] = Math.pow(k, -1.25) * (k % 2 ? 1 : 0.8);
+  return ctx.createPeriodicWave(re, im);
+}
+function noiseBuffer(ctx, secs = 2) {
+  const b = ctx.createBuffer(1, ctx.sampleRate * secs, ctx.sampleRate), d = b.getChannelData(0), r = rand(99);
+  for (let i = 0; i < d.length; i++) d[i] = r() * 2 - 1;
+  return b;
+}
+function room(ctx) {
+  // a small tiled kitchen: short, a bit bright
+  const len = Math.floor(ctx.sampleRate * 0.9), b = ctx.createBuffer(2, len, ctx.sampleRate), r = rand(7);
+  for (let c = 0; c < 2; c++) {
+    const d = b.getChannelData(c);
+    for (let i = 0; i < len; i++) { const t = i / ctx.sampleRate; d[i] = (r() * 2 - 1) * Math.exp(-t / 0.17) * (t < 0.008 ? t / 0.008 : 1); }
+  }
+  const cv = ctx.createConvolver(); cv.buffer = b; return cv;
+}
+
+const midiHz = m => 440 * Math.pow(2, (m - 69) / 12);
+
+// every note each voice sings, in seconds from the start
+function plan(o) {
+  const sx = 60 / o.bpm / 6;   // one semiquaver
+  const lead = 2 * 6 * sx;     // a bar of count-in
+  const notes = [], spans = [];
+  for (let v = 0; v < o.voices; v++) {
+    const start = lead + v * LINE_LEN * sx;
+    spans.push({ v, start, end: start + o.times * 4 * LINE_LEN * sx + 7 * sx });
+    for (let rep = 0; rep < o.times; rep++) for (let li = 0; li < 4; li++) for (const e of LINES[li].events) {
+      if (e.rest) continue;
+      const t = start + ((rep * 4 + li) * LINE_LEN + e.t) * sx;
+      const final = rep === o.times - 1 && li === 3 && e === LINES[3].events[LINES[3].events.length - 1];
+      notes.push({ v, li, e, t, dur: (final ? 2.2 : 1) * e.d * sx });
+    }
+  }
+  const end = Math.max(...spans.map(s => s.end));
+  return { sx, lead, notes, spans, end };
+}
+
+function buildVoice(ctx, out, v, P, o, wave, nbuf) {
+  const sg = SINGERS[v], r = rand(1000 + v * 77);
+  const level = o.mine.has(v) ? 0.18 : 1;   // your part stays as a quiet guide
+  const mine = P.notes.filter(n => n.v === v);
+  if (!mine.length || level === 0) return;
+  const pan = ctx.createStereoPanner(); pan.pan.value = sg.pan;
+  const vg = ctx.createGain(); vg.gain.value = 0.16 * sg.gain * level;
+  vg.connect(pan); pan.connect(out);
+  // source: pulse plus a little breath, through four formant filters
+  const osc = ctx.createOscillator(); osc.setPeriodicWave(wave);
+  const env = ctx.createGain(); env.gain.value = 0;
+  osc.connect(env);
+  const breath = ctx.createBufferSource(); breath.buffer = nbuf; breath.loop = true;
+  // breath has its own envelope that copies the voice's, and skips the body path below
+  const bg = ctx.createGain(); bg.gain.value = 0;
+  const bhp = ctx.createBiquadFilter(); bhp.type = 'highpass'; bhp.frequency.value = 700;
+  breath.connect(bhp); bhp.connect(bg);
+  const E = {
+    target: (v, t, tc) => { env.gain.setTargetAtTime(v, t, tc); bg.gain.setTargetAtTime(v * sg.br, t, tc); },
+  };
+  const lfo = ctx.createOscillator(); lfo.frequency.value = sg.vib;
+  const lfoG = ctx.createGain(); lfoG.gain.value = 0;
+  lfo.connect(lfoG); lfoG.connect(osc.detune);
+  const forms = [0, 1, 2].map(k => {
+    const f = ctx.createBiquadFilter(); f.type = 'bandpass';
+    f.Q.value = [6, 10, 14][k];
+    const g = ctx.createGain(); g.gain.value = [1.0, 0.55, 0.28][k];
+    env.connect(f); bg.connect(f); f.connect(g); g.connect(vg);
+    return f;
+  });
+  // a dry path keeps some body under the formants
+  const body = ctx.createBiquadFilter(); body.type = 'lowpass'; body.frequency.value = 900;
+  const bodyG = ctx.createGain(); bodyG.gain.value = 0.18; env.connect(body); body.connect(bodyG); bodyG.connect(vg);
+  // consonants: filtered noise straight to the mix
+  // one fixed filter for each kind of consonant noise, so nothing ever sweeps
+  const hiss = ctx.createBufferSource(); hiss.buffer = nbuf; hiss.loop = true; hiss.loopStart = 0.5;
+  const CONS = { s: [6500, 2.2], t: [4200, 1.6], k: [2100, 1.6], p: [1000, 1.2], h: [1700, 0.7] };
+  const cg = {};
+  for (const c in CONS) {
+    const f = ctx.createBiquadFilter(); f.type = 'bandpass'; f.frequency.value = CONS[c][0]; f.Q.value = CONS[c][1];
+    const g = ctx.createGain(); g.gain.value = 0;
+    hiss.connect(f); f.connect(g); g.connect(vg);
+    cg[c] = g.gain;
+  }
+
+  const F = (name, f0) => VOWELS[name].map((f, k) => {
+    let x = f * sg.form;
+    if (k === 0) x = Math.max(x, f0 * 1.15);   // high notes pull the first formant up with them
+    return x;
+  });
+  const setV = (name, t, f0, tc = 0.03) => F(name, f0).forEach((f, k) => forms[k].frequency.setTargetAtTime(f, t, tc));
+  // a puff of noise: rise to amp, hold, fall away
+  const burst = (c, t, len, amp, hold = 0) => {
+    cg[c].setTargetAtTime(amp, t, 0.003);
+    cg[c].setTargetAtTime(0, t + 0.008 + hold, len / 3);
+  };
+
+
+  const t0 = ctx.currentTime + 0.05;
+  let prevEnd = -1;
+  mine.forEach((n, k) => {
+    const late = (r() - 0.5) * 0.024;
+    const t = t0 + n.t + late;
+    const f0 = midiHz(n.e.midi + 12 * sg.oct);
+    const [on, vow, coda] = n.e.snd;
+    const vs = DIPH[vow] || [vow];
+    const next = mine[k + 1];
+    const tie = next && Math.abs(next.t - (n.t + n.dur)) < 1e-4;
+    const end = t0 + n.t + n.dur - (tie ? 0.0 : 0.06);
+    // pitch: scoop up into the note
+    // a quick slide from a little under the note (a jump in frequency clicks in Chrome)
+    osc.frequency.setTargetAtTime(f0 * Math.pow(2, -0.3 / 12), t - 0.025, 0.008);
+    osc.frequency.setTargetAtTime(f0, t + 0.015, 0.022);
+    // vibrato grows on long notes
+    lfoG.gain.setTargetAtTime(0, t - 0.04, 0.02);
+    if (n.dur > 0.35) lfoG.gain.setTargetAtTime(22, t + 0.18, 0.12);
+    // onset consonant
+    const plos = { t: ['t', 0.025, 0.5], k: ['k', 0.03, 0.45], p: ['p', 0.02, 0.4], d: ['t', 0.015, 0.2] }[on];
+    let vStart = t;
+    if (plos) { burst(plos[0], t - 0.035, plos[1], plos[2]); vStart = t + (on === 'd' ? 0 : 0.012); }
+    if (on === 's') burst('s', t - 0.11, 0.04, 0.45, 0.08);
+    if (on === 'h') burst('h', t - 0.08, 0.05, 0.3, 0.05);
+    // vowel, gliding in from the consonant's colour
+    const from = { w: 'u', l: 'U', n: 'U', r: 'U' }[on];
+    if (from) { setV(from, t - 0.02, f0, 0.005); setV(vs[0], t + 0.04, f0, 0.035); }
+    else setV(vs[0], t - 0.01, f0, 0.012);
+    if (vs[1]) setV(vs[1], t + Math.max(0.12, n.dur * 0.6), f0, 0.06);
+    // loudness: a softer start for liquids and nasals, a dip before any break
+    const peak = 1 - (n.e.midi > 72 ? 0 : 0.08);
+    const gap = !(prevEnd > 0 && Math.abs(t - prevEnd) < 0.02);
+    if (gap || plos || on === 's' || on === 'h') { E.target(0, vStart - 0.03, 0.008); E.target(peak, vStart, 0.014); }
+    else { E.target(peak * 0.55, t - 0.005, 0.012); E.target(peak, t + 0.03, 0.03); }
+    if (n.dur > 0.5) E.target(peak * 0.82, t + 0.25, 0.4);
+    // coda consonant
+    if (coda === 's' || coda === 'z') burst('s', end - 0.06, 0.03, coda === 's' ? 0.45 : 0.22, 0.05);
+    if (coda === 't' || coda === 'k' || coda === 'p') burst(coda, end - 0.01, 0.02, 0.3);
+    if (!tie) E.target(0, end - (coda ? 0.06 : 0.02), 0.03);
+    prevEnd = tie ? t0 + n.t + n.dur : -1;
+  });
+  const stopAt = t0 + mine[mine.length - 1].t + mine[mine.length - 1].dur + 1;
+  for (const s of [osc, breath, lfo, hiss]) { s.start(t0); s.stop(stopAt); }
+}
+
+// the sink: a running tap, a few drips, the odd clink of crockery
+function buildSink(ctx, out, P, nbuf) {
+  const r = rand(4242), t0 = ctx.currentTime + 0.05;
+  const g = ctx.createGain(); g.gain.value = 0; g.connect(out);
+  g.gain.setValueAtTime(0, t0); g.gain.linearRampToValueAtTime(0.009, t0 + 1.5);
+  g.gain.setValueAtTime(0.009, t0 + P.end - 1); g.gain.linearRampToValueAtTime(0, t0 + P.end + 2);
+  const tap = ctx.createBufferSource(); tap.buffer = nbuf; tap.loop = true;
+  const bp = ctx.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 1400; bp.Q.value = 0.8;
+  const hp = ctx.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 500;
+  tap.connect(bp); bp.connect(hp); hp.connect(g);
+  // the stream wanders
+  for (let t = 0; t < P.end + 2; t += 0.07) bp.frequency.setTargetAtTime(1000 + r() * 1600, t0 + t, 0.03);
+  tap.start(t0); tap.stop(t0 + P.end + 2.5);
+  // bubbles: little rising chirps
+  const pop = (t, f, a) => {
+    const o = ctx.createOscillator(), e = ctx.createGain();
+    o.frequency.setValueAtTime(f, t); o.frequency.exponentialRampToValueAtTime(f * 1.8, t + 0.04);
+    e.gain.setValueAtTime(0, t); e.gain.linearRampToValueAtTime(a, t + 0.003); e.gain.exponentialRampToValueAtTime(0.0001, t + 0.06);
+    o.connect(e); e.connect(out); o.start(t); o.stop(t + 0.08);
+  };
+  for (let t = 0.5; t < P.end; t += 0.15 + r() * 0.6) pop(t0 + t, 900 + r() * 1800, 0.003 + r() * 0.005);
+  // crockery: a few touches on downbeats, never many
+  const bar = 12 * P.sx;
+  for (let b = 1; P.lead + b * bar < P.end; b++) if (r() < 0.22) clink(ctx, out, t0 + P.lead + b * bar + (r() - 0.5) * 0.05, 0.012 + r() * 0.015, 1500 + r() * 900);
+}
+function clink(ctx, out, t, a, f) {
+  for (const [m, d, w] of [[1, 0.5, 1], [2.32, 0.25, 0.55], [4.25, 0.12, 0.35], [6.1, 0.06, 0.2]]) {
+    const o = ctx.createOscillator(), e = ctx.createGain();
+    o.frequency.value = f * m;
+    e.gain.setValueAtTime(0, t); e.gain.linearRampToValueAtTime(a * w, t + 0.002); e.gain.exponentialRampToValueAtTime(0.0001, t + d);
+    o.connect(e); e.connect(out); o.start(t); o.stop(t + d + 0.02);
+  }
+}
+
+function build(ctx, o) {
+  const P = plan(o);
+  const master = ctx.createGain(); master.gain.value = 2.0; master.connect(ctx.destination);
+  const comp = ctx.createDynamicsCompressor(); comp.threshold.value = -14; comp.ratio.value = 3; comp.connect(master);
+  const dry = ctx.createGain(); dry.gain.value = 0.85; dry.connect(comp);
+  const rv = room(ctx), wet = ctx.createGain(); wet.gain.value = 0.32; rv.connect(wet); wet.connect(comp);
+  const bus = ctx.createGain(); bus.connect(dry); bus.connect(rv);
+  const wave = glottal(ctx), nbuf = noiseBuffer(ctx);
+  for (let v = 0; v < o.voices; v++) buildVoice(ctx, bus, v, P, o, wave, nbuf);
+  // count in: two taps on a mug
+  const t0 = ctx.currentTime + 0.05;
+  for (let b = 0; b < 2; b++) clink(ctx, bus, t0 + b * 6 * P.sx, 0.09, midiHz(84));   // a C, the first note, two octaves up
+  if (o.sink) buildSink(ctx, bus, P, nbuf);
+  return { P, master, t0 };
+}
+
+// ---------- the player ----------
+const opts = { voices: 4, times: 2, mine: new Set(), bpm: 66, sink: true };
+let playing = null;
+
+function seg(id, values, key, label) {
+  const box = document.getElementById(id);
+  for (const v of values) {
+    const b = document.createElement('button');
+    b.type = 'button'; b.textContent = v; b.setAttribute('aria-pressed', v === opts[key]);
+    b.setAttribute('aria-label', `${v} ${label}`);
+    b.onclick = () => {
+      opts[key] = v; [...box.children].forEach(c => c.setAttribute('aria-pressed', c === b));
+      // fewer singers: you can't be one that's gone
+      if (key === 'voices') for (const m of [...opts.mine]) if (m >= v) opts.mine.delete(m);
+      changed();
+    };
+    box.appendChild(b);
+  }
+}
+seg('voices', [1, 2, 3, 4], 'voices', 'singers');
+seg('times', [1, 2, 3], 'times', 'times round');
+document.getElementById('tempo').oninput = e => { opts.bpm = +e.target.value; };
+document.getElementById('tempo').onchange = () => changed();
+document.getElementById('sink').onchange = e => { opts.sink = e.target.checked; changed(); };
+
+const jobsBox = document.getElementById('jobs');
+// one button per singer: what they're doing now, and press it to sing their part yourself
+function drawJobs(states) {
+  jobsBox.textContent = '';
+  for (let v = 0; v < opts.voices; v++) {
+    const s = states ? states[v] : 'ready';
+    const j = document.createElement('button'); j.type = 'button'; j.className = 'job';
+    const mine = opts.mine.has(v);
+    j.setAttribute('aria-pressed', mine);
+    j.setAttribute('aria-label', `Singer ${WHO[v]}, ${s}${mine ? ', sung by you' : ''}`);
+    const b = document.createElement('b'); b.textContent = WHO[v]; j.appendChild(b);
+    const lab = document.createElement('span'); lab.textContent = s; j.appendChild(lab);
+    if (states && !['waiting', 'done'].includes(s)) j.classList.add('on');
+    if (!states || j.classList.contains('on') || mine) b.style.background = VOICE[v];
+    if (mine) { j.classList.add('you'); const i = document.createElement('i'); i.textContent = 'you'; j.appendChild(i); }
+    j.onclick = () => { mine ? opts.mine.delete(v) : opts.mine.add(v); changed(); };
+    jobsBox.appendChild(j);
+  }
+}
+function changed() {
+  lastStates = '';
+  if (playing) { stop(); start(); }
+  else drawJobs(null);
+}
+
+function start() {
+  const AC = window.AudioContext || window.webkitAudioContext;
+  const ctx = new AC({ latencyHint: 'interactive' });
+  const built = build(ctx, opts);
+  playing = { ctx, ...built };
+  document.getElementById('golabel').textContent = 'Stop';
+  document.getElementById('goicon').setAttribute('d', 'M2 2H12V12H2Z');
+  requestAnimationFrame(tick);
+}
+function stop() {
+  if (!playing) return;
+  const { ctx, master } = playing;
+  try { master.gain.setTargetAtTime(0, ctx.currentTime, 0.05); } catch {}
+  setTimeout(() => ctx.close(), 300);
+  playing = null;
+  document.getElementById('golabel').textContent = 'Sing';
+  document.getElementById('goicon').setAttribute('d', 'M2 1L13 7L2 13Z');
+  show(-1);
+}
+document.getElementById('go').onclick = () => playing ? stop() : start();
+
+// where every voice is at time t (seconds since the start), and what it's doing
+function where(P, t) {
+  return [0, 1, 2, 3].map(v => {
+    const sp = P.spans[v];
+    if (!sp) return null;
+    if (t < sp.start) return { v, state: 'waiting' };
+    if (t >= sp.end) return { v, state: 'done' };
+    const pos = (t - sp.start) / P.sx;              // in semiquavers
+    const li = Math.floor(pos / LINE_LEN) % 4, off = pos % LINE_LEN;
+    const evs = LINES[li].events;
+    let i = evs.findIndex(e => off >= e.t && off < e.t + e.d);
+    if (i < 0) i = evs.length - 1;
+    return { v, li, i, off, state: LINES[li].job };
+  });
+}
+
+let lit = [];
+function show(t) {
+  for (const h of lit) h.style.fill = '';
+  lit = [];
+  if (t < 0 || !playing) { cursors.forEach(c => c.setAttribute('opacity', 0)); drawJobs(null); return; }
+  const W = where(playing.P, t);
+  const states = W.map(w => w ? w.state : '');
+  if (states.join() !== lastStates) { drawJobs(states); lastStates = states.join(); }
+  W.forEach((w, v) => {
+    const c = cursors[v];
+    if (!w || w.li === undefined) { c.setAttribute('opacity', 0); return; }
+    const e = LINES[w.li].events[w.i];
+    const here = layout[w.li][w.i];
+    if (!e.rest) {
+      const h = heads.get(w.li + ':' + w.i);
+      if (h) { h.style.fill = VOICE[v]; lit.push(h); }
+    }
+    // slide toward the next note on the same system
+    const nx = layout[w.li][w.i + 1];
+    let x = here.cx;
+    if (nx && nx.sy === here.sy) x += (nx.cx - here.cx) * Math.min(1, (w.off - e.t) / e.d);
+    if (c.parentNode !== here.sy.cur) here.sy.cur.appendChild(c);
+    c.setAttribute('transform', `translate(${x.toFixed(1)},${(here.sy.top - 2.2 * S).toFixed(1)})`);
+    c.setAttribute('opacity', 1);
+    c.querySelector('.ring').setAttribute('opacity', opts.mine.has(v) ? 1 : 0);
+  });
+}
+let lastStates = '';
+
+function tick() {
+  if (!playing) return;
+  const { ctx, t0, P } = playing;
+  const heard = ctx.currentTime - (ctx.outputLatency || ctx.baseLatency || 0) - t0;
+  if (heard > P.end + 1.5) { stop(); return; }
+  show(heard);
+  requestAnimationFrame(tick);
+}
+
+// ---------- for the harness ----------
+window.__offlineRender = async sr => {
+  const o = { ...opts, voices: +(Q.get('voices') || 4), times: +(Q.get('times') || 1), sink: Q.get('sink') !== '0', mine: new Set() };
+  const P = plan(o);
+  const ctx = new OfflineAudioContext(2, Math.ceil((P.end + 2) * sr), sr);
+  build(ctx, o);
+  return ctx.startRendering();
+};
+window.__showAt = t => {   // draw the cursors at time t without sound
+  playing = { P: plan(opts), ctx: null, t0: 0 };
+  show(t);
+};
+
+let lastW = 0;
+function layoutNow() {
+  const w = document.getElementById('score').clientWidth;
+  if (Math.abs(w - lastW) < 2 && layout) return;
+  lastW = w;
+  engrave();
+  drawJobs(null);
+}
+window.addEventListener('resize', layoutNow);
+window.addEventListener('beforeprint', () => { lastW = 0; layoutNowWide(); });
+window.addEventListener('afterprint', () => { lastW = 0; layoutNow(); });
+function layoutNowWide() { const b = document.getElementById('score'); const old = b.style.width; b.style.width = '760px'; engrave(); b.style.width = old; }
+drawPicture();
+// the words on their own, one line per part
+document.getElementById('words').innerHTML = LINES.map((L, k) => '<p><b>' + (k + 1) + '</b>' +
+  L.events.filter(e => e.syl).map(e => e.syl).join(' ').replace(/- /g, '') + '</p>').join('');
+layoutNow();
+if (Q.has('at')) window.__showAt(+Q.get('at'));
+window.__ready = true;
+</script>
+</body>
+</html>
