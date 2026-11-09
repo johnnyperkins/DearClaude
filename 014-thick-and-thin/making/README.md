@@ -7,9 +7,10 @@ The typeface is never drawn as outlines. Each glyph in `glyphs.py` is a list of 
 - `fit.py` turns the dense swept outline into cubic Beziers (Schneider's algorithm from Graphics Gems). It resamples first, so the error check sees long straight runs too.
 - `build.py` runs it all: sweep, `soften()` (a small closing and opening, as ink spreads into inside corners and wears off outside ones), fit, space, accents, kerning, then `Dear-Regular.otf`, `.woff2` and `skeleton.json`, the strokes the page writes with.
 - `page.html` is the page with two holes in it. `assemble.py` builds the font into the entry folder and fills them with the woff2 (as a data URL, because Chromium won't load a font from file://) and the skeleton.
+- The page can also make the font itself, with any pen. `PenFont.make(nib)` in `page.html` does `build.py`'s steps in the browser: it fills each glyph's strokes on a canvas (which joins them), blurs the ink a little in place of `soften()`, traces the edge with marching squares, fits curves the way `fit.py` does, and writes a CFF OpenType file by hand, with the cmap, GPOS kerning and names. At 30 degrees and full width it matches `Dear-Regular.otf` to within a pixel or two at 150 px.
 - `proof.py` renders proof sheets with PIL, which shapes text with HarfBuzz (raqm), so kerning shows.
 - `thumb.py` makes the index card, with the last stroke half written.
-- `uitest.mjs` uses the page like a person on a desktop and a phone: it types, deletes and retypes, turns the pen, draws with a mouse and a finger, taps letters, and checks the slow stroke-by-stroke writing ends up pixel for pixel the same as writing it all at once.
+- `uitest.mjs` uses the page like a person on a desktop and a phone: it types, deletes and retypes, turns the pen, draws with a mouse and a finger, taps letters, makes a font with a turned pen and downloads it, and checks the slow stroke-by-stroke writing ends up pixel for pixel the same as writing it all at once.
 
 To rebuild: make a venv in the scratchpad with `fonttools brotli shapely pillow numpy` (and `uharfbuzz` if you want to shape text yourself), then `python assemble.py`.
 

@@ -114,7 +114,7 @@ def build(nib, outdir, style='Regular'):
                 for s in segs:
                     pen.curveTo(r(s[1]), r(s[2]), r(s[3]))
                 pen.closePath()
-        cs[name], hmtx[name] = pen.getCharString(), (badv, hmtx[base][1])
+        cs[name], hmtx[name] = pen.getCharString(), (badv, round(min(bb[0] + bdx, mb[0] + mdx)))
         order.append(name)
         cmap[ord(char)] = name
 

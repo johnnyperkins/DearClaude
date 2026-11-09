@@ -57,6 +57,12 @@ def _reparam(ctrl, pts, u):
     return np.clip(out, 0, 1)
 
 
+def _tame(ctrl):
+    """Close at every sample is not enough: with long arms the curve can loop out between two of them."""
+    L = 1.5 * np.linalg.norm(ctrl[3] - ctrl[0])
+    return np.linalg.norm(ctrl[1] - ctrl[0]) <= L and np.linalg.norm(ctrl[2] - ctrl[3]) <= L
+
+
 def _fit(pts, t1, t2, tol, out):
     if len(pts) == 2:
         d = np.linalg.norm(pts[1] - pts[0]) / 3
@@ -65,7 +71,7 @@ def _fit(pts, t1, t2, tol, out):
     u = _chord(pts)
     ctrl = _generate(pts, u, t1, t2)
     err = np.linalg.norm(_bez(ctrl, u) - pts, axis=1)
-    if err.max() < tol:
+    if err.max() < tol and _tame(ctrl):
         out.append(ctrl)
         return
     if err.max() < tol * 6:
@@ -73,7 +79,7 @@ def _fit(pts, t1, t2, tol, out):
             u = _reparam(ctrl, pts, u)
             ctrl = _generate(pts, u, t1, t2)
             err = np.linalg.norm(_bez(ctrl, u) - pts, axis=1)
-            if err.max() < tol:
+            if err.max() < tol and _tame(ctrl):
                 out.append(ctrl)
                 return
     k = int(np.argmax(err[1:-1])) + 1

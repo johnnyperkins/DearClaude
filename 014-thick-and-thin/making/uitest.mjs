@@ -184,6 +184,33 @@ const n = await ev(`document.querySelectorAll('#glyphs button').length`);
 ok(n > 190, `the grid shows every character (${n})`);
 ok(await ev(`document.documentElement.scrollWidth <= innerWidth`), 'nothing scrolls sideways on a desktop');
 
+// take the pen home: turn it, make the font, and it downloads, loads, and sets a line
+const DL = PROFILE + '/downloads';        // the snap has its own /tmp, so downloads go beside the profile
+fs.rmSync(DL, { recursive: true, force: true }); fs.mkdirSync(DL, { recursive: true });
+const allow = await send('Browser.setDownloadBehavior', { behavior: 'allow', downloadPath: DL });
+if (allow.error) await send('Page.setDownloadBehavior', { behavior: 'allow', downloadPath: DL });
+await click('#reset'); await sleep(200);
+await ev(`document.getElementById('angle').focus()`);
+for (let i = 0; i < 15; i++) await key('ArrowRight', 39);
+await sleep(100);
+const label = await ev(`document.getElementById('mine').textContent`);
+ok(label === 'Make Dear with my pen (45°, 100%)', `the font button names the pen on the desk (${label})`);
+const t0 = Date.now();
+await click('#mine');
+const madeIt = await waitFor(`!document.getElementById('mineSample').hidden`, 60000);
+const note = await ev(`document.getElementById('mineNote').textContent`);
+ok(madeIt && note.startsWith('Dear A45 W100: 212 characters'), `it makes the font in ${((Date.now() - t0) / 1000).toFixed(1)}s (${note})`);
+ok(await ev(`document.getElementById('mineGet').textContent`) === 'Dear-A45-W100.otf', 'and offers it as Dear-A45-W100.otf');
+await click('#mineGet');
+ok(await ev(`document.fonts.check('20px DearMine1') && getComputedStyle(document.getElementById('mineSample')).fontFamily.startsWith('DearMine1')`), 'the browser loads it and sets a line in it');
+let saved = 0;
+for (let i = 0; i < 50 && !saved; i++) { try { saved = fs.statSync(DL + '/Dear-A45-W100.otf').size; } catch {} await sleep(100); }
+ok(saved > 40000, `and it downloads (${saved} bytes)`);
+await centre('#mineSample'); await still('take-it');
+ok(await ev(`document.getElementById('mine').textContent`) === label && !(await ev(`document.getElementById('mine').disabled`)), 'the button is ready again');
+await click('#reset'); await sleep(200);
+ok(await ev(`document.getElementById('mine').textContent`) === 'Make Dear with my pen (30°, 100%)', 'resetting the pen resets the button');
+
 // ---------------- phone
 ok(await open(true), 'on a phone the title writes itself');
 ok(await ev(`document.documentElement.scrollWidth <= innerWidth`), 'nothing scrolls sideways on a phone');

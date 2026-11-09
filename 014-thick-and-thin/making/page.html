@@ -92,6 +92,9 @@
     padding: 9px 16px; border-radius: 4px; font-size: 19px;
   }
   .get a:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .get button { color: var(--rubric); background: transparent; border-color: var(--rubric); padding: 8px 15px; font-size: 19px; }
+  .get button:focus-visible { outline: 2px solid var(--ink); outline-offset: 2px; }
+  .get button:disabled { opacity: .7; cursor: progress; }
   footer.wrap { margin-top: 70px; margin-bottom: 60px; font-size: 16px; color: var(--soft); }
 
   @media (max-width: 720px) {
@@ -124,7 +127,7 @@
 
   <section class="wide" aria-labelledby="h-write">
     <div class="wrap"><h2 id="h-write">Write</h2>
-    <p>Type below and the pen writes it out. Then turn the pen with the angle slider. At 0°, the uprights go heavy and the crossbars thin to nothing. At 90°, it's the other way round. The hand is written at 30°. You can also draw on the paper with the same pen.</p></div>
+    <p>Type below and the pen writes it out. Then turn the pen with the angle slider. At 0°, the uprights go heavy and the crossbars thin to nothing. At 90°, it's the other way round. The hand is written at 30°. You can also draw on the paper with the same pen, and when you like the pen, <a href="#h-take">take it home</a> as a font.</p></div>
     <div class="desk">
       <div class="sheet" id="sheet"><canvas id="deskBase"></canvas><canvas id="deskWet" aria-hidden="true"></canvas></div>
       <div class="controls">
@@ -184,6 +187,10 @@
       <a href="Dear-Regular.woff2" download>Dear-Regular.woff2</a>
     </div>
     <p class="small">For the web, the .woff2. For everything else, the .otf. The strokes themselves are in <a href="skeleton.json">skeleton.json</a>, and the programs that turned them into a font are in the <a href="making/README.md">making</a> folder.</p>
+    <p>Those files are written with the pen at 30° and full width, whatever the desk says. A different pen makes a different font, so if you've changed it, make yours here. The page writes every letter with your pen, joins and smooths the ink, fits curves to its edge and packs it all as an .otf, the same steps my build script takes.</p>
+    <div class="get"><button type="button" id="mine">Make Dear with my pen (30°, 100%)</button><a id="mineGet" hidden></a></div>
+    <p class="small" id="mineNote" aria-live="polite"></p>
+    <p class="pangram" id="mineSample" hidden>Jovial scribes mix quick ink, then zigzag down the page as if by heart.</p>
   </section>
 
   <footer class="wrap">Entry 014 in <a href="../index.html">a sketchbook</a>. Write someone a letter with it.</footer>
@@ -645,6 +652,389 @@ function playGlyph(name, btn) {
     fall.append(lab, d);
   }
 }
+
+// ------------------------------------------------------------ the pen on the desk, as a font
+// build.py's steps, done here with whatever pen the desk has: write each glyph, let the canvas join its strokes
+// into one shape of ink, blur it a little and take the edge at half strength (ink spreading into inside corners
+// and wearing off outside ones, as soften() does), fit cubic curves to the edge, and pack it all as OpenType.
+const PenFont = (() => {
+  const SOFT = 2;                    // box blur radius in font units, three passes
+  let cv = null;
+  function mask(strokes, nib) {
+    let x0 = Infinity, y0 = Infinity, x1 = -Infinity, y1 = -Infinity;
+    for (const st of strokes) for (const p of st.pts) {
+      if (p[0] < x0) x0 = p[0]; if (p[0] > x1) x1 = p[0]; if (p[1] < y0) y0 = p[1]; if (p[1] > y1) y1 = p[1];
+    }
+    const r = Math.hypot(nib.w, nib.t) / 2 + 3 * SOFT + 4;
+    x0 = Math.floor(x0 - r); y0 = Math.floor(y0 - r); x1 = Math.ceil(x1 + r); y1 = Math.ceil(y1 + r);
+    const W = x1 - x0, H = y1 - y0;
+    if (!cv) cv = document.createElement('canvas');
+    if (cv.width < W || cv.height < H) { cv.width = Math.max(W, cv.width); cv.height = Math.max(H, cv.height); }
+    const ctx = cv.getContext('2d', { willReadFrequently: true });
+    ctx.setTransform(1, 0, 0, 1, 0, 0); ctx.clearRect(0, 0, W, H); ctx.fillStyle = '#000';
+    for (const st of strokes) ink(ctx, st.pts.map(p => [p[0] - x0, y1 - p[1], p[2]]), nib, 1);
+    const d = ctx.getImageData(0, 0, W, H).data, a = new Float32Array(W * H);
+    for (let i = 0; i < a.length; i++) a[i] = d[4 * i + 3] / 255;
+    const tmp = new Float32Array(Math.max(W, H));
+    for (let pass = 0; pass < 3; pass++) {
+      for (let y = 0; y < H; y++) run(a, y * W, 1, W, tmp);
+      for (let x = 0; x < W; x++) run(a, x, W, H, tmp);
+    }
+    return { a, W, H, x0, y1 };
+  }
+  function run(a, off, stride, n, tmp) {     // running mean over 2 * SOFT + 1 samples, nothing outside
+    const r = SOFT, k = 2 * r + 1;
+    for (let i = 0; i < n; i++) tmp[i] = a[off + i * stride];
+    let acc = 0;
+    for (let i = 0; i < r && i < n; i++) acc += tmp[i];
+    for (let i = 0; i < n; i++) {
+      if (i + r < n) acc += tmp[i + r];
+      if (i - r - 1 >= 0) acc -= tmp[i - r - 1];
+      a[off + i * stride] = acc / k;
+    }
+  }
+  // marching squares: the edge at half strength, as closed rings
+  function trace(m) {
+    const { a, W, H, x0, y1 } = m, T = 0.5, next = new Map(), at = new Map();
+    const pt = (id, va, vb, x, y, across) => {
+      if (!at.has(id)) { const t = (T - va) / (vb - va); at.set(id, across ? [x + t, y] : [x, y + t]); }
+      return id;
+    };
+    for (let j = 0; j < H - 1; j++) for (let i = 0; i < W - 1; i++) {
+      const k = j * W + i, v0 = a[k], v1 = a[k + 1], v2 = a[k + W + 1], v3 = a[k + W];
+      const c = (v0 > T) | (v1 > T) << 1 | (v2 > T) << 2 | (v3 > T) << 3;
+      if (c === 0 || c === 15) continue;
+      // corners clockwise on screen from top left; edge e runs from corner e to corner e + 1
+      const edge = e => e === 0 ? pt(2 * k, v0, v1, i, j, true) : e === 1 ? pt(2 * (k + 1) + 1, v1, v2, i + 1, j, false)
+        : e === 2 ? pt(2 * (k + W), v3, v2, i, j + 1, true) : pt(2 * k + 1, v0, v3, i, j, false);
+      const out = [], into = [], inside = e => (c >> e & 1) === 1;
+      for (let e = 0; e < 4; e++) {
+        if (inside(e) && !inside((e + 1) % 4)) out.push(e);
+        else if (!inside(e) && inside((e + 1) % 4)) into.push(e);
+      }
+      if (out.length === 1) { next.set(edge(out[0]), edge(into[0])); continue; }
+      const joined = (v0 + v1 + v2 + v3) / 4 > T;     // a saddle: are the inside corners joined through the middle?
+      for (const e of out) next.set(edge(e), edge((e + (joined ? 1 : 3)) % 4));
+    }
+    const rings = [], seen = new Set();
+    for (const s of next.keys()) {
+      if (seen.has(s)) continue;
+      const ring = [];
+      for (let id = s; id !== undefined && !seen.has(id); id = next.get(id)) {
+        seen.add(id);
+        const p = at.get(id);
+        ring.push([p[0] + 0.5 + x0, y1 - p[1] - 0.5]);
+      }
+      if (ring.length > 3 && Math.abs(area(ring)) > 4) rings.push(ring.reverse());      // CFF wants outsides anticlockwise
+    }
+    return rings;
+  }
+  const area = R => { let s = 0; for (let i = 0; i < R.length; i++) { const p = R[i], q = R[(i + 1) % R.length]; s += p[0] * q[1] - q[0] * p[1]; } return s / 2; };
+
+  // ---- curve fitting: Schneider's algorithm, as in fit.py
+  const sub = (a, b) => [a[0] - b[0], a[1] - b[1]], add = (a, b) => [a[0] + b[0], a[1] + b[1]], mul = (a, k) => [a[0] * k, a[1] * k];
+  const dot = (a, b) => a[0] * b[0] + a[1] * b[1], dist = (a, b) => Math.hypot(a[0] - b[0], a[1] - b[1]);
+  const unit = a => { const n = Math.hypot(a[0], a[1]); return n > 1e-9 ? [a[0] / n, a[1] / n] : a; };
+  const B = (c, t) => { const u = 1 - t; return add(add(mul(c[0], u * u * u), mul(c[1], 3 * u * u * t)), add(mul(c[2], 3 * u * t * t), mul(c[3], t * t * t))); };
+  const B1 = (c, t) => { const u = 1 - t; return mul(add(add(mul(sub(c[1], c[0]), u * u), mul(sub(c[2], c[1]), 2 * u * t)), mul(sub(c[3], c[2]), t * t)), 3); };
+  const B2 = (c, t) => mul(add(mul(add(sub(c[2], mul(c[1], 2)), c[0]), 1 - t), mul(add(sub(c[3], mul(c[2], 2)), c[1]), t)), 6);
+  function rdp(P, eps) {
+    const keep = new Uint8Array(P.length), stack = [[0, P.length - 1]];
+    keep[0] = keep[P.length - 1] = 1;
+    while (stack.length) {
+      const [i, j] = stack.pop(), a = P[i], b = P[j], dx = b[0] - a[0], dy = b[1] - a[1], L = Math.hypot(dx, dy) || 1e-9;
+      let md = -1, mk = -1;
+      for (let k = i + 1; k < j; k++) { const d = Math.abs((P[k][0] - a[0]) * dy - (P[k][1] - a[1]) * dx) / L; if (d > md) { md = d; mk = k; } }
+      if (md > eps) { keep[mk] = 1; stack.push([i, mk], [mk, j]); }
+    }
+    return P.filter((_, k) => keep[k]);
+  }
+  function tidy(R) {      // drop what lies within a hair of a straight line, then no gaps over 3 units, as fit.py has it
+    let far = 0;
+    for (let k = 1; k < R.length; k++) if (dist(R[0], R[k]) > dist(R[0], R[far])) far = k;
+    const A = rdp(R.slice(0, far + 1), 0.08), Z = rdp(R.slice(far).concat([R[0]]), 0.08), S = A.concat(Z.slice(1, -1)), P = [];
+    for (let i = 0; i < S.length; i++) {
+      const a = S[i], b = S[(i + 1) % S.length], k = Math.max(1, Math.floor(dist(a, b) / 3));
+      for (let j = 0; j < k; j++) P.push([a[0] + (b[0] - a[0]) * j / k, a[1] + (b[1] - a[1]) * j / k]);
+    }
+    return P;
+  }
+  function generate(P, u, t1, t2) {
+    const p0 = P[0], p3 = P[P.length - 1];
+    let c00 = 0, c01 = 0, c11 = 0, x0 = 0, x1 = 0;
+    for (let i = 0; i < P.length; i++) {
+      const t = u[i], s = 1 - t, a1 = mul(t1, 3 * s * s * t), a2 = mul(t2, 3 * s * t * t);
+      const tmp = sub(P[i], B([p0, p0, p3, p3], t));
+      c00 += dot(a1, a1); c01 += dot(a1, a2); c11 += dot(a2, a2); x0 += dot(a1, tmp); x1 += dot(a2, tmp);
+    }
+    const det = c00 * c11 - c01 * c01, seg = dist(p0, p3);
+    let al = seg / 3, ar = seg / 3;
+    if (Math.abs(det) > 1e-12) { al = (x0 * c11 - x1 * c01) / det; ar = (c00 * x1 - c01 * x0) / det; }
+    if (al < 1e-6 * seg || ar < 1e-6 * seg) al = ar = seg / 3;
+    return [p0, add(p0, mul(t1, al)), add(p3, mul(t2, ar)), p3];
+  }
+  function worst(c, P, u) {
+    let m = -1, k = 1;
+    for (let i = 1; i < P.length - 1; i++) { const e = dist(B(c, u[i]), P[i]); if (e > m) { m = e; k = i; } }
+    return [m, k];
+  }
+  function fitRun(P, t1, t2, tol, out) {
+    if (P.length === 2) { const d = dist(P[0], P[1]) / 3; out.push([P[0], add(P[0], mul(t1, d)), add(P[1], mul(t2, d)), P[1]]); return; }
+    const acc = [0];
+    for (let i = 1; i < P.length; i++) acc.push(acc[i - 1] + dist(P[i], P[i - 1]));
+    let u = acc.map(x => x / (acc[acc.length - 1] || 1)), c = generate(P, u, t1, t2), [e, k] = worst(c, P, u);
+    // close at every sample is not enough: with long arms the curve can loop out between two of them
+    const tame = c => { const L = dist(c[0], c[3]) * 1.5; return dist(c[0], c[1]) <= L && dist(c[3], c[2]) <= L; };
+    if (e < tol && tame(c)) { out.push(c); return; }
+    if (e < tol * 6) for (let it = 0; it < 12; it++) {
+      u = u.map((t, i) => {
+        const q = sub(B(c, t), P[i]), d1 = B1(c, t), d2 = B2(c, t), den = dot(d1, d1) + dot(q, d2);
+        return Math.min(1, Math.max(0, Math.abs(den) > 1e-12 ? t - dot(q, d1) / den : t));
+      });
+      c = generate(P, u, t1, t2); [e, k] = worst(c, P, u);
+      if (e < tol && tame(c)) { out.push(c); return; }
+    }
+    const tc = unit(sub(P[k - 1], P[k + 1]));
+    fitRun(P.slice(0, k + 1), t1, tc, tol, out);
+    fitRun(P.slice(k), mul(tc, -1), t2, tol, out);
+  }
+  function tangent(P, i, step, reach = 6) {
+    const n = P.length;
+    let acc = 0, j = i;
+    for (;;) { const j2 = (j + step + n) % n; acc += dist(P[j2], P[j]); j = j2; if (acc >= reach || j === i) break; }
+    return unit(sub(P[j], P[i]));
+  }
+  function fitRing(R) {
+    const P = tidy(R), n = P.length, segs = [];
+    const turn = P.map((_, i) => Math.acos(Math.max(-1, Math.min(1, -dot(tangent(P, i, -1), tangent(P, i, 1))))) * 180 / Math.PI);
+    const cs = [];
+    for (let i = 0; i < n; i++) if (turn[i] > 45 && turn[i] >= turn[(i - 1 + n) % n] && turn[i] >= turn[(i + 1) % n]) cs.push(i);
+    if (!cs.length) {
+      let top = 0;
+      for (let i = 1; i < n; i++) if (P[i][1] > P[top][1]) top = i;
+      const t = unit(sub(tangent(P, top, 1), tangent(P, top, -1)));
+      fitRun(P.slice(top).concat(P.slice(0, top + 1)), t, mul(t, -1), 0.6, segs);
+      return segs;
+    }
+    for (let c = 0; c < cs.length; c++) {
+      const a = cs[c], b = cs[(c + 1) % cs.length], part = b > a ? P.slice(a, b + 1) : P.slice(a).concat(P.slice(0, b + 1));
+      if (part.length >= 2) fitRun(part, tangent(P, a, 1), tangent(P, b, -1), 0.6, segs);
+    }
+    return segs;
+  }
+
+  // ---- OpenType, by hand
+  const bytes = () => {
+    const b = [];
+    const o = {
+      b, u8: v => (b.push(v & 255), o), u16: v => (b.push(v >> 8 & 255, v & 255), o), i16: v => o.u16(v & 0xffff),
+      u32: v => (b.push(v >>> 24 & 255, v >>> 16 & 255, v >>> 8 & 255, v & 255), o),
+      tag: s => { for (const ch of s) b.push(ch.charCodeAt(0)); return o; }, add: a => { for (const x of a) b.push(x); return o; },
+    };
+    return o;
+  };
+  const ascii = s => [...s].map(c => c.charCodeAt(0) < 128 ? c.charCodeAt(0) : 63);
+  function num(v) {                   // a CFF integer
+    if (v >= -107 && v <= 107) return [v + 139];
+    if (v >= 108 && v <= 1131) { v -= 108; return [(v >> 8) + 247, v & 255]; }
+    if (v >= -1131 && v <= -108) { v = -v - 108; return [(v >> 8) + 251, v & 255]; }
+    return [28, v >> 8 & 255, v & 255];
+  }
+  const num5 = v => [29, v >>> 24 & 255, v >>> 16 & 255, v >>> 8 & 255, v & 255];
+  function index(items) {
+    if (!items.length) return [0, 0];
+    const total = items.reduce((n, it) => n + it.length, 0) + 1, size = total < 256 ? 1 : total < 65536 ? 2 : total < 1 << 24 ? 3 : 4;
+    const out = [items.length >> 8, items.length & 255, size];
+    const put = v => { for (let k = size - 1; k >= 0; k--) out.push(v >>> 8 * k & 255); };
+    let off = 1;
+    put(off);
+    for (const it of items) { off += it.length; put(off); }
+    for (const it of items) for (const x of it) out.push(x);
+    return out;
+  }
+  function charString(adv, rings) {
+    const out = [], put = v => { for (const x of num(v)) out.push(x); };
+    let cx = 0, cy = 0;
+    put(adv);
+    for (const segs of rings) {
+      const p = segs[0][0].map(Math.round);
+      put(p[0] - cx); put(p[1] - cy); out.push(21); cx = p[0]; cy = p[1];
+      for (const s of segs) {
+        for (let k = 1; k <= 3; k++) { const x = Math.round(s[k][0]), y = Math.round(s[k][1]); put(x - cx); put(y - cy); cx = x; cy = y; }
+        out.push(8);
+      }
+    }
+    out.push(14);
+    return out;
+  }
+  function cff(ps, names, glyphs, bbox) {
+    const strings = [], sid = s => { let i = strings.indexOf(s); if (i < 0) { strings.push(s); i = strings.length - 1; } return 391 + i; };
+    const top = o => [...num(sid(names.full)), 2, ...num(sid(names.family)), 3, ...num(sid('Regular')), 4,
+      ...bbox.flatMap(num), 5, ...num5(o.charset), 15, ...num5(o.cs), 17, ...num5(o.privSize), ...num5(o.priv), 18];
+    const charset = [0];
+    for (const g of glyphs.slice(1)) { const s = sid(g.name); charset.push(s >> 8, s & 255); }
+    top({ charset: 0, cs: 0, priv: 0, privSize: 0 });
+    const head = [1, 0, 4, 4], nameIdx = index([ascii(ps)]), strIdx = index(strings.map(ascii)), gsubrs = [0, 0];
+    const css = index(glyphs.map(g => charString(g.adv, g.rings))), priv = [...num(0), 20, ...num(0), 21];
+    const start = head.length + nameIdx.length + index([top({ charset: 0, cs: 0, priv: 0, privSize: 0 })]).length + strIdx.length + gsubrs.length;
+    const o = { charset: start, cs: start + charset.length, priv: start + charset.length + css.length, privSize: priv.length };
+    return [...head, ...nameIdx, ...index([top(o)]), ...strIdx, ...gsubrs, ...charset, ...css, ...priv];
+  }
+  function cmap(map) {
+    const codes = [...map.keys()].filter(c => c < 0xffff).sort((a, b) => a - b), segs = [];
+    for (const c of codes) {
+      const g = map.get(c), s = segs[segs.length - 1];
+      if (s && c === s.end + 1 && g === s.g + (c - s.start)) s.end = c; else segs.push({ start: c, end: c, g });
+    }
+    segs.push({ start: 0xffff, end: 0xffff, g: 0 });
+    const n = segs.length, es = Math.floor(Math.log2(n)), sr = 2 * 2 ** es, t = bytes();
+    t.u16(0).u16(2).u16(0).u16(3).u32(20).u16(3).u16(1).u32(20);
+    t.u16(4).u16(16 + 8 * n).u16(0).u16(2 * n).u16(sr).u16(es).u16(2 * n - sr);
+    for (const s of segs) t.u16(s.end);
+    t.u16(0);
+    for (const s of segs) t.u16(s.start);
+    for (const s of segs) t.u16(s.g - s.start);
+    for (const s of segs) t.u16(0);
+    return t.b;
+  }
+  function gpos(pairs) {               // one PairPos format 1 lookup under 'kern', for DFLT and latn
+    const by = new Map();
+    for (const [a, b, v] of pairs) { if (!by.has(a)) by.set(a, new Map()); if (!by.get(a).has(b)) by.get(a).set(b, v); }
+    const firsts = [...by.keys()].sort((a, b) => a - b), n = firsts.length, t = bytes();
+    t.u16(1).u16(0).u16(10).u16(48).u16(62);
+    t.u16(2).tag('DFLT').u16(14).tag('latn').u16(26);
+    for (let s = 0; s < 2; s++) t.u16(4).u16(0).u16(0).u16(0xffff).u16(1).u16(0);
+    t.u16(1).tag('kern').u16(8).u16(0).u16(1).u16(0);
+    t.u16(1).u16(4).u16(2).u16(0).u16(1).u16(8);
+    const cov = 10 + 2 * n;
+    t.u16(1).u16(cov).u16(4).u16(0).u16(n);
+    let off = cov + 4 + 2 * n;
+    for (const a of firsts) { t.u16(off); off += 2 + 4 * by.get(a).size; }
+    t.u16(1).u16(n);
+    for (const a of firsts) t.u16(a);
+    for (const a of firsts) {
+      const row = [...by.get(a)].sort((p, q) => p[0] - q[0]);
+      t.u16(row.length);
+      for (const [b, v] of row) t.u16(b).i16(v);
+    }
+    return t.b;
+  }
+  function nameTable(rec) {
+    const ids = Object.keys(rec).map(Number).sort((a, b) => a - b), store = [], rows = [];
+    for (const [p, e, l, enc] of [[1, 0, 0, ascii], [3, 1, 0x409, s => [...s].flatMap(c => { const u = c.charCodeAt(0); return [u >> 8, u & 255]; })]]) {
+      for (const id of ids) { const s = enc(rec[id]); rows.push([p, e, l, id, s.length, store.length]); store.push(...s); }
+    }
+    const t = bytes().u16(0).u16(rows.length).u16(6 + 12 * rows.length);
+    for (const r of rows) for (const v of r) t.u16(v);
+    return t.add(store).b;
+  }
+  const sum32 = a => { let s = 0; for (let i = 0; i < a.length; i += 4) s = s + ((a[i] << 24 | a[i + 1] << 16 | a[i + 2] << 8 | a[i + 3]) >>> 0) >>> 0; return s; };
+  function sfnt(tables) {
+    const tags = Object.keys(tables).sort(), n = tags.length, es = Math.floor(Math.log2(n)), sr = 16 * 2 ** es;
+    const t = bytes().tag('OTTO').u16(n).u16(sr).u16(es).u16(16 * n - sr);
+    let off = 12 + 16 * n;
+    for (const tag of tags) { const d = tables[tag]; t.tag(tag).u32(sum32(d)).u32(off).u32(d.length); off += d.length + 3 & ~3; }
+    for (const tag of tags) { t.add(tables[tag]); while (t.b.length % 4) t.u8(0); }
+    const out = Uint8Array.from(t.b), headAt = 12 + 16 * tags.indexOf('head');
+    const ho = (out[headAt + 8] << 24 | out[headAt + 9] << 16 | out[headAt + 10] << 8 | out[headAt + 11]) >>> 0;
+    new DataView(out.buffer).setUint32(ho + 8, (0xB1B0AFBA - sum32(out)) >>> 0);
+    return out;
+  }
+
+  // ---- the whole font
+  async function make(nib, onStep = () => {}) {
+    const dH = halfX(nib, nib.a) - halfX(BASE, BASE.a), pct = Math.round(nib.w / D.nib.width * 100);
+    const family = `Dear A${nib.a} W${pct}`, ps = `DearA${nib.a}W${pct}-Regular`;
+    const box = rings => {
+      let b = [Infinity, Infinity, -Infinity, -Infinity];
+      for (const r of rings) for (const p of r) b = [Math.min(b[0], p[0]), Math.min(b[1], p[1]), Math.max(b[2], p[0]), Math.max(b[3], p[1])];
+      return b;
+    };
+    const line = (a, b) => [a, [a[0] + (b[0] - a[0]) / 3, a[1] + (b[1] - a[1]) / 3], [a[0] + 2 * (b[0] - a[0]) / 3, a[1] + 2 * (b[1] - a[1]) / 3], b];
+    const square = P => P.map((p, i) => line(p, P[(i + 1) % P.length]));
+    const glyphs = [
+      { name: '.notdef', adv: 400, rings: [square([[50, 0], [350, 0], [350, 660], [50, 660]]), square([[100, 50], [100, 610], [300, 610], [300, 50]])], box: [50, 0, 350, 660] },
+      { name: 'space', adv: Math.round(D.space + dH), rings: [], box: null },
+    ];
+    const names = Object.keys(D.glyphs), traced = new Map();
+    let last = performance.now();
+    for (const [i, name] of names.entries()) {
+      const edge = trace(mask(glyph(name, nib, 3).strokes, nib));
+      const g = { name, adv: Math.round(D.glyphs[name].adv + 2 * dH), rings: edge.map(fitRing), box: box(edge) };
+      traced.set(name, g); glyphs.push(g);
+      if (performance.now() - last > 30) { onStep(name, i + 1, names.length); await new Promise(r => setTimeout(r)); last = performance.now(); }
+    }
+    for (const [name, [, base, mark, mdx, mdy, adv]] of Object.entries(D.comps)) {
+      const b = traced.get(base), m = traced.get(mark), sx = mdx - D.glyphs[mark].dx;
+      const shift = c => c.map(p => [p[0] + sx, p[1] + mdy]);
+      glyphs.push({
+        name, adv: Math.round(adv + 2 * dH), rings: b.rings.concat(m.rings.map(segs => segs.map(shift))),
+        box: [Math.min(b.box[0], m.box[0] + sx), Math.min(b.box[1], m.box[1] + mdy), Math.max(b.box[2], m.box[2] + sx), Math.max(b.box[3], m.box[3] + mdy)],
+      });
+    }
+    for (const g of glyphs) if (g.box) g.box = [Math.floor(g.box[0]), Math.floor(g.box[1]), Math.ceil(g.box[2]), Math.ceil(g.box[3])];
+    const gid = new Map(glyphs.map((g, i) => [g.name, i])), map = new Map([[32, 1], [160, 1]]);
+    for (const [ch, name] of CMAP) map.set(ch.codePointAt(0), gid.get(name));
+    const pairs = [];
+    for (const [k, v] of KERN) { const [a, b] = k.split(' '); if (gid.has(a) && gid.has(b)) pairs.push([gid.get(a), gid.get(b), v]); }
+    const inked = glyphs.filter(g => g.box), all = inked.map(g => g.box);
+    const bb = [Math.min(...all.map(b => b[0])), Math.min(...all.map(b => b[1])), Math.max(...all.map(b => b[2])), Math.max(...all.map(b => b[3]))];
+    const asc = Math.max(900, bb[3]), desc = Math.max(260, -bb[1]), codes = [...map.keys()];
+    const now = Math.floor(Date.now() / 1000) + 2082844800;
+
+    const head = bytes().u16(1).u16(0).u32(0x10000).u32(0).u32(0x5F0F3CF5).u16(3).u16(1000).u32(0).u32(now).u32(0).u32(now)
+      .i16(bb[0]).i16(bb[1]).i16(bb[2]).i16(bb[3]).u16(0).u16(3).i16(2).i16(0).i16(0).b;
+    const hhea = bytes().u16(1).u16(0).i16(asc).i16(-desc).i16(0).u16(Math.max(...glyphs.map(g => g.adv)))
+      .i16(Math.min(...inked.map(g => g.box[0]))).i16(Math.min(...inked.map(g => g.adv - g.box[2]))).i16(bb[2])
+      .i16(1).i16(0).i16(0).i16(0).i16(0).i16(0).i16(0).i16(0).u16(glyphs.length).b;
+    const hmtx = bytes();
+    for (const g of glyphs) hmtx.u16(g.adv).i16(g.box ? g.box[0] : 0);
+    const widths = glyphs.filter(g => g.adv > 0).map(g => g.adv);
+    const os2 = bytes().u16(4).i16(Math.round(widths.reduce((s, w) => s + w, 0) / widths.length)).u16(400).u16(5).u16(0)
+      .i16(650).i16(600).i16(0).i16(75).i16(650).i16(600).i16(0).i16(350).i16(50).i16(260).i16(0)
+      .add([0, 0, 0, 0, 0, 0, 0, 0, 0, 0]).u32(0x8000004F).u32(0x42).u32(0).u32(0).tag('NONE').u16(0x40)
+      .u16(Math.min(...codes)).u16(Math.min(0xffff, Math.max(...codes))).i16(760).i16(-240).i16(200).u16(asc).u16(desc)
+      .u32(3).u32(0).i16(D.xh).i16(D.cap).u16(0).u16(32).u16(2).b;
+    const post = bytes().u32(0x30000).u32(0).i16(-120).i16(40).u32(0).u32(0).u32(0).u32(0).u32(0).b;
+    const maxp = bytes().u32(0x5000).u16(glyphs.length).b;
+    const name = nameTable({
+      1: family, 2: 'Regular', 3: ps, 4: family + ' Regular', 5: 'Version 1.000', 6: ps, 9: 'Claude',
+      10: `Dear, a broad-nib hand by Claude, written with the pen at ${nib.a} degrees and ${pct}% of its width.`,
+    });
+    const font = sfnt({
+      'CFF ': cff(ps, { full: family + ' Regular', family }, glyphs, bb), GPOS: gpos(pairs), 'OS/2': os2,
+      cmap: cmap(map), head, hhea, hmtx: hmtx.b, maxp, name, post,
+    });
+    return { font, family, file: `Dear-A${nib.a}-W${pct}.otf`, chars: map.size };
+  }
+  return { make };
+})();
+
+const mine = document.getElementById('mine'), mineGet = document.getElementById('mineGet');
+const mineNote = document.getElementById('mineNote'), mineSample = document.getElementById('mineSample');
+const mineLabel = () => { const n = deskNib(); return `Make Dear with my pen (${n.a}°, ${Math.round(n.w / D.nib.width * 100)}%)`; };
+const showMine = () => { if (!mine.disabled) mine.textContent = mineLabel(); };
+angle.addEventListener('input', showMine); width.addEventListener('input', showMine);
+document.getElementById('reset').addEventListener('click', showMine);
+showMine();
+let made = 0;
+mine.addEventListener('click', async () => {
+  mine.disabled = true; mineNote.textContent = '';
+  try {
+    const r = await PenFont.make(deskNib(), (name, i, n) => { mine.textContent = `Writing ${i} of ${n}…`; });
+    const face = new FontFace('DearMine' + ++made, r.font);      // the browser checks the font as it loads it
+    await face.load(); document.fonts.add(face);
+    if (mineGet.href) URL.revokeObjectURL(mineGet.href);
+    mineGet.href = URL.createObjectURL(new Blob([r.font], { type: 'font/otf' }));
+    mineGet.download = mineGet.textContent = r.file; mineGet.hidden = false;
+    window.__penFont = r;
+    mineSample.style.fontFamily = `DearMine${made}, serif`; mineSample.hidden = false;
+    mineNote.textContent = `${r.family}: ${r.chars} characters, ${Math.round(r.font.length / 1024)} KB. Its name keeps it from installing over Dear. This line is set in it:`;
+  } catch (e) {
+    mineNote.textContent = `That didn't work (${e.message || e}). Nothing was made.`; console.error(e);
+  }
+  mine.disabled = false; mine.textContent = mineLabel();
+});
 
 // ------------------------------------------------------------ go
 let started = false;
